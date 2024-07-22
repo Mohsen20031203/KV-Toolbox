@@ -35,7 +35,7 @@ func main() {
 		key := keyEntry.Text
 		value := valueEntry.Text
 
-		if key != "" || value != "" {
+		if key != "" && value != "" {
 			err = db.Put([]byte(key), []byte(value), nil)
 			if err != nil {
 				fmt.Println("save information")
