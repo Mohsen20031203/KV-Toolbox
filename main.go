@@ -80,16 +80,8 @@ func main() {
 		list,
 		listEntry,
 	)
-	content2 := container.NewVBox(
-		keyEntry,
-		valueEntry,
-		saveButton,
-		searchButton,
-		list,
-		listEntry,
-	)
 
-	contenttt := container.NewHBox(content, content2)
+	contenttt := container.NewHBox(content)
 
 	mywindow.SetContent(contenttt)
 
