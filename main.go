@@ -81,9 +81,7 @@ func main() {
 		listEntry,
 	)
 
-	contenttt := container.NewHBox(content)
-
-	mywindow.SetContent(contenttt)
+	mywindow.SetContent(content)
 
 	mywindow.Resize(fyne.NewSize(500, 500))
 	mywindow.ShowAndRun()
