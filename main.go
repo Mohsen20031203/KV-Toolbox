@@ -2,87 +2,67 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"log"
-	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-	"github.com/syndtr/goleveldb/leveldb"
 )
 
-var listAll []string
-
 func main() {
-
-	db, err := leveldb.OpenFile("mydb", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
 	myApp := app.New()
-	mywindow := myApp.NewWindow("leveldb with fyne")
+	myWindow := myApp.NewWindow("Non-Scrollable List")
 
-	keyEntry := widget.NewEntry()
-	keyEntry.SetPlaceHolder("key")
+	createSeparator := func() *canvas.Line {
+		line := canvas.NewLine(color.Black)
+		line.StrokeWidth = 1
+		return line
+	}
 
-	valueEntry := widget.NewEntry()
-	valueEntry.SetPlaceHolder("value")
+	item1 := widget.NewLabel("Item 1")
+	separator1 := createSeparator()
 
-	saveButton := widget.NewButton("save", func() {
-		key := keyEntry.Text
-		value := valueEntry.Text
+	item2 := widget.NewLabel("Item 2")
 
-		if key != "" && value != "" {
-			err = db.Put([]byte(key), []byte(value), nil)
-			if err != nil {
-				fmt.Println("save information")
-			} else {
-				keyEntry.SetText("")
-				valueEntry.SetText("")
-				fmt.Println(key, value)
-				listAll = append(listAll, key)
-			}
-		}
-
+	combo := widget.NewSelect([]string{"Option 1", "Option 2"}, func(value string) {
+		log.Println("Select set to", value)
 	})
 
-	searchButton := widget.NewButton("search", func() {
-		key := keyEntry.Text
+	options := []string{"Option 1", "Option 2", "Option 3"}
+	selectEntry := widget.NewSelectEntry(options)
 
-		if key != "" {
-			data, err := db.Get([]byte(key), nil)
-			if err != nil {
-				fmt.Println("search information")
-			} else {
-				valueEntry.SetText(string(data))
-			}
-		}
+	selectEntry.SetText("Option 2")
 
-	})
+	selectEntry.OnChanged = func(s string) {
+		fmt.Println("Changed to:", s)
+	}
 
-	listEntry := widget.NewEntry()
-	listEntry.SetPlaceHolder("list")
-
-	list := widget.NewButton("list All ", func() {
-
-		listEntry.SetText(strings.Join(listAll, ","))
-
-	})
-
-	content := container.NewVBox(
-		keyEntry,
-		valueEntry,
-		saveButton,
-		searchButton,
-		list,
-		listEntry,
+	listContainer := container.NewVBox(
+		item1,
+		separator1,
+		item2,
+		combo,
 	)
 
-	mywindow.SetContent(content)
+	rightColumnContent := container.NewVBox(
+		listContainer,
+		selectEntry,
+	)
 
-	mywindow.Resize(fyne.NewSize(500, 500))
-	mywindow.ShowAndRun()
+	leftColumnContent := container.NewVBox(
+		widget.NewLabel("Left Column: 1/4 Width"),
+		widget.NewButton("Button 1", func() { println("Button 1 clicked") }),
+		widget.NewEntry(),
+	)
+
+	columns := container.NewHSplit(leftColumnContent, rightColumnContent)
+
+	columns.SetOffset(0.25)
+
+	myWindow.SetContent(columns)
+	myWindow.Resize(fyne.NewSize(800, 400))
+	myWindow.ShowAndRun()
 }
