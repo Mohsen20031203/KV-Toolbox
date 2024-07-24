@@ -10,6 +10,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -136,6 +137,18 @@ func main() {
 		folderDialog.Show()
 	})
 
+	// --- Bottums Light And Dark -----
+
+	darkBottum := widget.NewButton("Dark", func() {
+		myApp.Settings().SetTheme(theme.DarkTheme())
+	})
+
+	lightBottum := widget.NewButton("Light", func() {
+		myApp.Settings().SetTheme(theme.LightTheme())
+	})
+
+	darkLight := container.NewGridWithColumns(2, lightBottum, darkBottum)
+
 	// --- Colunm Right -----
 	rightColumnContent := container.NewVBox(
 		item1,
@@ -151,6 +164,7 @@ func main() {
 		Slider,
 		pathEntry,
 		openButton,
+		darkLight,
 	)
 
 	// --- Colunm Left -----
