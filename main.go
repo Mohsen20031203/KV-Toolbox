@@ -27,6 +27,12 @@ func main() {
 
 	item2 := widget.NewLabel("Item 2")
 
+	listContainer := container.NewVBox(
+		item1,
+		separator1,
+		item2,
+	)
+
 	combo := widget.NewSelect([]string{"Option 1", "Option 2"}, func(value string) {
 		log.Println("Select set to", value)
 	})
@@ -40,16 +46,37 @@ func main() {
 		fmt.Println("Changed to:", s)
 	}
 
-	listContainer := container.NewVBox(
-		item1,
-		separator1,
-		item2,
-		combo,
-	)
+	check := widget.NewCheck("Check", func(value bool) {
+		fmt.Println("Check : ", value)
+	})
+
+	disableCheck := widget.NewCheck("disableCheck", func(value bool) {
+		fmt.Println("disableCheckprint :", value)
+	})
+	disableCheck.Disable()
+
+	option := []string{"Mashhad", "Tehran", "Esfahan"}
+	checkBoxes := []*widget.Check{}
+	for _, m := range option {
+
+		groupCheck := widget.NewCheck(m, func(value bool) {
+			fmt.Println("Group Check Box : ", value)
+		})
+		checkBoxes = append(checkBoxes, groupCheck)
+	}
+
+	horizontalContainer := container.NewHBox()
+	for _, checkBox := range checkBoxes {
+		horizontalContainer.Add(checkBox)
+	}
 
 	rightColumnContent := container.NewVBox(
 		listContainer,
+		combo,
 		selectEntry,
+		check,
+		disableCheck,
+		horizontalContainer,
 	)
 
 	leftColumnContent := container.NewVBox(
