@@ -118,24 +118,22 @@ func main() {
 
 	// --- Select File -----
 
-	inputAdress := widget.NewEntry()
-	inputAdress.SetPlaceHolder("URL : ")
+	pathEntry := widget.NewEntry()
+	pathEntry.SetPlaceHolder("No folder selected")
 
-	openButton := widget.NewButton("Open File", func() {
-		dialog.NewFileOpen(func(file fyne.URIReadCloser, err error) {
+	openButton := widget.NewButton("Open Folder", func() {
+		folderDialog := dialog.NewFolderOpen(func(dir fyne.ListableURI, err error) {
 			if err != nil {
-				dialog.ShowError(err, myWindow)
+				fmt.Println("Error opening folder:", err)
 				return
 			}
-			if file == nil {
-				dialog.ShowInformation("No File Selected", "No file was selected.", myWindow)
+			if dir == nil {
+				fmt.Println("No folder selected")
 				return
 			}
-
-			// Set file path in the entry widget
-			inputAdress.SetText(file.URI().String())
-
-		}, myWindow).Show()
+			pathEntry.SetText(dir.Path())
+		}, myWindow)
+		folderDialog.Show()
 	})
 
 	// --- Colunm Right -----
@@ -151,8 +149,8 @@ func main() {
 		radioContainer,
 		radioContainerDisable,
 		Slider,
+		pathEntry,
 		openButton,
-		inputAdress,
 	)
 
 	// --- Colunm Left -----
