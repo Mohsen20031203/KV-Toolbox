@@ -76,7 +76,7 @@ func main() {
 		horizontalContainer.Add(checkBox)
 	}
 
-	// --- Redio -----
+	// --- Redio Group -----
 	RadionOption := []string{"Football", "Basketball", "Baceball"}
 	var radioButtons []fyne.CanvasObject
 	for _, option := range RadionOption {
@@ -87,6 +87,22 @@ func main() {
 	}
 	radioContainer := container.NewGridWithColumns(len(radioButtons)*2, radioButtons...)
 
+	// --- Radio Disable -----
+	disableRadioItem := []string{"wrestling", "swimming"}
+	var radioDisableButtons []fyne.CanvasObject
+
+	for _, h := range disableRadioItem {
+
+		disableRadio := widget.NewRadioGroup([]string{h}, func(sport string) {
+			fmt.Println("disable : ", sport)
+		})
+
+		disableRadio.Disable()
+		radioDisableButtons = append(radioDisableButtons, disableRadio)
+
+	}
+	radioContainerDisable := container.NewGridWithColumns(len(radioDisableButtons)*2, radioDisableButtons...)
+
 	// --- Colunm Right -----
 	rightColumnContent := container.NewVBox(
 		listContainer,
@@ -96,6 +112,7 @@ func main() {
 		disableCheck,
 		horizontalContainer,
 		radioContainer,
+		radioContainerDisable,
 	)
 
 	// --- Colunm Left -----
