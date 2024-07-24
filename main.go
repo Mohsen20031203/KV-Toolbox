@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -115,6 +116,28 @@ func main() {
 	Slider := widget.NewSlider(0, 100)
 	Slider.SetValue(20)
 
+	// --- Select File -----
+
+	inputAdress := widget.NewEntry()
+	inputAdress.SetPlaceHolder("URL : ")
+
+	openButton := widget.NewButton("Open File", func() {
+		dialog.NewFileOpen(func(file fyne.URIReadCloser, err error) {
+			if err != nil {
+				dialog.ShowError(err, myWindow)
+				return
+			}
+			if file == nil {
+				dialog.ShowInformation("No File Selected", "No file was selected.", myWindow)
+				return
+			}
+
+			// Set file path in the entry widget
+			inputAdress.SetText(file.URI().String())
+
+		}, myWindow).Show()
+	})
+
 	// --- Colunm Right -----
 	rightColumnContent := container.NewVBox(
 		item1,
@@ -128,6 +151,8 @@ func main() {
 		radioContainer,
 		radioContainerDisable,
 		Slider,
+		openButton,
+		inputAdress,
 	)
 
 	// --- Colunm Left -----
@@ -138,6 +163,6 @@ func main() {
 	scrol := container.NewScroll(columns)
 
 	myWindow.SetContent(scrol)
-	myWindow.Resize(fyne.NewSize(900, 300))
+	myWindow.Resize(fyne.NewSize(900, 600))
 	myWindow.ShowAndRun()
 }
