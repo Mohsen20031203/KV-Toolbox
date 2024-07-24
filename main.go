@@ -12,6 +12,8 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+var data = []string{"Canvas", "Animation", "Animation", "Animation", "Animation", "Animation", "TemeIcon", "TemeIcon", "TemeIcon", "TemeIcon", "TemeIcon", "TemeIcon", "TemeIcon", "TemeIcon", "TemeIcon", "TemeIcon"}
+
 func main() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Non-Scrollable List")
@@ -22,17 +24,22 @@ func main() {
 		return line
 	}
 
+	list := widget.NewList(
+		func() int {
+			return len(data)
+		},
+		func() fyne.CanvasObject {
+			return widget.NewLabel("template")
+		},
+		func(i widget.ListItemID, o fyne.CanvasObject) {
+			o.(*widget.Label).SetText(data[i])
+		})
+
 	// --- Items -----
 	item1 := widget.NewLabel("Item 1")
 	separator1 := createSeparator()
 
 	item2 := widget.NewLabel("Item 2")
-
-	listContainer := container.NewVBox(
-		item1,
-		separator1,
-		item2,
-	)
 
 	// --- Select -----
 	combo := widget.NewSelect([]string{"Option 1", "Option 2"}, func(value string) {
@@ -85,7 +92,7 @@ func main() {
 		})
 		radioButtons = append(radioButtons, radio)
 	}
-	radioContainer := container.NewGridWithColumns(len(radioButtons)*2, radioButtons...)
+	radioContainer := container.NewGridWithColumns(len(radioButtons), radioButtons...)
 
 	// --- Radio Disable -----
 	disableRadioItem := []string{"wrestling", "swimming"}
@@ -110,7 +117,9 @@ func main() {
 
 	// --- Colunm Right -----
 	rightColumnContent := container.NewVBox(
-		listContainer,
+		item1,
+		separator1,
+		item2,
 		combo,
 		selectEntry,
 		check,
@@ -122,18 +131,13 @@ func main() {
 	)
 
 	// --- Colunm Left -----
-	leftColumnContent := container.NewVBox(
-		widget.NewLabel("Left Column: 1/4 Width"),
-		widget.NewButton("Button 1", func() { println("Button 1 clicked") }),
-		widget.NewEntry(),
-	)
 
-	columns := container.NewHSplit(leftColumnContent, rightColumnContent)
-	columns.SetOffset(0.50)
+	columns := container.NewHSplit(list, rightColumnContent)
+	columns.SetOffset(0.25)
 
 	scrol := container.NewScroll(columns)
 
 	myWindow.SetContent(scrol)
-	myWindow.Resize(fyne.NewSize(900, 200))
+	myWindow.Resize(fyne.NewSize(900, 300))
 	myWindow.ShowAndRun()
 }
