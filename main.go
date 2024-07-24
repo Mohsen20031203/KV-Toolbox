@@ -137,7 +137,7 @@ func main() {
 		folderDialog.Show()
 	})
 
-	// --- Bottums Light And Dark -----
+	// --- Bottuns Light And Dark -----
 
 	darkBottum := widget.NewButton("Dark", func() {
 		myApp.Settings().SetTheme(theme.DarkTheme())
