@@ -22,6 +22,7 @@ func main() {
 		return line
 	}
 
+	// --- Items -----
 	item1 := widget.NewLabel("Item 1")
 	separator1 := createSeparator()
 
@@ -33,10 +34,12 @@ func main() {
 		item2,
 	)
 
+	// --- Select -----
 	combo := widget.NewSelect([]string{"Option 1", "Option 2"}, func(value string) {
 		log.Println("Select set to", value)
 	})
 
+	// --- Select And Type -----
 	options := []string{"Option 1", "Option 2", "Option 3"}
 	selectEntry := widget.NewSelectEntry(options)
 
@@ -46,15 +49,18 @@ func main() {
 		fmt.Println("Changed to:", s)
 	}
 
+	// --- Check Box Normal -----
 	check := widget.NewCheck("Check", func(value bool) {
 		fmt.Println("Check : ", value)
 	})
 
+	// --- Check Box Disable -----
 	disableCheck := widget.NewCheck("disableCheck", func(value bool) {
 		fmt.Println("disableCheckprint :", value)
 	})
 	disableCheck.Disable()
 
+	// --- Check Box Group -----
 	option := []string{"Mashhad", "Tehran", "Esfahan"}
 	checkBoxes := []*widget.Check{}
 	for _, m := range option {
@@ -70,6 +76,7 @@ func main() {
 		horizontalContainer.Add(checkBox)
 	}
 
+	// --- Colunm Right -----
 	rightColumnContent := container.NewVBox(
 		listContainer,
 		combo,
@@ -79,6 +86,7 @@ func main() {
 		horizontalContainer,
 	)
 
+	// --- Colunm Left -----
 	leftColumnContent := container.NewVBox(
 		widget.NewLabel("Left Column: 1/4 Width"),
 		widget.NewButton("Button 1", func() { println("Button 1 clicked") }),
