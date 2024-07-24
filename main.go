@@ -103,6 +103,11 @@ func main() {
 	}
 	radioContainerDisable := container.NewGridWithColumns(len(radioDisableButtons)*2, radioDisableButtons...)
 
+	// --- Navbar Slider -----
+
+	Slider := widget.NewSlider(0, 100)
+	Slider.SetValue(20)
+
 	// --- Colunm Right -----
 	rightColumnContent := container.NewVBox(
 		listContainer,
@@ -113,6 +118,7 @@ func main() {
 		horizontalContainer,
 		radioContainer,
 		radioContainerDisable,
+		Slider,
 	)
 
 	// --- Colunm Left -----
@@ -123,10 +129,11 @@ func main() {
 	)
 
 	columns := container.NewHSplit(leftColumnContent, rightColumnContent)
+	columns.SetOffset(0.50)
 
-	columns.SetOffset(0.25)
+	scrol := container.NewScroll(columns)
 
-	myWindow.SetContent(columns)
-	myWindow.Resize(fyne.NewSize(800, 400))
+	myWindow.SetContent(scrol)
+	myWindow.Resize(fyne.NewSize(900, 200))
 	myWindow.ShowAndRun()
 }
