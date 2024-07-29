@@ -20,6 +20,12 @@ func main() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Non-Scrollable List")
 
+	iconResource := theme.FyneLogo()
+
+	myApp.SetIcon(iconResource)
+
+	myWindow.SetIcon(iconResource)
+
 	createSeparator := func() *canvas.Line {
 		line := canvas.NewLine(color.Black)
 		line.StrokeWidth = 1
