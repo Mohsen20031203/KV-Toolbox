@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/dialog"
 
 	/*
 		"fyne.io/fyne/v2/canvas"
@@ -39,10 +40,58 @@ func openNewWindow(a fyne.App, title string) {
 	pathEntryComment.PlaceHolder = "Commint"
 	commentContent := container.NewBorder(nil, nil, lableComment, nil, pathEntryComment)
 
+	pathEntry2 := widget.NewEntry()
+	pathEntry2.SetPlaceHolder("No folder selected")
+
+	openButton := widget.NewButton("Open Folder", func() {
+		folderDialog := dialog.NewFolderOpen(func(dir fyne.ListableURI, err error) {
+			if err != nil {
+				fmt.Println("Error opening folder:", err)
+				return
+			}
+			if dir == nil {
+				fmt.Println("No folder selected")
+				return
+			}
+			pathEntry2.SetText(dir.Path())
+		}, newWindow)
+		folderDialog.Show()
+	})
+
+	buttonCancel := widget.NewButton("Cancel", func() {
+		fmt.Println("buttonCancel")
+	})
+	buttonApply := widget.NewButton("Apply", func() {
+		fmt.Println("buttonApply")
+	})
+	buttonOk := widget.NewButton("Ok", func() {
+		fmt.Println("buttonOk")
+	})
+
+	rowBotton := container.NewVBox(
+		layout.NewSpacer(),
+		container.NewGridWithColumns(3, buttonCancel, buttonApply, buttonOk),
+	)
+
 	rightColumnContent := container.NewVBox(
+		layout.NewSpacer(), // Add space here
 		nameContent,
+		layout.NewSpacer(), // Add space here
 		commentContent,
+		layout.NewSpacer(), // Add space here
 		line1,
+		layout.NewSpacer(), // Add space here
+		line1,
+		line1,
+		layout.NewSpacer(), // Add space here
+		layout.NewSpacer(), // Add space here
+		pathEntry2,
+		layout.NewSpacer(), // Add space here
+		openButton,
+		layout.NewSpacer(), // Add space here
+		layout.NewSpacer(), // Add space here
+		layout.NewSpacer(), // Add space here
+		rowBotton,
 	)
 	lastColumnContent := container.NewVBox()
 
