@@ -10,11 +10,10 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
-
-var data = []string{"Canvas", "Animation", "Animation", "Animation", "Animation", "Animation", "TemeIcon", "TemeIcon", "TemeIcon", "TemeIcon", "TemeIcon", "TemeIcon", "TemeIcon", "TemeIcon", "TemeIcon", "TemeIcon"}
 
 func main() {
 	myApp := app.New()
@@ -31,17 +30,6 @@ func main() {
 		line.StrokeWidth = 1
 		return line
 	}
-
-	list := widget.NewList(
-		func() int {
-			return len(data)
-		},
-		func() fyne.CanvasObject {
-			return widget.NewLabel("template")
-		},
-		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(data[i])
-		})
 
 	// --- Items -----
 	item1 := widget.NewLabel("Item 1")
@@ -155,6 +143,55 @@ func main() {
 
 	darkLight := container.NewGridWithColumns(2, lightBottum, darkBottum)
 
+	// --- buttonPlus -----
+
+	plusButton := widget.NewButton("+", func() {
+		// وقتی دکمه کلیک شد، منو باز شود
+		item1 := fyne.NewMenuItem("Data Source", nil)
+		item2 := fyne.NewMenuItem("Details", nil)
+		item3 := fyne.NewMenuItem("Home", nil)
+		item4 := fyne.NewMenuItem("Run", nil)
+
+		// منوی فرزند برای آیتم اول
+		item1.ChildMenu = fyne.NewMenu(
+			"", // برچسب خالی
+			fyne.NewMenuItem("LevelBD", func() {
+				filter := storage.NewExtensionFileFilter([]string{".ldb"})
+
+				fileDialog := dialog.NewFileOpen(func(uri fyne.URIReadCloser, err error) {
+					if err != nil || uri == nil {
+						return
+					}
+					defer uri.Close()
+					// انجام عملیات با فایل انتخاب شده
+					filePath := uri.URI().Path()
+					dialog.ShowInformation("Selected File", filePath, myWindow)
+				}, myWindow)
+
+				fileDialog.SetFilter(filter)
+				fileDialog.Show()
+			}), // آیتم‌های منوی فرزند
+			fyne.NewMenuItem("MongoDB", nil),
+			fyne.NewMenuItem("MYSQL", nil),
+		)
+
+		// منوی اصلی
+		mainMenu := fyne.NewMainMenu(
+			fyne.NewMenu("File", item1, item2, item3, item4),
+			fyne.NewMenu("Help",
+				fyne.NewMenuItem("About", func() {
+					fyne.CurrentApp().SendNotification(&fyne.Notification{
+						Title:   "About",
+						Content: "This is a simple Fyne application",
+					})
+				}),
+			),
+		)
+
+		// تنظیم منوی اصلی برای پنجره
+		myWindow.SetMainMenu(mainMenu)
+	})
+
 	// --- Colunm Right -----
 	rightColumnContent := container.NewVBox(
 		item1,
@@ -175,7 +212,11 @@ func main() {
 
 	// --- Colunm Left -----
 
-	columns := container.NewHSplit(list, rightColumnContent)
+	lastColumnContent := container.NewVBox(
+		plusButton,
+	)
+
+	columns := container.NewHSplit(lastColumnContent, rightColumnContent)
 	columns.SetOffset(0.25)
 
 	scrol := container.NewScroll(columns)
