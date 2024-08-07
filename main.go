@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"log"
 
+	"image/color"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-
-	/*"image/color"
 	"fyne.io/fyne/v2/canvas"
-	"fyne.io/fyne/v2/dialog"*/
+
+	/*
+		"fyne.io/fyne/v2/canvas"
+		"fyne.io/fyne/v2/dialog"*/
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
@@ -17,16 +20,37 @@ import (
 )
 
 func openNewWindow(a fyne.App, title string) {
-	// ایجاد پنجره جدید
 	newWindow := a.NewWindow(title)
 
-	// اضافه کردن محتوا به پنجره جدید
-	label := widget.NewLabel("You selected: " + title)
-	newWindow.SetContent(container.NewVBox(label))
+	createSeparator := func() *canvas.Line {
+		line := canvas.NewLine(color.Black)
+		line.StrokeWidth = 1
+		return line
+	}
+	line1 := createSeparator()
 
-	// تنظیم اندازه و نمایش پنجره جدید
+	lableName := widget.NewLabel("Name :")
+	pathEntry := widget.NewEntry()
+	pathEntry.PlaceHolder = "Name"
+	nameContent := container.NewBorder(nil, nil, lableName, nil, pathEntry)
+
+	lableComment := widget.NewLabel("Commert :")
+	pathEntryComment := widget.NewEntry()
+	pathEntryComment.PlaceHolder = "Commint"
+	commentContent := container.NewBorder(nil, nil, lableComment, nil, pathEntryComment)
+
+	rightColumnContent := container.NewVBox(
+		nameContent,
+		commentContent,
+		line1,
+	)
+	lastColumnContent := container.NewVBox()
+
+	columns := container.NewHSplit(lastColumnContent, rightColumnContent)
+	columns.SetOffset(0.25)
 	newWindow.Resize(fyne.NewSize(1000, 600))
 	newWindow.CenterOnScreen()
+	newWindow.SetContent(columns)
 	newWindow.Show()
 }
 
