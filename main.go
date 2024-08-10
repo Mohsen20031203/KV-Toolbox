@@ -63,6 +63,11 @@ func openNewWindow(a fyne.App, title string) {
 	pathEntryComment.PlaceHolder = "Commint"
 	commentContent := container.NewBorder(nil, nil, lableComment, nil, pathEntryComment)
 
+	testConnectionButton := widget.NewButton("Test Connection", func() {
+
+	})
+	testConnectionButton.Disable()
+
 	pathEntry2 := widget.NewEntry()
 	pathEntry2.SetPlaceHolder("No folder selected")
 
@@ -84,6 +89,7 @@ func openNewWindow(a fyne.App, title string) {
 
 			if hasManifestFile(folderPath) {
 				pathEntry2.SetText(folderPath)
+				testConnectionButton.Enable()
 			} else {
 				dialog.ShowInformation("Invalid Folder", "The selected folder does not contain a valid LevelDB manifest file.", newWindow)
 			}
@@ -92,6 +98,11 @@ func openNewWindow(a fyne.App, title string) {
 		folderDialog.Show()
 		folderDialog.SetFilter(storage.NewExtensionFileFilter([]string{".log"}))
 	})
+
+	testOpenButton := container.NewVBox(
+		layout.NewSpacer(),
+		container.NewGridWithColumns(2, openButton, testConnectionButton),
+	)
 
 	buttonCancel := widget.NewButton("Cancel", func() {
 		newWindow.Close()
@@ -118,7 +129,7 @@ func openNewWindow(a fyne.App, title string) {
 		layout.NewSpacer(), // Add space here
 		pathEntry2,
 		layout.NewSpacer(), // Add space here
-		openButton,
+		testOpenButton,
 		layout.NewSpacer(), // Add space here
 		rowBotton,
 	)
@@ -255,7 +266,7 @@ func main() {
 	//---------------------------------------------- left -----------------------------------------------
 	// --- buttonPlus -----
 
-	plus := widget.NewSelect([]string{"levelDB", "DynamoDB", "SQL", "DucomentDB", "PostgreSQL", "IBM Information Management System", "Integrated Data Store", "ObjectDB", "Apache Cassandra"}, func(value string) {
+	plus := widget.NewSelect([]string{"levelDB", "DynamoDB", "SQL", "DucomentDB"}, func(value string) {
 		log.Println("Select set to", value)
 		openNewWindow(myApp, value)
 	})
