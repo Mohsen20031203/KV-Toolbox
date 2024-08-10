@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
+	"path/filepath"
+	"strings"
 
 	"image/color"
 
@@ -10,6 +13,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/storage"
 
 	/*
 		"fyne.io/fyne/v2/canvas"
@@ -19,6 +23,21 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
+
+func hasManifestFile(folderPath string) bool {
+	files, err := ioutil.ReadDir(folderPath)
+	if err != nil {
+		fmt.Println("Error reading folder:", err)
+		return false
+	}
+
+	for _, file := range files {
+		if strings.HasPrefix(file.Name(), "MANIFEST-") {
+			return true
+		}
+	}
+	return false
+}
 
 func openNewWindow(a fyne.App, title string) {
 	newWindow := a.NewWindow(title)
@@ -44,7 +63,8 @@ func openNewWindow(a fyne.App, title string) {
 	pathEntry2.SetPlaceHolder("No folder selected")
 
 	openButton := widget.NewButton("Open Folder", func() {
-		folderDialog := dialog.NewFolderOpen(func(dir fyne.ListableURI, err error) {
+
+		folderDialog := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
 			if err != nil {
 				fmt.Println("Error opening folder:", err)
 				return
@@ -53,9 +73,20 @@ func openNewWindow(a fyne.App, title string) {
 				fmt.Println("No folder selected")
 				return
 			}
-			pathEntry2.SetText(dir.Path())
+			filePath := dir.URI().Path()
+
+			// استخراج پوشه از مسیر فایل
+			folderPath := filepath.Dir(filePath)
+
+			if hasManifestFile(folderPath) {
+				pathEntry2.SetText(folderPath)
+			} else {
+				dialog.ShowInformation("Invalid Folder", "The selected folder does not contain a valid LevelDB manifest file.", newWindow)
+			}
+
 		}, newWindow)
 		folderDialog.Show()
+		folderDialog.SetFilter(storage.NewExtensionFileFilter([]string{".log"}))
 	})
 
 	buttonCancel := widget.NewButton("Cancel", func() {
@@ -226,7 +257,7 @@ func main() {
 	//---------------------------------------------- left -----------------------------------------------
 	// --- buttonPlus -----
 
-	plus := widget.NewSelect([]string{"levelDB", "DynamoDB", "SQL", "DucomentDB"}, func(value string) {
+	plus := widget.NewSelect([]string{"levelDB", "DynamoDB", "SQL", "DucomentDB", "PostgreSQL", "IBM Information Management System", "Integrated Data Store", "ObjectDB", "Apache Cassandra"}, func(value string) {
 		log.Println("Select set to", value)
 		openNewWindow(myApp, value)
 	})
@@ -286,6 +317,8 @@ func main() {
 		buttonTwo,
 		buttonThree,
 		buttonFor,
+		layout.NewSpacer(), // Add space here
+
 		darkLight,
 	)
 
@@ -295,6 +328,6 @@ func main() {
 	scrol := container.NewScroll(columns)
 	myWindow.CenterOnScreen()
 	myWindow.SetContent(scrol)
-	myWindow.Resize(fyne.NewSize(1500, 1000))
+	myWindow.Resize(fyne.NewSize(1200, 800))
 	myWindow.ShowAndRun()
 }
