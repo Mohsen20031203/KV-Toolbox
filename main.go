@@ -1,11 +1,14 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"image/color"
 
@@ -14,15 +17,47 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/storage"
+	"github.com/syndtr/goleveldb/leveldb"
 
-	/*
-		"fyne.io/fyne/v2/canvas"
-		"fyne.io/fyne/v2/dialog"*/
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
+
+type ProjectState struct {
+	RecentProjects map[string]string `json:"recentProjects"`
+}
+
+func addProjectToJsonFile(file *os.File, projectPath *widget.Entry) error {
+
+	err := handleButtonClick(projectPath.Text)
+	if err != nil {
+		return err
+	}
+	var state ProjectState
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(&state); err != nil {
+		return fmt.Errorf("failed to decode JSON: %v", err)
+	}
+
+	if state.RecentProjects == nil {
+		state.RecentProjects = make(map[string]string)
+	}
+
+	currentTimestamp := time.Now().Format(time.RFC3339) // فرمت کردن زمان به‌صورت RFC3339
+	state.RecentProjects[projectPath.Text] = currentTimestamp
+
+	file.Truncate(0) // پاک کردن محتوای فعلی فایل
+	file.Seek(0, 0)  // بازنشانی موقعیت فایل به ابتدای آن
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "    ") // تعیین فرمت خوانا برای JSON
+	if err := encoder.Encode(&state); err != nil {
+		return fmt.Errorf("failed to encode JSON: %v", err)
+	}
+
+	return nil
+}
 
 func hasManifestFile(folderPath string) bool {
 	files, err := ioutil.ReadDir(folderPath)
@@ -43,7 +78,30 @@ func hasManifestFile(folderPath string) bool {
 	return false
 }
 
-func openNewWindow(a fyne.App, title string) {
+func handleButtonClick(test string) error {
+	db, err := leveldb.OpenFile(test, nil)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	iter := db.NewIterator(nil, nil)
+	defer iter.Release()
+
+	if iter.First() {
+		key := iter.Key()
+		value, err := db.Get(key, nil)
+		if err != nil {
+			return fmt.Errorf("failed to get value for key %s: %v", key, err)
+		}
+
+		fmt.Printf("First key: %s, value: %s\n", key, value)
+		return nil
+	}
+	return fmt.Errorf("no entries found in the database")
+}
+
+func openNewWindow(a fyne.App, title string, fileJson *os.File) {
 	newWindow := a.NewWindow(title)
 
 	createSeparator := func() *canvas.Line {
@@ -58,21 +116,26 @@ func openNewWindow(a fyne.App, title string) {
 	pathEntry.PlaceHolder = "Name"
 	nameContent := container.NewBorder(nil, nil, lableName, nil, pathEntry)
 
-	lableComment := widget.NewLabel("Commert :")
+	lableComment := widget.NewLabel("Comment :")
 	pathEntryComment := widget.NewEntry()
-	pathEntryComment.PlaceHolder = "Commint"
+	pathEntryComment.PlaceHolder = "Comment"
 	commentContent := container.NewBorder(nil, nil, lableComment, nil, pathEntryComment)
-
-	testConnectionButton := widget.NewButton("Test Connection", func() {
-
-	})
-	testConnectionButton.Disable()
 
 	pathEntry2 := widget.NewEntry()
 	pathEntry2.SetPlaceHolder("No folder selected")
 
-	openButton := widget.NewButton("Open Folder", func() {
+	testConnectionButton := widget.NewButton("Test Connection", func() {
 
+		err := handleButtonClick(pathEntry2.Text)
+		if err != nil {
+			dialog.ShowError(err, newWindow)
+		} else {
+			dialog.ShowInformation("Success", "Test connection successful.", newWindow)
+		}
+	})
+	testConnectionButton.Disable()
+
+	openButton := widget.NewButton("Open Folder", func() {
 		folderDialog := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
 			if err != nil {
 				fmt.Println("Error opening folder:", err)
@@ -84,19 +147,18 @@ func openNewWindow(a fyne.App, title string) {
 			}
 			filePath := dir.URI().Path()
 
-			// استخراج پوشه از مسیر فایل
 			folderPath := filepath.Dir(filePath)
 
 			if hasManifestFile(folderPath) {
 				pathEntry2.SetText(folderPath)
-				testConnectionButton.Enable()
+				testConnectionButton.Enable() // Enable after selecting a valid folder
 			} else {
 				dialog.ShowInformation("Invalid Folder", "The selected folder does not contain a valid LevelDB manifest file.", newWindow)
 			}
 
 		}, newWindow)
-		folderDialog.Show()
 		folderDialog.SetFilter(storage.NewExtensionFileFilter([]string{".log"}))
+		folderDialog.Show()
 	})
 
 	testOpenButton := container.NewVBox(
@@ -111,7 +173,12 @@ func openNewWindow(a fyne.App, title string) {
 		fmt.Println("buttonApply")
 	})
 	buttonOk := widget.NewButton("Ok", func() {
-		fmt.Println("buttonOk")
+		err := addProjectToJsonFile(fileJson, pathEntry2)
+		if err != nil {
+			dialog.ShowInformation("Invalid Folder", "The selected folder does not contain a valid LevelDB manifest file.", newWindow)
+			newWindow.Close()
+		}
+		newWindow.Close()
 	})
 
 	rowBotton := container.NewVBox(
@@ -120,17 +187,17 @@ func openNewWindow(a fyne.App, title string) {
 	)
 
 	rightColumnContent := container.NewVBox(
-		layout.NewSpacer(), // Add space here
+		layout.NewSpacer(),
 		nameContent,
-		layout.NewSpacer(), // Add space here
+		layout.NewSpacer(),
 		commentContent,
-		layout.NewSpacer(), // Add space here
+		layout.NewSpacer(),
 		line1,
-		layout.NewSpacer(), // Add space here
+		layout.NewSpacer(),
 		pathEntry2,
-		layout.NewSpacer(), // Add space here
+		layout.NewSpacer(),
 		testOpenButton,
-		layout.NewSpacer(), // Add space here
+		layout.NewSpacer(),
 		rowBotton,
 	)
 	lastColumnContent := container.NewVBox()
@@ -144,134 +211,28 @@ func openNewWindow(a fyne.App, title string) {
 }
 
 func main() {
+
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Non-Scrollable List")
 
 	iconResource := theme.FyneLogo()
-
 	myApp.SetIcon(iconResource)
-
 	myWindow.SetIcon(iconResource)
 
-	//---------------------------------------------- right -----------------------------------------------
-	/*
-		createSeparator := func() *canvas.Line {
-			line := canvas.NewLine(color.Black)
-			line.StrokeWidth = 1
-			return line
-		}
+	file, err := os.OpenFile("data.json", os.O_RDWR, 0644)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
+	}
+	defer file.Close()
 
-		// --- Items -----
-		item1 := widget.NewLabel("Item 1")
-		separator1 := createSeparator()
-
-		item2 := widget.NewLabel("Item 2")
-
-		// --- Select -----
-		combo := widget.NewSelect([]string{"Option 1", "Option 2"}, func(value string) {
-			log.Println("Select set to", value)
-		})
-
-		// --- Select And Type -----
-		options := []string{"Option 1", "Option 2", "Option 3"}
-		selectEntry := widget.NewSelectEntry(options)
-
-		selectEntry.SetText("Option 2")
-
-		selectEntry.OnChanged = func(s string) {
-			fmt.Println("Changed to:", s)
-		}
-
-		// --- Check Box Normal -----
-		check := widget.NewCheck("Check", func(value bool) {
-			fmt.Println("Check : ", value)
-		})
-
-		// --- Check Box Disable -----
-		disableCheck := widget.NewCheck("disableCheck", func(value bool) {
-			fmt.Println("disableCheckprint :", value)
-		})
-		disableCheck.Disable()
-
-		// --- Check Box Group -----
-		option := []string{"Mashhad", "Tehran", "Esfahan"}
-		checkBoxes := []*widget.Check{}
-		for _, m := range option {
-
-			groupCheck := widget.NewCheck(m, func(value bool) {
-				fmt.Println("Group Check Box : ", value)
-			})
-			checkBoxes = append(checkBoxes, groupCheck)
-		}
-
-		horizontalContainer := container.NewHBox()
-		for _, checkBox := range checkBoxes {
-			horizontalContainer.Add(checkBox)
-		}
-
-		// --- Redio Group -----
-		RadionOption := []string{"Football", "Basketball", "Baceball"}
-		var radioButtons []fyne.CanvasObject
-		for _, option := range RadionOption {
-			radio := widget.NewRadioGroup([]string{option}, func(value string) {
-				fmt.Println("Radio : ", value)
-			})
-			radioButtons = append(radioButtons, radio)
-		}
-		radioContainer := container.NewGridWithColumns(len(radioButtons), radioButtons...)
-
-		// --- Radio Disable -----
-		disableRadioItem := []string{"wrestling", "swimming"}
-		var radioDisableButtons []fyne.CanvasObject
-
-		for _, h := range disableRadioItem {
-
-			disableRadio := widget.NewRadioGroup([]string{h}, func(sport string) {
-				fmt.Println("disable : ", sport)
-			})
-
-			disableRadio.Disable()
-			radioDisableButtons = append(radioDisableButtons, disableRadio)
-
-		}
-		radioContainerDisable := container.NewGridWithColumns(len(radioDisableButtons)*2, radioDisableButtons...)
-
-		// --- Navbar Slider -----
-
-		Slider := widget.NewSlider(0, 100)
-		Slider.SetValue(20)
-
-		// --- Select File -----
-
-		pathEntry := widget.NewEntry()
-		pathEntry.SetPlaceHolder("No folder selected")
-
-		openButton := widget.NewButton("Open Folder", func() {
-			folderDialog := dialog.NewFolderOpen(func(dir fyne.ListableURI, err error) {
-				if err != nil {
-					fmt.Println("Error opening folder:", err)
-					return
-				}
-				if dir == nil {
-					fmt.Println("No folder selected")
-					return
-				}
-				pathEntry.SetText(dir.Path())
-			}, myWindow)
-			folderDialog.Show()
-		})
-
-
-	*/
-	//---------------------------------------------- left -----------------------------------------------
-	// --- buttonPlus -----
-
-	plus := widget.NewSelect([]string{"levelDB", "DynamoDB", "SQL", "DucomentDB"}, func(value string) {
+	// --- Dropdown and Buttons ---
+	plus := widget.NewSelect([]string{"levelDB", "DynamoDB", "SQL", "DocumentDB"}, func(value string) {
 		log.Println("Select set to", value)
-		openNewWindow(myApp, value)
+		openNewWindow(myApp, value, file)
 	})
-	plus.PlaceHolder = "Data Source"      // تغییر متن Placeholder
-	plus.Alignment = fyne.TextAlignCenter // مرکز کردن متن
+	plus.PlaceHolder = "Data Source"
+	plus.Alignment = fyne.TextAlignCenter
 
 	buttonOne := widget.NewButton("DDL data source", func() {
 		fmt.Println("buttonOne")
@@ -286,57 +247,38 @@ func main() {
 		fmt.Println("buttonFor")
 	})
 
-	// --- Bottuns Light And Dark -----
-
-	darkBottum := widget.NewButton("Dark", func() {
+	// --- Theme Buttons ---
+	darkButton := widget.NewButton("Dark", func() {
 		myApp.Settings().SetTheme(theme.DarkTheme())
 	})
-
-	lightBottum := widget.NewButton("Light", func() {
+	lightButton := widget.NewButton("Light", func() {
 		myApp.Settings().SetTheme(theme.LightTheme())
 	})
 
 	darkLight := container.NewVBox(
 		layout.NewSpacer(),
-		container.NewGridWithColumns(2, lightBottum, darkBottum),
+		container.NewGridWithColumns(2, lightButton, darkButton),
 	)
 
-	// --- Colunm Right -----
-	rightColumnContent := container.NewVBox(
-	/*item1,
-	separator1,
-	item2,
-	combo,
-	selectEntry,
-	check,
-	disableCheck,
-	horizontalContainer,
-	radioContainer,
-	radioContainerDisable,
-	Slider,
-	pathEntry,
-	openButton,*/
-	)
-
-	// --- Colunm Left -----
-
+	// --- Layout ---
 	lastColumnContent := container.NewVBox(
 		plus,
 		buttonOne,
 		buttonTwo,
 		buttonThree,
 		buttonFor,
-		layout.NewSpacer(), // Add space here
-
+		layout.NewSpacer(),
 		darkLight,
 	)
+
+	rightColumnContent := container.NewVBox()
 
 	columns := container.NewHSplit(lastColumnContent, rightColumnContent)
 	columns.SetOffset(0.25)
 
-	scrol := container.NewScroll(columns)
+	scroll := container.NewScroll(columns)
 	myWindow.CenterOnScreen()
-	myWindow.SetContent(scrol)
+	myWindow.SetContent(scroll)
 	myWindow.Resize(fyne.NewSize(1200, 800))
 	myWindow.ShowAndRun()
 }
