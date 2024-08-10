@@ -30,9 +30,13 @@ func hasManifestFile(folderPath string) bool {
 		fmt.Println("Error reading folder:", err)
 		return false
 	}
-
+	var count int64
 	for _, file := range files {
-		if strings.HasPrefix(file.Name(), "MANIFEST-") {
+		if strings.HasPrefix(file.Name(), "MANIFEST-") || filepath.Ext(file.Name()) == ".log" {
+			count++
+		}
+
+		if count == 2 {
 			return true
 		}
 	}
@@ -90,7 +94,7 @@ func openNewWindow(a fyne.App, title string) {
 	})
 
 	buttonCancel := widget.NewButton("Cancel", func() {
-		fmt.Println("buttonCancel")
+		newWindow.Close()
 	})
 	buttonApply := widget.NewButton("Apply", func() {
 		fmt.Println("buttonApply")
@@ -112,15 +116,9 @@ func openNewWindow(a fyne.App, title string) {
 		layout.NewSpacer(), // Add space here
 		line1,
 		layout.NewSpacer(), // Add space here
-		line1,
-		line1,
-		layout.NewSpacer(), // Add space here
-		layout.NewSpacer(), // Add space here
 		pathEntry2,
 		layout.NewSpacer(), // Add space here
 		openButton,
-		layout.NewSpacer(), // Add space here
-		layout.NewSpacer(), // Add space here
 		layout.NewSpacer(), // Add space here
 		rowBotton,
 	)
@@ -128,7 +126,7 @@ func openNewWindow(a fyne.App, title string) {
 
 	columns := container.NewHSplit(lastColumnContent, rightColumnContent)
 	columns.SetOffset(0.25)
-	newWindow.Resize(fyne.NewSize(1000, 600))
+	newWindow.Resize(fyne.NewSize(900, 500))
 	newWindow.CenterOnScreen()
 	newWindow.SetContent(columns)
 	newWindow.Show()
