@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"image/color"
 
@@ -25,31 +24,39 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-type ProjectState struct {
-	RecentProjects map[string]string `json:"recentProjects"`
+type JsonInformation struct {
+	RecentProjects []Project `json:"recentProjects"`
 }
 
-func addProjectToJsonFile(file *os.File, projectPath *widget.Entry) error {
+type Project struct {
+	Name        string `json:"name"`
+	Comment     string `json:"comment"`
+	FileAddress string `json:"fileAddress"`
+}
+
+func addProjectToJsonFile(file *os.File, projectPath *widget.Entry, name *widget.Entry, comment *widget.Entry) error {
 
 	err := handleButtonClick(projectPath.Text)
 	if err != nil {
 		return err
 	}
-	var state ProjectState
+	var state JsonInformation
 	decoder := json.NewDecoder(file)
 	if err := decoder.Decode(&state); err != nil {
 		return fmt.Errorf("failed to decode JSON: %v", err)
 	}
 
-	if state.RecentProjects == nil {
-		state.RecentProjects = make(map[string]string)
+	newactivity := Project{
+		Name:        name.Text,
+		Comment:     comment.Text,
+		FileAddress: projectPath.Text,
 	}
 
-	currentTimestamp := time.Now().Format(time.RFC3339) // فرمت کردن زمان به‌صورت RFC3339
-	state.RecentProjects[projectPath.Text] = currentTimestamp
+	state.RecentProjects = append(state.RecentProjects, newactivity)
 
 	file.Truncate(0) // پاک کردن محتوای فعلی فایل
 	file.Seek(0, 0)  // بازنشانی موقعیت فایل به ابتدای آن
+
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "    ") // تعیین فرمت خوانا برای JSON
 	if err := encoder.Encode(&state); err != nil {
@@ -173,7 +180,7 @@ func openNewWindow(a fyne.App, title string, fileJson *os.File) {
 		fmt.Println("buttonApply")
 	})
 	buttonOk := widget.NewButton("Ok", func() {
-		err := addProjectToJsonFile(fileJson, pathEntry2)
+		err := addProjectToJsonFile(fileJson, pathEntry2, pathEntry, pathEntryComment)
 		if err != nil {
 			dialog.ShowInformation("Invalid Folder", "The selected folder does not contain a valid LevelDB manifest file.", newWindow)
 			newWindow.Close()

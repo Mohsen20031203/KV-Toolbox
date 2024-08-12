@@ -1,19 +1,34 @@
 {
-    "recentProjects": 
-    [
-        {"name":"",
-        "comment":"",
-         "fileAddress":""}
-,        {"name":"",
-"comment":"",
-"fileAddress":""}
-,        {"name":"",
-"comment":"",
-"fileAddress":""}
-    ],
-
-    "a":{
-        "/Users/macbookpro/Desktop/example_db": "2024-08-10T15:05:05+03:30",
-        "/Users/macbookpro/Documents/GitHub/Bitcoin-prices/example_db": "2024-08-10T15:04:29+03:30"
-    }
+    "recentProjects": [
+        {
+            "name": "",
+            "comment": "",
+            "fileAddress": ""
+        },
+        {
+            "name": "sdfadf",
+            "comment": "sadfasdfsdafasdf",
+            "fileAddress": "/Users/macbookpro/Desktop/example_db"
+        },
+        {
+            "name": "sdfgdg",
+            "comment": "jkjllkk,hj",
+            "fileAddress": "/Users/macbookpro/Documents/GitHub/Bitcoin-prices/example_db"
+        },
+        {
+            "name": "project test - one",
+            "comment": "this is for test - one",
+            "fileAddress": "/Users/macbookpro/Documents/GitHub/Bitcoin-prices/example_db"
+        },
+        {
+            "name": "خقثهفخه",
+            "comment": "خصثهقعفهع",
+            "fileAddress": "/Users/macbookpro/Documents/GitHub/Bitcoin-prices/example_db"
+        },
+        {
+            "name": "مسکشمسشسشسکشمسشسک",
+            "comment": "خثخثخثخثخث",
+            "fileAddress": "/Users/macbookpro/Desktop/example_db"
+        }
+    ]
 }
