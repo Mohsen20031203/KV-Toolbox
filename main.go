@@ -54,11 +54,11 @@ func addProjectToJsonFile(file *os.File, projectPath *widget.Entry, name *widget
 
 	state.RecentProjects = append(state.RecentProjects, newactivity)
 
-	file.Truncate(0) // پاک کردن محتوای فعلی فایل
-	file.Seek(0, 0)  // بازنشانی موقعیت فایل به ابتدای آن
+	file.Truncate(0)
+	file.Seek(0, 0)
 
 	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "    ") // تعیین فرمت خوانا برای JSON
+	encoder.SetIndent("", "    ")
 	if err := encoder.Encode(&state); err != nil {
 		return fmt.Errorf("failed to encode JSON: %v", err)
 	}
