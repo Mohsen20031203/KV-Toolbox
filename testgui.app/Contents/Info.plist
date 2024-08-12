@@ -7,11 +7,11 @@
 	<key>CFBundleExecutable</key>
 	<string>testgui</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.example.myapp</string>
+	<string>com.example.testgui</string>
 	<key>CFBundleIconFile</key>
 	<string>icon.icns</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>0.0.1</string>
 	<key>CFBundleSupportedPlatforms</key>
 	<array>
 		<string>MacOSX</string>

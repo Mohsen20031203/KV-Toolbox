@@ -226,7 +226,7 @@ func main() {
 	myApp.SetIcon(iconResource)
 	myWindow.SetIcon(iconResource)
 
-	file, err := os.OpenFile("data.json", os.O_RDWR, 0644)
+	file, err := os.OpenFile("/Users/macbookpro/Documents/GitHub/leveldb-and-fyne/data.json", os.O_RDWR, 0644)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return
