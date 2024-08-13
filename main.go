@@ -40,19 +40,32 @@ func addProjectToJsonFile(file *os.File, projectPath *widget.Entry, name *widget
 	if err != nil {
 		return err
 	}
+
 	var state JsonInformation
-	decoder := json.NewDecoder(file)
-	if err := decoder.Decode(&state); err != nil {
-		return fmt.Errorf("failed to decode JSON: %v", err)
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return fmt.Errorf("failed to get file info: %v", err)
 	}
 
-	newactivity := Project{
+	if fileInfo.Size() == 0 {
+		state = JsonInformation{
+			RecentProjects: []Project{},
+		}
+	} else {
+		decoder := json.NewDecoder(file)
+		if err := decoder.Decode(&state); err != nil {
+			return fmt.Errorf("failed to decode JSON: %v", err)
+		}
+	}
+
+	newActivity := Project{
 		Name:        name.Text,
 		Comment:     comment.Text,
 		FileAddress: projectPath.Text,
 	}
 
-	state.RecentProjects = append(state.RecentProjects, newactivity)
+	state.RecentProjects = append(state.RecentProjects, newActivity)
 
 	file.Truncate(0)
 	file.Seek(0, 0)
@@ -226,7 +239,7 @@ func main() {
 	myApp.SetIcon(iconResource)
 	myWindow.SetIcon(iconResource)
 
-	file, err := os.OpenFile("/Users/macbookpro/Documents/GitHub/leveldb-and-fyne/data.json", os.O_RDWR, 0644)
+	file, err := os.OpenFile("/Users/macbookpro/Documents/GitHub/leveldb-and-fyne/data.json", os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return
