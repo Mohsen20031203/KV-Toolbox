@@ -336,11 +336,11 @@ func main() {
 		}
 	})
 	lastColumnContentt := container.NewVBox(
-		pluss,       // دکمه + در بالای محتوا
-		plusContent, // محتوا در پایین دکمه +
+		pluss,
+		plusContent,
 		spacer,
 	)
-	plusContent.Hide() // مخفی کردن دکمه‌ها به صورت پیش‌فرض
+	plusContent.Hide()
 
 	darkButton := widget.NewButton("Dark", func() {
 		myApp.Settings().SetTheme(theme.DarkTheme())
