@@ -34,18 +34,46 @@ type Project struct {
 	FileAddress string `json:"fileAddress"`
 }
 
-func addProjectToJsonFile(file *os.File, projectPath *widget.Entry, name *widget.Entry, comment *widget.Entry) error {
+func loadJsonData(fileName string) (JsonInformation, error) {
+	var jsonData JsonInformation
 
-	err := handleButtonClick(projectPath.Text)
+	file, err := os.Open(fileName)
 	if err != nil {
-		return err
+		return jsonData, fmt.Errorf("failed to open file: %v", err)
+	}
+	defer file.Close()
+
+	byteValue, err := ioutil.ReadAll(file)
+	if err != nil {
+		return jsonData, fmt.Errorf("failed to read file: %v", err)
+	}
+
+	if err := json.Unmarshal(byteValue, &jsonData); err != nil {
+		return jsonData, fmt.Errorf("failed to unmarshal JSON: %v", err)
+	}
+
+	return jsonData, nil
+}
+
+func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment *widget.Entry) (error, bool) {
+
+	file, err := os.OpenFile("data.json", os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return err, false
+	}
+	defer file.Close()
+
+	err = handleButtonClick(projectPath.Text)
+	if err != nil {
+		return err, false
 	}
 
 	var state JsonInformation
 
 	fileInfo, err := file.Stat()
 	if err != nil {
-		return fmt.Errorf("failed to get file info: %v", err)
+		return fmt.Errorf("failed to get file info: %v", err), false
 	}
 
 	if fileInfo.Size() == 0 {
@@ -55,10 +83,24 @@ func addProjectToJsonFile(file *os.File, projectPath *widget.Entry, name *widget
 	} else {
 		decoder := json.NewDecoder(file)
 		if err := decoder.Decode(&state); err != nil {
-			return fmt.Errorf("failed to decode JSON: %v", err)
+			return fmt.Errorf("failed to decode JSON: %v", err), false
 		}
 	}
 
+	for i, addres := range state.RecentProjects {
+		if projectPath.Text == addres.FileAddress {
+			state.RecentProjects[i].Comment = comment.Text
+			file.Truncate(0)
+			file.Seek(0, 0)
+
+			encoder := json.NewEncoder(file)
+			encoder.SetIndent("", "    ")
+			if err := encoder.Encode(&state); err != nil {
+				return fmt.Errorf("failed to encode JSON: %v", err), false
+			}
+			return nil, true
+		}
+	}
 	newActivity := Project{
 		Name:        name.Text,
 		Comment:     comment.Text,
@@ -73,10 +115,10 @@ func addProjectToJsonFile(file *os.File, projectPath *widget.Entry, name *widget
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "    ")
 	if err := encoder.Encode(&state); err != nil {
-		return fmt.Errorf("failed to encode JSON: %v", err)
+		return fmt.Errorf("failed to encode JSON: %v", err), false
 	}
 
-	return nil
+	return nil, false
 }
 
 func hasManifestFile(folderPath string) bool {
@@ -121,7 +163,7 @@ func handleButtonClick(test string) error {
 	return fmt.Errorf("no entries found in the database")
 }
 
-func openNewWindow(a fyne.App, title string, fileJson *os.File) {
+func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container) {
 	newWindow := a.NewWindow(title)
 
 	createSeparator := func() *canvas.Line {
@@ -171,7 +213,7 @@ func openNewWindow(a fyne.App, title string, fileJson *os.File) {
 
 			if hasManifestFile(folderPath) {
 				pathEntry2.SetText(folderPath)
-				testConnectionButton.Enable() // Enable after selecting a valid folder
+				testConnectionButton.Enable()
 			} else {
 				dialog.ShowInformation("Invalid Folder", "The selected folder does not contain a valid LevelDB manifest file.", newWindow)
 			}
@@ -193,12 +235,23 @@ func openNewWindow(a fyne.App, title string, fileJson *os.File) {
 		fmt.Println("buttonApply")
 	})
 	buttonOk := widget.NewButton("Ok", func() {
-		err := addProjectToJsonFile(fileJson, pathEntry2, pathEntry, pathEntryComment)
+		err, addButton := addProjectToJsonFile(pathEntry2, pathEntry, pathEntryComment)
 		if err != nil {
 			dialog.ShowInformation("Invalid Folder", "The selected folder does not contain a valid LevelDB manifest file.", newWindow)
 			newWindow.Close()
+		} else {
+
+			if !addButton {
+				projectButton := widget.NewButton(pathEntry.Text, func() {
+					fmt.Println("Selected project:", pathEntry.Text)
+				})
+
+				lastColumnContent.Add(projectButton)
+				lastColumnContent.Refresh()
+			}
+
+			newWindow.Close()
 		}
-		newWindow.Close()
 	})
 
 	rowBotton := container.NewVBox(
@@ -220,9 +273,9 @@ func openNewWindow(a fyne.App, title string, fileJson *os.File) {
 		layout.NewSpacer(),
 		rowBotton,
 	)
-	lastColumnContent := container.NewVBox()
+	lastColumnContentInWindow := container.NewVBox()
 
-	columns := container.NewHSplit(lastColumnContent, rightColumnContent)
+	columns := container.NewHSplit(lastColumnContentInWindow, rightColumnContent)
 	columns.SetOffset(0.25)
 	newWindow.Resize(fyne.NewSize(900, 500))
 	newWindow.CenterOnScreen()
@@ -239,17 +292,11 @@ func main() {
 	myApp.SetIcon(iconResource)
 	myWindow.SetIcon(iconResource)
 
-	file, err := os.OpenFile("/Users/macbookpro/Documents/GitHub/leveldb-and-fyne/data.json", os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
-		fmt.Println("Error opening file:", err)
-		return
-	}
-	defer file.Close()
+	lastColumnContent := container.NewVBox() // Move this initialization before `openNewWindow` is called
 
-	// --- Dropdown and Buttons ---
 	plus := widget.NewSelect([]string{"levelDB", "DynamoDB", "SQL", "DocumentDB"}, func(value string) {
 		log.Println("Select set to", value)
-		openNewWindow(myApp, value, file)
+		openNewWindow(myApp, value, lastColumnContent) // Use the initialized `lastColumnContent`
 	})
 	plus.PlaceHolder = "Data Source"
 	plus.Alignment = fyne.TextAlignCenter
@@ -257,17 +304,44 @@ func main() {
 	buttonOne := widget.NewButton("DDL data source", func() {
 		fmt.Println("buttonOne")
 	})
+
 	buttonTwo := widget.NewButton("Data source from URL", func() {
 		fmt.Println("buttonTwo")
 	})
+
 	buttonThree := widget.NewButton("Data source from path", func() {
 		fmt.Println("buttonThree")
 	})
+
 	buttonFor := widget.NewButton("Import from Clipboard", func() {
 		fmt.Println("buttonFor")
 	})
 
-	// --- Theme Buttons ---
+	spacer := widget.NewLabel("")
+	spacer.Resize(fyne.NewSize(0, 30))
+
+	plusContent := container.NewVBox(
+		plus,
+		buttonOne,
+		buttonTwo,
+		buttonThree,
+		buttonFor,
+	)
+
+	pluss := widget.NewButton("+", func() {
+		if plusContent.Visible() {
+			plusContent.Hide()
+		} else {
+			plusContent.Show()
+		}
+	})
+	lastColumnContentt := container.NewVBox(
+		pluss,       // دکمه + در بالای محتوا
+		plusContent, // محتوا در پایین دکمه +
+		spacer,
+	)
+	plusContent.Hide() // مخفی کردن دکمه‌ها به صورت پیش‌فرض
+
 	darkButton := widget.NewButton("Dark", func() {
 		myApp.Settings().SetTheme(theme.DarkTheme())
 	})
@@ -280,20 +354,26 @@ func main() {
 		container.NewGridWithColumns(2, lightButton, darkButton),
 	)
 
-	// --- Layout ---
-	lastColumnContent := container.NewVBox(
-		plus,
-		buttonOne,
-		buttonTwo,
-		buttonThree,
-		buttonFor,
-		layout.NewSpacer(),
-		darkLight,
-	)
+	jsonData, err := loadJsonData("data.json")
+	if err != nil {
+		fmt.Println("Error loading JSON data:", err)
+	} else {
+		for _, project := range jsonData.RecentProjects {
+			projectButton := widget.NewButton(project.Name, func() {
+				fmt.Println("Selected project:", project.Name)
+			})
+			lastColumnContent.Add(projectButton)
+		}
+	}
 
 	rightColumnContent := container.NewVBox()
 
-	columns := container.NewHSplit(lastColumnContent, rightColumnContent)
+	lastColumnScrollable := container.NewScroll(lastColumnContent)
+	rightColumnScrollable := container.NewScroll(rightColumnContent)
+
+	mainContent := container.NewBorder(lastColumnContentt, darkLight, nil, nil, lastColumnScrollable)
+
+	columns := container.NewHSplit(mainContent, rightColumnScrollable)
 	columns.SetOffset(0.25)
 
 	scroll := container.NewScroll(columns)
