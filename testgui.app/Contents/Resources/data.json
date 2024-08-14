@@ -2,13 +2,18 @@
     "recentProjects": [
         {
             "name": "منمنت",
-            "comment": "مشنسیتبتم",
+            "comment": "hello test one",
             "fileAddress": "/Users/macbookpro/Documents/GitHub/Bitcoin-prices/example_db"
         },
         {
             "name": "سنیتمستیمتب",
             "comment": "ممنسیتبمنتشسیبتکمشتسمب",
             "fileAddress": "/Users/macbookpro/Desktop/example_db"
+        },
+        {
+            "name": "test three",
+            "comment": "hala madrid",
+            "fileAddress": "/Users/macbookpro/Desktop/example_db 2"
         }
     ]
 }

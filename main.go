@@ -246,7 +246,24 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container) 
 					fmt.Println("Selected project:", pathEntry.Text)
 				})
 
-				lastColumnContent.Add(projectButton)
+				buttonContainer := container.NewHBox()
+
+				// دکمه ضربدر
+				closeButton := widget.NewButton("✖", func() {
+					// حذف دکمه از کانتینر
+					// استفاده از Remove به جای RemoveObject
+					lastColumnContent.Remove(buttonContainer)
+					// استفاده از refresh برای به روز رسانی UI
+					newWindow.Content().Refresh()
+				})
+
+				// کانتینر برای دکمه اصلی و دکمه ضربدر
+				buttonContainer = container.NewHBox(
+					projectButton,
+					closeButton,
+				)
+
+				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 			}
 
