@@ -70,7 +70,7 @@ func removeProjectFromJsonFile(projectName string) error {
 	}
 	defer file.Close()
 
-	var state JsonInformation
+	var state *JsonInformation
 
 	err = readJsonFile(file, state)
 	if err != nil {
@@ -85,7 +85,7 @@ func removeProjectFromJsonFile(projectName string) error {
 		}
 	}
 
-	err = writeJsonFile(file, state)
+	err = writeJsonFile(file, &state)
 	if err != nil {
 		return fmt.Errorf("failed to decode JSON: %v", err)
 	}
@@ -152,7 +152,7 @@ func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment
 		return err, false
 	}
 
-	var state JsonInformation
+	var state *JsonInformation
 
 	fileInfo, err := file.Stat()
 	if err != nil {
@@ -160,11 +160,11 @@ func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment
 	}
 
 	if fileInfo.Size() == 0 {
-		state = JsonInformation{
+		state = &JsonInformation{
 			RecentProjects: []Project{},
 		}
 	} else {
-		err := readJsonFile(file, state)
+		err := readJsonFile(file, &state)
 		if err != nil {
 			return err, false
 		}
@@ -173,13 +173,9 @@ func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment
 	for i, addres := range state.RecentProjects {
 		if projectPath.Text == addres.FileAddress {
 			state.RecentProjects[i].Comment = comment.Text
-			file.Truncate(0)
-			file.Seek(0, 0)
-
-			encoder := json.NewEncoder(file)
-			encoder.SetIndent("", "    ")
-			if err := encoder.Encode(&state); err != nil {
-				return fmt.Errorf("failed to encode JSON: %v", err), false
+			err = writeJsonFile(file, state)
+			if err != nil {
+				return fmt.Errorf("failed to decode JSON: %v", err), false
 			}
 			return nil, true
 		}
