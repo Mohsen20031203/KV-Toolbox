@@ -34,6 +34,29 @@ type Project struct {
 	FileAddress string `json:"fileAddress"`
 }
 
+func rightColumn(rightColumnContent *fyne.Container) fyne.CanvasObject {
+	rightColumnScrollable := container.NewScroll(rightColumnContent)
+
+	return rightColumnScrollable
+}
+
+func leftColumn(lastColumnContent *fyne.Container, lastColumnContentt *fyne.Container, darkLight *fyne.Container) *fyne.Container {
+	lastColumnScrollable := container.NewScroll(lastColumnContent)
+
+	mainContent := container.NewBorder(lastColumnContentt, darkLight, nil, nil, lastColumnScrollable)
+	return mainContent
+}
+
+func columnContent(rightColumnContent *fyne.Container, lastColumnContent *fyne.Container, lastColumnContentt *fyne.Container, darkLight *fyne.Container) fyne.CanvasObject {
+	mainContent := leftColumn(lastColumnContent, lastColumnContentt, darkLight)
+	rightColumnScrollable := rightColumn(rightColumnContent)
+	columns := container.NewHSplit(mainContent, rightColumnScrollable)
+	columns.SetOffset(0.25)
+
+	container.NewScroll(columns)
+	return columns
+}
+
 func writeJsonFile(file *os.File, state interface{}) error {
 	file.Truncate(0)
 	file.Seek(0, 0)
@@ -72,7 +95,7 @@ func removeProjectFromJsonFile(projectName string) error {
 
 	var state *JsonInformation
 
-	err = readJsonFile(file, state)
+	err = readJsonFile(file, &state)
 	if err != nil {
 		return err
 	}
@@ -443,17 +466,9 @@ func main() {
 
 	rightColumnContent := container.NewVBox()
 
-	lastColumnScrollable := container.NewScroll(lastColumnContent)
-	rightColumnScrollable := container.NewScroll(rightColumnContent)
-
-	mainContent := container.NewBorder(lastColumnContentt, darkLight, nil, nil, lastColumnScrollable)
-
-	columns := container.NewHSplit(mainContent, rightColumnScrollable)
-	columns.SetOffset(0.25)
-
-	scroll := container.NewScroll(columns)
+	containerAll := columnContent(rightColumnContent, lastColumnContent, lastColumnContentt, darkLight)
 	myWindow.CenterOnScreen()
-	myWindow.SetContent(scroll)
+	myWindow.SetContent(containerAll)
 	myWindow.Resize(fyne.NewSize(1200, 800))
 	myWindow.ShowAndRun()
 }
