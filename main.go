@@ -34,6 +34,83 @@ type Project struct {
 	FileAddress string `json:"fileAddress"`
 }
 
+func readJsonFile(file *os.File, state interface{}) error {
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(&state); err != nil {
+		return fmt.Errorf("failed to decode JSON: %v", err)
+	}
+	return nil
+}
+
+func openFileJson() (*os.File, error) {
+	file, err := os.OpenFile("data.json", os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return file, err
+	}
+	return file, nil
+}
+
+func removeProjectFromJsonFile(projectName string) error {
+	// باز کردن فایل JSON
+	file, err := openFileJson()
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+	}
+	defer file.Close()
+
+	var state JsonInformation
+
+	err = readJsonFile(file, state)
+	if err != nil {
+		return err
+	}
+
+	// جستجوی پروژه و حذف آن
+	for i, project := range state.RecentProjects {
+		if project.Name == projectName {
+			state.RecentProjects = append(state.RecentProjects[:i], state.RecentProjects[i+1:]...)
+			break
+		}
+	}
+
+	// بازنویسی فایل JSON
+	file.Truncate(0)
+	file.Seek(0, 0)
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "    ")
+	if err := encoder.Encode(&state); err != nil {
+		return fmt.Errorf("failed to encode JSON: %v", err)
+	}
+
+	return nil
+}
+
+func projectButton(inputText string, lastColumnContent *fyne.Container) *fyne.Container {
+	projectButton := widget.NewButton(inputText, func() {
+		fmt.Println("Selected project:", inputText)
+	})
+
+	buttonContainer := container.NewHBox()
+
+	// دکمه ضربدر برای حذف دکمه
+	closeButton := widget.NewButton("✖", func() {
+		err := removeProjectFromJsonFile(inputText)
+		if err != nil {
+			fmt.Println("Failed to remove project from JSON:", err)
+		} else {
+			// حذف دکمه از UI
+			lastColumnContent.Remove(buttonContainer)
+			lastColumnContent.Refresh()
+		}
+	})
+
+	// قرار دادن دکمه اصلی و دکمه ضربدر در یک کانتینر افقی
+	buttonContainer = container.NewBorder(nil, nil, nil, closeButton, projectButton)
+
+	return buttonContainer
+}
+
 func loadJsonData(fileName string) (JsonInformation, error) {
 	var jsonData JsonInformation
 
@@ -57,10 +134,9 @@ func loadJsonData(fileName string) (JsonInformation, error) {
 
 func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment *widget.Entry) (error, bool) {
 
-	file, err := os.OpenFile("data.json", os.O_RDWR|os.O_CREATE, 0644)
+	file, err := openFileJson()
 	if err != nil {
 		fmt.Println("Error opening file:", err)
-		return err, false
 	}
 	defer file.Close()
 
@@ -81,9 +157,9 @@ func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment
 			RecentProjects: []Project{},
 		}
 	} else {
-		decoder := json.NewDecoder(file)
-		if err := decoder.Decode(&state); err != nil {
-			return fmt.Errorf("failed to decode JSON: %v", err), false
+		err := readJsonFile(file, state)
+		if err != nil {
+			return err, false
 		}
 	}
 
@@ -242,29 +318,12 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container) 
 		} else {
 
 			if !addButton {
-				projectButton := widget.NewButton(pathEntry.Text, func() {
-					fmt.Println("Selected project:", pathEntry.Text)
-				})
 
-				buttonContainer := container.NewHBox()
-
-				// دکمه ضربدر
-				closeButton := widget.NewButton("✖", func() {
-					// حذف دکمه از کانتینر
-					// استفاده از Remove به جای RemoveObject
-					lastColumnContent.Remove(buttonContainer)
-					// استفاده از refresh برای به روز رسانی UI
-					newWindow.Content().Refresh()
-				})
-
-				// کانتینر برای دکمه اصلی و دکمه ضربدر
-				buttonContainer = container.NewHBox(
-					projectButton,
-					closeButton,
-				)
+				buttonContainer := projectButton(pathEntry.Text, lastColumnContent)
 
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
+
 			}
 
 			newWindow.Close()
@@ -376,10 +435,10 @@ func main() {
 		fmt.Println("Error loading JSON data:", err)
 	} else {
 		for _, project := range jsonData.RecentProjects {
-			projectButton := widget.NewButton(project.Name, func() {
-				fmt.Println("Selected project:", project.Name)
-			})
-			lastColumnContent.Add(projectButton)
+
+			buttonContainer := projectButton(project.Name, lastColumnContent)
+
+			lastColumnContent.Add(buttonContainer)
 		}
 	}
 
