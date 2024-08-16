@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"image/color"
 
@@ -162,7 +162,7 @@ func loadJsonData(fileName string) (JsonInformation, error) {
 	return jsonData, nil
 }
 
-func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment *widget.Entry) (error, bool) {
+func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment *widget.Entry, Window fyne.Window) (error, bool) {
 
 	file, err := openFileJson()
 	if err != nil {
@@ -196,6 +196,8 @@ func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment
 	for i, addres := range state.RecentProjects {
 		if projectPath.Text == addres.FileAddress {
 			state.RecentProjects[i].Comment = comment.Text
+			dialog.ShowInformation("error", "This database has already been added to your projects", Window)
+
 			err = writeJsonFile(file, state)
 			if err != nil {
 				return fmt.Errorf("failed to decode JSON: %v", err), false
@@ -215,7 +217,6 @@ func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment
 	if err != nil {
 		return fmt.Errorf("failed to decode JSON: %v", err), true
 	}
-
 	return nil, false
 }
 
@@ -333,8 +334,9 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container) 
 		fmt.Println("buttonApply")
 	})
 	buttonOk := widget.NewButton("Ok", func() {
-		err, addButton := addProjectToJsonFile(pathEntry2, pathEntry, pathEntryComment)
+		err, addButton := addProjectToJsonFile(pathEntry2, pathEntry, pathEntryComment, newWindow)
 		if err != nil {
+			time.Sleep(time.Second * 5)
 			dialog.ShowInformation("Invalid Folder", "The selected folder does not contain a valid LevelDB manifest file.", newWindow)
 			newWindow.Close()
 		} else {
@@ -347,7 +349,6 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container) 
 				lastColumnContent.Refresh()
 
 			}
-
 			newWindow.Close()
 		}
 	})
@@ -392,53 +393,16 @@ func main() {
 
 	lastColumnContent := container.NewVBox() // Move this initialization before `openNewWindow` is called
 
-	plus := widget.NewSelect([]string{"levelDB", "DynamoDB", "SQL", "DocumentDB"}, func(value string) {
-		log.Println("Select set to", value)
-		openNewWindow(myApp, value, lastColumnContent) // Use the initialized `lastColumnContent`
-	})
-	plus.PlaceHolder = "Data Source"
-	plus.Alignment = fyne.TextAlignCenter
-
-	buttonOne := widget.NewButton("DDL data source", func() {
-		fmt.Println("buttonOne")
-	})
-
-	buttonTwo := widget.NewButton("Data source from URL", func() {
-		fmt.Println("buttonTwo")
-	})
-
-	buttonThree := widget.NewButton("Data source from path", func() {
-		fmt.Println("buttonThree")
-	})
-
-	buttonFor := widget.NewButton("Import from Clipboard", func() {
-		fmt.Println("buttonFor")
-	})
-
 	spacer := widget.NewLabel("")
 	spacer.Resize(fyne.NewSize(0, 30))
 
-	plusContent := container.NewVBox(
-		plus,
-		buttonOne,
-		buttonTwo,
-		buttonThree,
-		buttonFor,
-	)
-
 	pluss := widget.NewButton("+", func() {
-		if plusContent.Visible() {
-			plusContent.Hide()
-		} else {
-			plusContent.Show()
-		}
+		openNewWindow(myApp, "levelDB", lastColumnContent) // Use the initialized `lastColumnContent`
 	})
 	lastColumnContentt := container.NewVBox(
 		pluss,
-		plusContent,
 		spacer,
 	)
-	plusContent.Hide()
 
 	darkButton := widget.NewButton("Dark", func() {
 		myApp.Settings().SetTheme(theme.DarkTheme())
