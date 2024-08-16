@@ -1,3 +1,14 @@
 {
-    "recentProjects": []
+    "recentProjects": [
+        {
+            "name": "test one",
+            "comment": "desktopn onee",
+            "fileAddress": "/Users/macbookpro/Desktop/example_db"
+        },
+        {
+            "name": "test two",
+            "comment": "desktopn two",
+            "fileAddress": "/Users/macbookpro/Desktop/example_db 2"
+        }
+    ]
 }

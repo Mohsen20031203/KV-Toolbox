@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"image/color"
 
@@ -296,6 +295,14 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container) 
 	})
 	testConnectionButton.Disable()
 
+	pathEntry2.OnChanged = func(text string) {
+		if text != "" {
+			testConnectionButton.Enable()
+		} else {
+			testConnectionButton.Disable()
+		}
+	}
+
 	openButton := widget.NewButton("Open Folder", func() {
 		folderDialog := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
 			if err != nil {
@@ -336,9 +343,7 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container) 
 	buttonOk := widget.NewButton("Ok", func() {
 		err, addButton := addProjectToJsonFile(pathEntry2, pathEntry, pathEntryComment, newWindow)
 		if err != nil {
-			time.Sleep(time.Second * 5)
-			dialog.ShowInformation("Invalid Folder", "The selected folder does not contain a valid LevelDB manifest file.", newWindow)
-			newWindow.Close()
+			dialog.ShowInformation("Error ", "There is something wrong with your file and I can't connect to it", newWindow)
 		} else {
 
 			if !addButton {
@@ -348,8 +353,8 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container) 
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 
+				newWindow.Close()
 			}
-			newWindow.Close()
 		}
 	})
 
