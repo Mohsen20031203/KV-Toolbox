@@ -99,9 +99,8 @@ func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment
 		}
 	}
 
-	for i, addres := range state.RecentProjects {
+	for _, addres := range state.RecentProjects {
 		if projectPath.Text == addres.FileAddress {
-			state.RecentProjects[i].Comment = comment.Text
 			m := fmt.Sprintf("This database has already been added to your projects under the name '%s'", addres.Name)
 			dialog.ShowInformation("error", m, Window)
 
@@ -247,22 +246,28 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container) 
 	newWindow.SetContent(rightColumnContent)
 	newWindow.Show()
 }
-func handleButtonClick(path string) error {
-	db, err := leveldb.OpenFile(path, nil)
+
+func handleButtonClick(test string) error {
+	db, err := leveldb.OpenFile(test, nil)
 	if err != nil {
-		fmt.Println("Error opening LevelDB:", err)
 		return err
 	}
 	defer db.Close()
 
-	_, err = db.Get([]byte("some-key"), nil)
-	if err != nil {
-		fmt.Println("Error accessing LevelDB data:", err)
-		return err
-	}
+	iter := db.NewIterator(nil, nil)
+	defer iter.Release()
 
-	fmt.Println("LevelDB accessed successfully!")
-	return nil
+	if iter.First() {
+		key := iter.Key()
+		value, err := db.Get(key, nil)
+		if err != nil {
+			return fmt.Errorf("failed to get value for key %s: %v", key, err)
+		}
+
+		fmt.Printf("First key: %s, value: %s\n", key, value)
+		return nil
+	}
+	return fmt.Errorf("no entries found in the database")
 }
 
 func hasManifestFile(folderPath string) bool {
