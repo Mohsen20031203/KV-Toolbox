@@ -8,7 +8,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func setupLastColumn(app fyne.App, rightColumnContentORG *fyne.Container) *fyne.Container {
+func setupLastColumn(app fyne.App, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Button) *fyne.Container {
 	lastColumnContent := container.NewVBox()
 
 	go func() {
@@ -17,7 +17,7 @@ func setupLastColumn(app fyne.App, rightColumnContentORG *fyne.Container) *fyne.
 			println("Error loading JSON data:", err)
 		} else {
 			for _, project := range jsonData.RecentProjects {
-				buttonContainer := projectButton(project.Name, lastColumnContent, project.FileAddress, rightColumnContentORG)
+				buttonContainer := projectButton(project.Name, lastColumnContent, project.FileAddress, rightColumnContentORG, nameButtonProject)
 				lastColumnContent.Add(buttonContainer)
 			}
 		}

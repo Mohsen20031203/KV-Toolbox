@@ -17,196 +17,47 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
-func checkCondition(rightColumnContent *fyne.Container) bool {
-	if len(rightColumnContent.Objects) > 2 {
-		return false
-	}
-	return true
-}
-
 type datebace struct {
 	key   string
 	value string
 }
 
-func readDatabace(Addres string) (error, []datebace) {
-	var Item []datebace
-	db, err := leveldb.OpenFile(Addres, nil)
-	if err != nil {
-		return err, Item
-	}
-	defer db.Close()
-
-	iter := db.NewIterator(nil, nil)
-	for iter.Next() {
-		key := string(iter.Key())
-		value := string(iter.Value())
-		Item = append(Item, datebace{key: key, value: value})
-	}
-	iter.Release()
-
-	return nil, Item
-}
-
-// یک تابع برای کوتاه کردن متن و اضافه کردن ... در انتهای آن
-func truncateString(str string, maxLength int) string {
-	if len(str) > maxLength {
-		return str[:maxLength] + "..."
-	}
-	return str
-}
-
-func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container) {
-
-	if !checkCondition(rightColumnContent) {
-		newObjects := []fyne.CanvasObject{
-			rightColumnContent.Objects[0], // ویجت اول
-			rightColumnContent.Objects[1], // ویجت دوم
-		}
-
-		// حذف تمام ویجت‌ها از کانتینر
-		rightColumnContent.Objects = newObjects
-
-		// بروزرسانی محتوا
-		rightColumnContent.Refresh()
-	}
-	// خواندن داده‌ها از دیتابیس
-	err, data := readDatabace(dbPath)
-	if err != nil {
-		fmt.Println("Failed to read database:", err)
-		return
-	}
-
-	// محدودیت طول برای کلید و مقدار
-	const maxKeyLength = 20
-	const maxValueLength = 30
-
-	// ایجاد دکمه‌ها برای هر رکورد و اضافه کردن آنها به ستون سمت راست
-	for _, item := range data {
-		// کوتاه کردن key و value در صورت نیاز
-		truncatedKey := truncateString(item.key, maxKeyLength)
-		truncatedValue := truncateString(item.value, maxValueLength)
-
-		keyButton := widget.NewButton(truncatedKey, func() {
-			editWindow := fyne.CurrentApp().NewWindow("Edit Value")
-			editWindow.Resize(fyne.NewSize(600, 600))
-
-			valueEntry := widget.NewMultiLineEntry()
-			valueEntry.Resize(fyne.NewSize(500, 500))
-			scrollableEntry := container.NewScroll(valueEntry)
-			mainContainer := container.NewBorder(nil, nil, nil, nil, scrollableEntry)
-
-			scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
-			valueEntry.SetText(item.key)
-
-			saveButton := widget.NewButton("Save", func() {
-				// ذخیره مقدار جدید
-				item.key = valueEntry.Text
-				editWindow.Close()
-				rightColumnContent.Refresh()
-			})
-
-			cancelButton := widget.NewButton("Cancel", func() {
-				editWindow.Close()
-			})
-
-			m := container.NewGridWithColumns(2, cancelButton, saveButton)
-			b := container.NewBorder(nil, m, nil, nil)
-
-			editContent := container.NewVBox(
-				widget.NewLabel("Edit Value:"),
-				mainContainer,
-				layout.NewSpacer(),
-				b,
-			)
-
-			editWindow.SetContent(editContent)
-			editWindow.Show()
-		})
-
-		valueButton := widget.NewButton(truncatedValue, func() {
-			editWindow := fyne.CurrentApp().NewWindow("Edit Value")
-			editWindow.Resize(fyne.NewSize(600, 600))
-
-			valueEntry := widget.NewMultiLineEntry()
-			valueEntry.Resize(fyne.NewSize(500, 500))
-			scrollableEntry := container.NewScroll(valueEntry)
-			mainContainer := container.NewBorder(nil, nil, nil, nil, scrollableEntry)
-
-			scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
-			valueEntry.SetText(item.value)
-
-			saveButton := widget.NewButton("Save", func() {
-				// ذخیره مقدار جدید
-				item.value = valueEntry.Text
-				editWindow.Close()
-				rightColumnContent.Refresh()
-			})
-
-			cancelButton := widget.NewButton("Cancel", func() {
-				editWindow.Close()
-			})
-
-			m := container.NewGridWithColumns(2, cancelButton, saveButton)
-			b := container.NewBorder(nil, m, nil, nil)
-
-			editContent := container.NewVBox(
-				widget.NewLabel("Edit Value:"),
-				mainContainer,
-				layout.NewSpacer(),
-				b,
-			)
-
-			editWindow.SetContent(editContent)
-			editWindow.Show()
-		})
-
-		// اضافه کردن دکمه‌ها به ستون سمت راست
-		buttonRow := container.NewGridWithColumns(2, keyButton, valueButton)
-		rightColumnContent.Add(buttonRow)
-	}
-
-	rightColumnContent.Refresh()
-}
-
-func removeProjectFromJsonFile(projectName string) error {
-	file, err := openFileJson()
-	if err != nil {
-		fmt.Println("Error opening file:", err)
-	}
-	defer file.Close()
-
-	var state *JsonInformation
-
-	err = readJsonFile(file, &state)
-	if err != nil {
-		return err
-	}
-
-	for i, project := range state.RecentProjects {
-		if project.Name == projectName {
-			state.RecentProjects = append(state.RecentProjects[:i], state.RecentProjects[i+1:]...)
-			break
-		}
-	}
-
-	err = writeJsonFile(file, &state)
-	if err != nil {
-		return fmt.Errorf("failed to decode JSON: %v", err)
-	}
-
-	return nil
-}
-
-func projectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container) *fyne.Container {
+func projectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Button) *fyne.Container {
 	projectButton := widget.NewButton(inputText, func() {
 		handleProjectSelection(path, rightColumnContentORG)
-
+		if nameButtonProject.Text == "" {
+			nameButtonProject.Text = inputText
+		} else {
+			nameButtonProject.Text = ""
+			nameButtonProject.Text = inputText
+		}
+		nameButtonProject.Refresh()
 	})
+
+	if nameButtonProject.Text == "" {
+		nameButtonProject.Text = inputText
+	} else {
+		nameButtonProject.Text = ""
+		nameButtonProject.Text = inputText
+	}
+	nameButtonProject.Refresh()
 
 	buttonContainer := container.NewHBox()
 
 	closeButton := widget.NewButton("✖", func() {
+
+		if !checkCondition(rightColumnContentORG) && nameButtonProject.Text == inputText {
+			newObjects := []fyne.CanvasObject{}
+
+			// حذف تمام ویجت‌ها از کانتینر
+			rightColumnContentORG.Objects = newObjects
+
+			// بروزرسانی محتوا
+			nameButtonProject.Text = ""
+			nameButtonProject.Refresh()
+			rightColumnContentORG.Refresh()
+		}
+
 		err := removeProjectFromJsonFile(inputText)
 		if err != nil {
 			fmt.Println("Failed to remove project from JSON:", err)
@@ -222,64 +73,7 @@ func projectButton(inputText string, lastColumnContent *fyne.Container, path str
 	return buttonContainer
 }
 
-func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment *widget.Entry, Window fyne.Window) (error, bool) {
-	file, err := openFileJson()
-	if err != nil {
-		fmt.Println("Error opening file:", err)
-	}
-	defer file.Close()
-
-	err = handleButtonClick(projectPath.Text)
-	if err != nil {
-		return err, false
-	}
-
-	var state *JsonInformation
-
-	fileInfo, err := file.Stat()
-	if err != nil {
-		return fmt.Errorf("failed to get file info: %v", err), false
-	}
-
-	if fileInfo.Size() == 0 {
-		state = &JsonInformation{
-			RecentProjects: []Project{},
-		}
-	} else {
-		err := readJsonFile(file, &state)
-		if err != nil {
-			return err, false
-		}
-	}
-
-	for _, addres := range state.RecentProjects {
-		if projectPath.Text == addres.FileAddress {
-			m := fmt.Sprintf("This database has already been added to your projects under the name '%s'", addres.Name)
-			dialog.ShowInformation("error", m, Window)
-
-			err = writeJsonFile(file, state)
-			if err != nil {
-				return fmt.Errorf("failed to decode JSON: %v", err), false
-			}
-			return nil, true
-		}
-	}
-	newActivity := Project{
-		Name:        name.Text,
-		Comment:     comment.Text,
-		FileAddress: projectPath.Text,
-	}
-
-	state.RecentProjects = append(state.RecentProjects, newActivity)
-
-	err = writeJsonFile(file, state)
-	if err != nil {
-		return fmt.Errorf("failed to decode JSON: %v", err), false
-	}
-	return nil, false
-}
-
-func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container) {
+func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Button) {
 	newWindow := a.NewWindow(title)
 
 	createSeparator := func() *canvas.Line {
@@ -364,7 +158,7 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 
 			if !addButton {
 
-				buttonContainer := projectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG)
+				buttonContainer := projectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG, nameButtonProject)
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 

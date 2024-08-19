@@ -20,15 +20,16 @@ func main() {
 
 	keyRightColunm := widget.NewButton("key", func() {})
 	valueRightColunm := widget.NewButton("value", func() {})
+	nameButtonProject := widget.NewButton("", func() {})
 
 	t := container.NewGridWithColumns(2, keyRightColunm, valueRightColunm)
 
-	lastColumnContent := setupLastColumn(myApp, rightColumnContent)
+	lastColumnContent := setupLastColumn(myApp, rightColumnContent, nameButtonProject)
 	spacer := widget.NewLabel("")
 	spacer.Resize(fyne.NewSize(0, 30))
 
 	pluss := widget.NewButton("+", func() {
-		openNewWindow(myApp, "levelDB", lastColumnContent, rightColumnContent)
+		openNewWindow(myApp, "levelDB", lastColumnContent, rightColumnContent, nameButtonProject)
 	})
 	lastColumnContentt := container.NewVBox(
 		pluss,
@@ -37,6 +38,8 @@ func main() {
 
 	rightColumnContenttt := container.NewVBox(
 		t,
+		spacer,
+		nameButtonProject,
 		spacer,
 	)
 

@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/widget"
 )
 
 type JsonInformation struct {
@@ -64,4 +68,90 @@ func loadJsonData(fileName string) (JsonInformation, error) {
 	}
 
 	return jsonData, nil
+}
+
+func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment *widget.Entry, Window fyne.Window) (error, bool) {
+	file, err := openFileJson()
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+	}
+	defer file.Close()
+
+	err = handleButtonClick(projectPath.Text)
+	if err != nil {
+		return err, false
+	}
+
+	var state *JsonInformation
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return fmt.Errorf("failed to get file info: %v", err), false
+	}
+
+	if fileInfo.Size() == 0 {
+		state = &JsonInformation{
+			RecentProjects: []Project{},
+		}
+	} else {
+		err := readJsonFile(file, &state)
+		if err != nil {
+			return err, false
+		}
+	}
+
+	for _, addres := range state.RecentProjects {
+		if projectPath.Text == addres.FileAddress {
+			m := fmt.Sprintf("This database has already been added to your projects under the name '%s'", addres.Name)
+			dialog.ShowInformation("error", m, Window)
+
+			err = writeJsonFile(file, state)
+			if err != nil {
+				return fmt.Errorf("failed to decode JSON: %v", err), false
+			}
+			return nil, true
+		}
+	}
+	newActivity := Project{
+		Name:        name.Text,
+		Comment:     comment.Text,
+		FileAddress: projectPath.Text,
+	}
+
+	state.RecentProjects = append(state.RecentProjects, newActivity)
+
+	err = writeJsonFile(file, state)
+	if err != nil {
+		return fmt.Errorf("failed to decode JSON: %v", err), false
+	}
+	return nil, false
+}
+
+func removeProjectFromJsonFile(projectName string) error {
+	file, err := openFileJson()
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+	}
+	defer file.Close()
+
+	var state *JsonInformation
+
+	err = readJsonFile(file, &state)
+	if err != nil {
+		return err
+	}
+
+	for i, project := range state.RecentProjects {
+		if project.Name == projectName {
+			state.RecentProjects = append(state.RecentProjects[:i], state.RecentProjects[i+1:]...)
+			break
+		}
+	}
+
+	err = writeJsonFile(file, &state)
+	if err != nil {
+		return fmt.Errorf("failed to decode JSON: %v", err)
+	}
+
+	return nil
 }
