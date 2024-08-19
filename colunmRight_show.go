@@ -10,6 +10,11 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
+type datebace struct {
+	key   string
+	value string
+}
+
 func checkCondition(rightColumnContent *fyne.Container) bool {
 	if len(rightColumnContent.Objects) > 2 {
 		return false
