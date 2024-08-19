@@ -17,11 +17,6 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
-type datebace struct {
-	key   string
-	value string
-}
-
 func projectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Button) *fyne.Container {
 	projectButton := widget.NewButton(inputText, func() {
 		handleProjectSelection(path, rightColumnContentORG)
