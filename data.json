@@ -1,3 +1,14 @@
 {
-    "recentProjects": []
+    "recentProjects": [
+        {
+            "name": "mohsen",
+            "comment": "salehi",
+            "fileAddress": "/Users/macbookpro/Desktop/example_db"
+        },
+        {
+            "name": "sl",
+            "comment": "lt",
+            "fileAddress": "/Users/macbookpro/Documents/GitHub/Bitcoin-prices/example_db"
+        }
+    ]
 }

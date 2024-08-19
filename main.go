@@ -16,22 +16,33 @@ func main() {
 	myApp.SetIcon(iconResource)
 	myWindow.SetIcon(iconResource)
 
-	lastColumnContent := setupLastColumn(myApp)
+	rightColumnContent := container.NewVBox()
+
+	keyRightColunm := widget.NewButton("key", func() {})
+	valueRightColunm := widget.NewButton("value", func() {})
+
+	t := container.NewGridWithColumns(2, keyRightColunm, valueRightColunm)
+
+	lastColumnContent := setupLastColumn(myApp, rightColumnContent)
 	spacer := widget.NewLabel("")
 	spacer.Resize(fyne.NewSize(0, 30))
 
 	pluss := widget.NewButton("+", func() {
-		openNewWindow(myApp, "levelDB", lastColumnContent)
+		openNewWindow(myApp, "levelDB", lastColumnContent, rightColumnContent)
 	})
 	lastColumnContentt := container.NewVBox(
 		pluss,
 		spacer,
 	)
 
-	darkLight := setupThemeButtons(myApp)
-	rightColumnContent := container.NewVBox()
+	rightColumnContenttt := container.NewVBox(
+		t,
+		spacer,
+	)
 
-	containerAll := columnContent(rightColumnContent, lastColumnContent, lastColumnContentt, darkLight)
+	darkLight := setupThemeButtons(myApp)
+
+	containerAll := columnContent(rightColumnContent, lastColumnContent, lastColumnContentt, darkLight, rightColumnContenttt)
 	myWindow.CenterOnScreen()
 	myWindow.SetContent(containerAll)
 	myWindow.Resize(fyne.NewSize(1200, 800))

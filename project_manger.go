@@ -17,6 +17,158 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
+func checkCondition(rightColumnContent *fyne.Container) bool {
+	if len(rightColumnContent.Objects) > 2 {
+		return false
+	}
+	return true
+}
+
+type datebace struct {
+	key   string
+	value string
+}
+
+func readDatabace(Addres string) (error, []datebace) {
+	var Item []datebace
+	db, err := leveldb.OpenFile(Addres, nil)
+	if err != nil {
+		return err, Item
+	}
+	defer db.Close()
+
+	iter := db.NewIterator(nil, nil)
+	for iter.Next() {
+		key := string(iter.Key())
+		value := string(iter.Value())
+		Item = append(Item, datebace{key: key, value: value})
+	}
+	iter.Release()
+
+	return nil, Item
+}
+
+// یک تابع برای کوتاه کردن متن و اضافه کردن ... در انتهای آن
+func truncateString(str string, maxLength int) string {
+	if len(str) > maxLength {
+		return str[:maxLength] + "..."
+	}
+	return str
+}
+
+func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container) {
+
+	if !checkCondition(rightColumnContent) {
+		newObjects := []fyne.CanvasObject{
+			rightColumnContent.Objects[0], // ویجت اول
+			rightColumnContent.Objects[1], // ویجت دوم
+		}
+
+		// حذف تمام ویجت‌ها از کانتینر
+		rightColumnContent.Objects = newObjects
+
+		// بروزرسانی محتوا
+		rightColumnContent.Refresh()
+	}
+	// خواندن داده‌ها از دیتابیس
+	err, data := readDatabace(dbPath)
+	if err != nil {
+		fmt.Println("Failed to read database:", err)
+		return
+	}
+
+	// محدودیت طول برای کلید و مقدار
+	const maxKeyLength = 20
+	const maxValueLength = 30
+
+	// ایجاد دکمه‌ها برای هر رکورد و اضافه کردن آنها به ستون سمت راست
+	for _, item := range data {
+		// کوتاه کردن key و value در صورت نیاز
+		truncatedKey := truncateString(item.key, maxKeyLength)
+		truncatedValue := truncateString(item.value, maxValueLength)
+
+		keyButton := widget.NewButton(truncatedKey, func() {
+			editWindow := fyne.CurrentApp().NewWindow("Edit Value")
+			editWindow.Resize(fyne.NewSize(600, 600))
+
+			valueEntry := widget.NewMultiLineEntry()
+			valueEntry.Resize(fyne.NewSize(500, 500))
+			scrollableEntry := container.NewScroll(valueEntry)
+			mainContainer := container.NewBorder(nil, nil, nil, nil, scrollableEntry)
+
+			scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
+			valueEntry.SetText(item.key)
+
+			saveButton := widget.NewButton("Save", func() {
+				// ذخیره مقدار جدید
+				item.key = valueEntry.Text
+				editWindow.Close()
+				rightColumnContent.Refresh()
+			})
+
+			cancelButton := widget.NewButton("Cancel", func() {
+				editWindow.Close()
+			})
+
+			m := container.NewGridWithColumns(2, cancelButton, saveButton)
+			b := container.NewBorder(nil, m, nil, nil)
+
+			editContent := container.NewVBox(
+				widget.NewLabel("Edit Value:"),
+				mainContainer,
+				layout.NewSpacer(),
+				b,
+			)
+
+			editWindow.SetContent(editContent)
+			editWindow.Show()
+		})
+
+		valueButton := widget.NewButton(truncatedValue, func() {
+			editWindow := fyne.CurrentApp().NewWindow("Edit Value")
+			editWindow.Resize(fyne.NewSize(600, 600))
+
+			valueEntry := widget.NewMultiLineEntry()
+			valueEntry.Resize(fyne.NewSize(500, 500))
+			scrollableEntry := container.NewScroll(valueEntry)
+			mainContainer := container.NewBorder(nil, nil, nil, nil, scrollableEntry)
+
+			scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
+			valueEntry.SetText(item.value)
+
+			saveButton := widget.NewButton("Save", func() {
+				// ذخیره مقدار جدید
+				item.value = valueEntry.Text
+				editWindow.Close()
+				rightColumnContent.Refresh()
+			})
+
+			cancelButton := widget.NewButton("Cancel", func() {
+				editWindow.Close()
+			})
+
+			m := container.NewGridWithColumns(2, cancelButton, saveButton)
+			b := container.NewBorder(nil, m, nil, nil)
+
+			editContent := container.NewVBox(
+				widget.NewLabel("Edit Value:"),
+				mainContainer,
+				layout.NewSpacer(),
+				b,
+			)
+
+			editWindow.SetContent(editContent)
+			editWindow.Show()
+		})
+
+		// اضافه کردن دکمه‌ها به ستون سمت راست
+		buttonRow := container.NewGridWithColumns(2, keyButton, valueButton)
+		rightColumnContent.Add(buttonRow)
+	}
+
+	rightColumnContent.Refresh()
+}
+
 func removeProjectFromJsonFile(projectName string) error {
 	file, err := openFileJson()
 	if err != nil {
@@ -46,9 +198,10 @@ func removeProjectFromJsonFile(projectName string) error {
 	return nil
 }
 
-func projectButton(inputText string, lastColumnContent *fyne.Container) *fyne.Container {
+func projectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container) *fyne.Container {
 	projectButton := widget.NewButton(inputText, func() {
-		fmt.Println("Selected project:", inputText)
+		handleProjectSelection(path, rightColumnContentORG)
+
 	})
 
 	buttonContainer := container.NewHBox()
@@ -126,7 +279,7 @@ func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment
 	return nil, false
 }
 
-func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container) {
+func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container) {
 	newWindow := a.NewWindow(title)
 
 	createSeparator := func() *canvas.Line {
@@ -211,10 +364,12 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container) 
 
 			if !addButton {
 
-				buttonContainer := projectButton(pathEntry.Text, lastColumnContent)
-
+				buttonContainer := projectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG)
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
+
+				handleProjectSelection(pathEntry2.Text, rightColumnContentORG)
+				rightColumnContentORG.Refresh()
 
 				newWindow.Close()
 			}
