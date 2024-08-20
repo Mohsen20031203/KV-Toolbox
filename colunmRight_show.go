@@ -71,7 +71,7 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container) {
 
 	// محدودیت طول برای کلید و مقدار
 	const maxKeyLength = 20
-	const maxValueLength = 30
+	const maxValueLength = 50
 
 	// ایجاد دکمه‌ها برای هر رکورد و اضافه کردن آنها به ستون سمت راست
 	for _, item := range data {
@@ -79,7 +79,10 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container) {
 		truncatedKey := truncateString(item.key, maxKeyLength)
 		truncatedValue := truncateString(item.value, maxValueLength)
 
-		keyButton := widget.NewButton(truncatedKey, func() {
+		var keyButton *widget.Button // تعریف متغیر کلید در خارج از تابع
+
+		// write a function for key and value button
+		keyButton = widget.NewButton(truncatedKey, func() {
 			editWindow := fyne.CurrentApp().NewWindow("Edit Value")
 			editWindow.Resize(fyne.NewSize(600, 600))
 
@@ -92,8 +95,14 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container) {
 			valueEntry.SetText(item.key)
 
 			saveButton := widget.NewButton("Save", func() {
-				// ذخیره مقدار جدید
 				item.key = valueEntry.Text
+
+				truncatedKey2 := truncateString(item.key, maxKeyLength)
+				// بروز‌رسانی متن کلید
+				keyButton.SetText(truncatedKey2)
+
+				keyButton.Refresh()
+
 				editWindow.Close()
 				rightColumnContent.Refresh()
 			})
@@ -116,7 +125,9 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container) {
 			editWindow.Show()
 		})
 
-		valueButton := widget.NewButton(truncatedValue, func() {
+		var valueButton *widget.Button // تعریف متغیر کلید در خارج از تابع
+
+		valueButton = widget.NewButton(truncatedValue, func() {
 			editWindow := fyne.CurrentApp().NewWindow("Edit Value")
 			editWindow.Resize(fyne.NewSize(600, 600))
 
@@ -131,6 +142,12 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container) {
 			saveButton := widget.NewButton("Save", func() {
 				// ذخیره مقدار جدید
 				item.value = valueEntry.Text
+
+				truncatedKey2 := truncateString(item.value, maxValueLength)
+				// بروز‌رسانی متن دکمه
+				valueButton.SetText(truncatedKey2)
+				valueButton.Refresh()
+
 				editWindow.Close()
 				rightColumnContent.Refresh()
 			})
