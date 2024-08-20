@@ -17,9 +17,9 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
-func projectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label) *fyne.Container {
+func projectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
 	projectButton := widget.NewButton(inputText, func() {
-		handleProjectSelection(path, rightColumnContentORG)
+		handleProjectSelection(path, rightColumnContentORG, buttonAdd)
 		if nameButtonProject.Text == "" {
 			nameButtonProject.Text = inputText
 		} else {
@@ -46,6 +46,7 @@ func projectButton(inputText string, lastColumnContent *fyne.Container, path str
 
 			// حذف تمام ویجت‌ها از کانتینر
 			rightColumnContentORG.Objects = newObjects
+			buttonAdd.Disable()
 
 			// بروزرسانی محتوا
 			nameButtonProject.Text = ""
@@ -64,11 +65,10 @@ func projectButton(inputText string, lastColumnContent *fyne.Container, path str
 	})
 
 	buttonContainer = container.NewBorder(nil, nil, nil, closeButton, projectButton)
-
 	return buttonContainer
 }
 
-func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, myWindow fyne.Window) {
+func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) {
 	newWindow := a.NewWindow(title)
 
 	createSeparator := func() *canvas.Line {
@@ -142,7 +142,6 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	)
 
 	buttonCancel := widget.NewButton("Cancel", func() {
-		myWindow.Show()
 		newWindow.Close()
 	})
 
@@ -151,14 +150,13 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 		if err != nil {
 			dialog.ShowInformation("Error ", "There is something wrong with your file and I can't connect to it", newWindow)
 		} else {
-			myWindow.Show()
 			if !addButton {
 
-				buttonContainer := projectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG, nameButtonProject)
+				buttonContainer := projectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG, nameButtonProject, buttonAdd)
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 
-				handleProjectSelection(pathEntry2.Text, rightColumnContentORG)
+				handleProjectSelection(pathEntry2.Text, rightColumnContentORG, buttonAdd)
 				rightColumnContentORG.Refresh()
 
 				newWindow.Close()

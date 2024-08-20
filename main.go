@@ -27,15 +27,35 @@ func main() {
 		fyne.TextStyle{Bold: true},
 	)
 
+	searchButton := widget.NewButton("Search", func() {})
+	buttonAdd := widget.NewButton("Add", func() {
+		windowAdd := myApp.NewWindow("add Key and Value")
+		iputKey := widget.NewEntry()
+		iputKey.SetPlaceHolder("Key")
+		iputvalue := widget.NewEntry()
+		iputvalue.SetPlaceHolder("Value")
+		ButtonAddAdd := widget.NewButton("Add", func() {})
+
+		cont := container.NewVBox(
+			iputKey,
+			iputvalue,
+			ButtonAddAdd,
+		)
+		windowAdd.SetContent(cont)
+		windowAdd.Resize(fyne.NewSize(900, 500))
+		windowAdd.Show()
+	})
+	buttonAdd.Disable()
+	m := container.NewGridWithColumns(2, buttonAdd, searchButton)
+
 	t := container.NewGridWithColumns(2, keyRightColunm, valueRightColunm)
 
-	lastColumnContent := setupLastColumn(myApp, rightColumnContent, nameButtonProject)
+	lastColumnContent := setupLastColumn(myApp, rightColumnContent, nameButtonProject, buttonAdd)
 	spacer := widget.NewLabel("")
 	spacer.Resize(fyne.NewSize(0, 30))
 
 	pluss := widget.NewButton("+", func() {
-		myWindow.Hide()
-		openNewWindow(myApp, "levelDB", lastColumnContent, rightColumnContent, nameButtonProject, myWindow)
+		openNewWindow(myApp, "levelDB", lastColumnContent, rightColumnContent, nameButtonProject, buttonAdd)
 	})
 	lastColumnContentt := container.NewVBox(
 		pluss,
@@ -50,9 +70,9 @@ func main() {
 
 	rightColumnContenttt := container.NewVBox(
 		centeredContainer,
+		m,
 		spacer,
 		t,
-		spacer,
 	)
 
 	darkLight := setupThemeButtons(myApp)

@@ -68,8 +68,9 @@ func (t *TappableLabel) Tapped(_ *fyne.PointEvent) {
 	t.onTapped()
 }
 
-func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container) {
+func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container, buttonAdd *widget.Button) {
 
+	buttonAdd.Enable()
 	if !checkCondition(rightColumnContent) {
 		newObjects := []fyne.CanvasObject{
 			rightColumnContent.Objects[0], // ویجت اول
@@ -114,9 +115,7 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container) {
 
 			scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
 			valueEntry.SetText(item.key)
-
 			saveButton := widget.NewButton("Save", func() {
-
 				db, err := leveldb.OpenFile(dbPath, nil)
 				if err != nil {
 					return
@@ -177,7 +176,6 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container) {
 			valueEntry.SetText(item.value)
 
 			saveButton := widget.NewButton("Save", func() {
-
 				db, err := leveldb.OpenFile(dbPath, nil)
 				if err != nil {
 					return
