@@ -68,7 +68,7 @@ func projectButton(inputText string, lastColumnContent *fyne.Container, path str
 	return buttonContainer
 }
 
-func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label) {
+func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, myWindow fyne.Window) {
 	newWindow := a.NewWindow(title)
 
 	createSeparator := func() *canvas.Line {
@@ -142,6 +142,7 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	)
 
 	buttonCancel := widget.NewButton("Cancel", func() {
+		myWindow.Show()
 		newWindow.Close()
 	})
 
@@ -150,7 +151,7 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 		if err != nil {
 			dialog.ShowInformation("Error ", "There is something wrong with your file and I can't connect to it", newWindow)
 		} else {
-
+			myWindow.Show()
 			if !addButton {
 
 				buttonContainer := projectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG, nameButtonProject)

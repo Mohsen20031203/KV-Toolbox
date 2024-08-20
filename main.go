@@ -34,7 +34,8 @@ func main() {
 	spacer.Resize(fyne.NewSize(0, 30))
 
 	pluss := widget.NewButton("+", func() {
-		openNewWindow(myApp, "levelDB", lastColumnContent, rightColumnContent, nameButtonProject)
+		myWindow.Hide()
+		openNewWindow(myApp, "levelDB", lastColumnContent, rightColumnContent, nameButtonProject, myWindow)
 	})
 	lastColumnContentt := container.NewVBox(
 		pluss,
