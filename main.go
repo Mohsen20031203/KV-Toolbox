@@ -4,6 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
@@ -20,7 +21,11 @@ func main() {
 
 	keyRightColunm := widget.NewButton("key", func() {})
 	valueRightColunm := widget.NewButton("value", func() {})
-	nameButtonProject := widget.NewButton("", func() {})
+	nameButtonProject := widget.NewLabelWithStyle(
+		"",
+		fyne.TextAlignCenter,
+		fyne.TextStyle{Bold: true},
+	)
 
 	t := container.NewGridWithColumns(2, keyRightColunm, valueRightColunm)
 
@@ -36,10 +41,16 @@ func main() {
 		spacer,
 	)
 
+	centeredContainer := container.NewHBox(
+		layout.NewSpacer(), // Spacer برای قرار دادن فاصله در بالا
+		nameButtonProject,  // لیبل
+		layout.NewSpacer(), // Spacer برای قرار دادن فاصله در پایین
+	)
+
 	rightColumnContenttt := container.NewVBox(
-		t,
+		centeredContainer,
 		spacer,
-		nameButtonProject,
+		t,
 		spacer,
 	)
 

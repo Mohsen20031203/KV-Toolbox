@@ -8,7 +8,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func setupLastColumn(app fyne.App, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Button) *fyne.Container {
+func setupLastColumn(app fyne.App, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label) *fyne.Container {
 	lastColumnContent := container.NewVBox()
 
 	go func() {
