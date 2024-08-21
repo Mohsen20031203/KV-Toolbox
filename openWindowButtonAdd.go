@@ -12,8 +12,11 @@ func openWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container, myW
 	windowAdd := myApp.NewWindow("add Key and Value")
 	iputKey := widget.NewEntry()
 	iputKey.SetPlaceHolder("Key")
-	iputvalue := widget.NewEntry()
-	iputvalue.SetPlaceHolder("Value")
+	iputvalue := widget.NewMultiLineEntry()
+	iputvalue.SetPlaceHolder("value")
+	iputvalue.Resize(fyne.NewSize(500, 500))
+	scrollableEntry := container.NewScroll(iputvalue)
+
 	ButtonAddAdd := widget.NewButton("Add", func() {
 
 		if iputKey.Text == "" && iputvalue.Text == "" {
@@ -42,11 +45,10 @@ func openWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container, myW
 	})
 	cont := container.NewVBox(
 		iputKey,
-		iputvalue,
-		ButtonAddAdd,
 	)
+	m := container.NewBorder(cont, ButtonAddAdd, nil, nil, scrollableEntry)
 
-	windowAdd.SetContent(cont)
+	windowAdd.SetContent(m)
 	windowAdd.Resize(fyne.NewSize(900, 500))
 	windowAdd.Show()
 }

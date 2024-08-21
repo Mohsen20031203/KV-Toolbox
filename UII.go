@@ -48,16 +48,16 @@ func leftColumn(lastColumnContent *fyne.Container, lastColumnContentt *fyne.Cont
 	return mainContent
 }
 
-func rightColumn(rightColumnContent *fyne.Container, rightColumnContenttt *fyne.Container) fyne.CanvasObject {
+func rightColumn(rightColumnContent *fyne.Container, rightColumnContenttt *fyne.Container, rawSearchAndAdd *fyne.Container) fyne.CanvasObject {
 	rightColumnScrollable := container.NewVScroll(rightColumnContent)
-	mainContent := container.NewBorder(rightColumnContenttt, nil, nil, nil, rightColumnScrollable)
+	mainContent := container.NewBorder(rightColumnContenttt, rawSearchAndAdd, nil, nil, rightColumnScrollable)
 
 	return mainContent
 }
 
-func columnContent(rightColumnContent *fyne.Container, lastColumnContent *fyne.Container, lastColumnContentt *fyne.Container, darkLight *fyne.Container, rightColumnContenttt *fyne.Container) fyne.CanvasObject {
+func columnContent(rightColumnContent *fyne.Container, lastColumnContent *fyne.Container, lastColumnContentt *fyne.Container, darkLight *fyne.Container, rightColumnContenttt *fyne.Container, rawSearchAndAdd *fyne.Container) fyne.CanvasObject {
 	mainContent := leftColumn(lastColumnContent, lastColumnContentt, darkLight)
-	rightColumnScrollable := rightColumn(rightColumnContent, rightColumnContenttt)
+	rightColumnScrollable := rightColumn(rightColumnContent, rightColumnContenttt, rawSearchAndAdd)
 	columns := container.NewHSplit(mainContent, rightColumnScrollable)
 	columns.SetOffset(0.25)
 

@@ -1,8 +1,11 @@
 package main
 
 import (
+	"image/color"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
@@ -16,6 +19,9 @@ func main() {
 	iconResource := theme.FyneLogo()
 	myApp.SetIcon(iconResource)
 	myWindow.SetIcon(iconResource)
+
+	line := canvas.NewLine(color.Black)
+	line.StrokeWidth = 2
 
 	rightColumnContent := container.NewVBox()
 
@@ -32,7 +38,6 @@ func main() {
 		openWindowAddButton(myApp, rightColumnContent, myWindow)
 	})
 	buttonAdd.Disable()
-	m := container.NewGridWithColumns(2, buttonAdd, searchButton)
 
 	t := container.NewGridWithColumns(2, keyRightColunm, valueRightColunm)
 
@@ -54,16 +59,21 @@ func main() {
 		layout.NewSpacer(), // Spacer برای قرار دادن فاصله در پایین
 	)
 
+	rawSearchAndAdd := container.NewVBox(
+		layout.NewSpacer(),
+		container.NewGridWithColumns(2, searchButton, buttonAdd),
+	)
+
 	rightColumnContenttt := container.NewVBox(
-		centeredContainer,
-		m,
 		spacer,
+		line,
+		centeredContainer,
 		t,
 	)
 
 	darkLight := setupThemeButtons(myApp)
 
-	containerAll := columnContent(rightColumnContent, lastColumnContent, lastColumnContentt, darkLight, rightColumnContenttt)
+	containerAll := columnContent(rightColumnContent, lastColumnContent, lastColumnContentt, darkLight, rightColumnContenttt, rawSearchAndAdd)
 	myWindow.CenterOnScreen()
 	myWindow.SetContent(containerAll)
 	myWindow.Resize(fyne.NewSize(1200, 800))

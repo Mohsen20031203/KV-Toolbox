@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"fyne.io/fyne/v2"
@@ -13,6 +14,12 @@ import (
 type datebace struct {
 	key   string
 	value string
+}
+
+func isValidJSON(data string) bool {
+	var js json.RawMessage
+	m := json.Unmarshal([]byte(data), &js) == nil
+	return m
 }
 
 func checkCondition(rightColumnContent *fyne.Container) bool {
@@ -73,17 +80,15 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 	buttonAdd.Enable()
 	if !checkCondition(rightColumnContent) {
 		newObjects := []fyne.CanvasObject{
-			rightColumnContent.Objects[0], // ویجت اول
-			rightColumnContent.Objects[1], // ویجت دوم
+			rightColumnContent.Objects[0],
+			rightColumnContent.Objects[1],
 		}
 
-		// حذف تمام ویجت‌ها از کانتینر
 		rightColumnContent.Objects = newObjects
 
-		// بروزرسانی محتوا
 		rightColumnContent.Refresh()
 	}
-	// خواندن داده‌ها از دیتابیس
+
 	err, data := readDatabace(dbPath)
 	if err != nil {
 		fmt.Println("Failed to read database:", err)
@@ -91,14 +96,13 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 	}
 
 	for _, item := range data {
-		// کوتاه کردن key و value در صورت نیاز
+
 		truncatedKey := truncateString(item.key, 20)
 		truncatedValue := truncateString(item.value, 50)
 
 		valueLabel := buidLableKeyAndValue("value", item.key, item.value, truncatedValue, dbPath, rightColumnContent)
 		keyLabel := buidLableKeyAndValue("key", item.key, item.value, truncatedKey, dbPath, rightColumnContent)
 
-		// افزودن برچسب‌ها به شبکه
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
 	}
@@ -118,11 +122,16 @@ func buidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 		valueEntry := widget.NewMultiLineEntry()
 		valueEntry.Resize(fyne.NewSize(500, 500))
 		if eidtKeyAbdValue == "value" {
-
-			valueEntry.SetText(value)
+			if isValidJSON(value) {
+				var formattedJSON map[string]interface{}
+				json.Unmarshal([]byte(value), &formattedJSON)
+				jsonString, _ := json.MarshalIndent(formattedJSON, "", "  ")
+				valueEntry.SetText(string(jsonString))
+			} else {
+				valueEntry.SetText(value)
+			}
 		} else {
 			valueEntry.SetText(key)
-
 		}
 		scrollableEntry := container.NewScroll(valueEntry)
 		mainContainer := container.NewBorder(nil, nil, nil, nil, scrollableEntry)

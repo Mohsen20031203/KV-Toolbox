@@ -1,9 +1,14 @@
 {
     "recentProjects": [
         {
-            "name": "",
-            "comment": "",
+            "name": "disk1",
+            "comment": "one",
             "fileAddress": "/Users/macbookpro/Desktop/exططططample_db"
+        },
+        {
+            "name": "disk2",
+            "comment": "one",
+            "fileAddress": "/Users/macbookpro/Desktop/example_db 2"
         }
     ]
 }
