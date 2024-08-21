@@ -29,21 +29,7 @@ func main() {
 
 	searchButton := widget.NewButton("Search", func() {})
 	buttonAdd := widget.NewButton("Add", func() {
-		windowAdd := myApp.NewWindow("add Key and Value")
-		iputKey := widget.NewEntry()
-		iputKey.SetPlaceHolder("Key")
-		iputvalue := widget.NewEntry()
-		iputvalue.SetPlaceHolder("Value")
-		ButtonAddAdd := widget.NewButton("Add", func() {})
-
-		cont := container.NewVBox(
-			iputKey,
-			iputvalue,
-			ButtonAddAdd,
-		)
-		windowAdd.SetContent(cont)
-		windowAdd.Resize(fyne.NewSize(900, 500))
-		windowAdd.Show()
+		openWindowAddButton(myApp, rightColumnContent, myWindow)
 	})
 	buttonAdd.Disable()
 	m := container.NewGridWithColumns(2, buttonAdd, searchButton)

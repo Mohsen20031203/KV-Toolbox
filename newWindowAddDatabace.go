@@ -17,8 +17,11 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
+var folderPath string
+
 func projectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
 	projectButton := widget.NewButton(inputText, func() {
+		folderPath = path
 		handleProjectSelection(path, rightColumnContentORG, buttonAdd)
 		if nameButtonProject.Text == "" {
 			nameButtonProject.Text = inputText
@@ -122,7 +125,7 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 			}
 			filePath := dir.URI().Path()
 
-			folderPath := filepath.Dir(filePath)
+			folderPath = filepath.Dir(filePath)
 
 			if hasManifestFile(folderPath) {
 				pathEntry2.SetText(folderPath)
@@ -156,8 +159,8 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 
-				handleProjectSelection(pathEntry2.Text, rightColumnContentORG, buttonAdd)
-				rightColumnContentORG.Refresh()
+				/*handleProjectSelection(pathEntry2.Text, rightColumnContentORG, buttonAdd)
+				rightColumnContentORG.Refresh()*/
 
 				newWindow.Close()
 			}

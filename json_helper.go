@@ -105,10 +105,6 @@ func addProjectToJsonFile(projectPath *widget.Entry, name *widget.Entry, comment
 			m := fmt.Sprintf("This database has already been added to your projects under the name '%s'", addres.Name)
 			dialog.ShowInformation("error", m, Window)
 
-			err = writeJsonFile(file, state)
-			if err != nil {
-				return fmt.Errorf("failed to decode JSON: %v", err), false
-			}
 			return nil, true
 		}
 	}
