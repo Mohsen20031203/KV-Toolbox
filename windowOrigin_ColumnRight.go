@@ -110,11 +110,9 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 	rightColumnContent.Refresh()
 }
 
-// valueOrKey ---> if valueOrKey = true ----> value -&&- if valueOrKey = false ----> key
 func buidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, nameLable string, Addres string, rightColumnContent *fyne.Container) *TappableLabel {
 	var lableKeyAndValue *TappableLabel
 
-	// ایجاد برچسب قابل کلیک برای کلید
 	lableKeyAndValue = NewTappableLabel(nameLable, func() {
 		editWindow := fyne.CurrentApp().NewWindow("Edit" + eidtKeyAbdValue)
 		editWindow.Resize(fyne.NewSize(600, 600))
@@ -165,7 +163,6 @@ func buidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 				truncatedKey2 = truncateString(key, 20)
 			}
 
-			// بروز‌رسانی متن برچسب
 			lableKeyAndValue.SetText(truncatedKey2)
 			lableKeyAndValue.Refresh()
 

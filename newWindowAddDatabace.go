@@ -47,11 +47,9 @@ func projectButton(inputText string, lastColumnContent *fyne.Container, path str
 		if !checkCondition(rightColumnContentORG) && nameButtonProject.Text == inputText {
 			newObjects := []fyne.CanvasObject{}
 
-			// حذف تمام ویجت‌ها از کانتینر
 			rightColumnContentORG.Objects = newObjects
 			buttonAdd.Disable()
 
-			// بروزرسانی محتوا
 			nameButtonProject.Text = ""
 			nameButtonProject.Refresh()
 			rightColumnContentORG.Refresh()
