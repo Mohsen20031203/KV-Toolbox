@@ -39,9 +39,16 @@ func main() {
 	})
 	buttonAdd.Disable()
 
+	nextButton := widget.NewButton("next", func() {
+		handleProjectSelection(folderPath, rightColumnContent, buttonAdd)
+	})
+	preButton := widget.NewButton("prev", func() {
+		handleProjectSelection(folderPath, rightColumnContent, buttonAdd)
+	})
+
 	t := container.NewGridWithColumns(2, keyRightColunm, valueRightColunm)
 
-	lastColumnContent := setupLastColumn(myApp, rightColumnContent, nameButtonProject, buttonAdd)
+	lastColumnContent := setupLastColumn(rightColumnContent, nameButtonProject, buttonAdd)
 	spacer := widget.NewLabel("")
 	spacer.Resize(fyne.NewSize(0, 30))
 
@@ -62,6 +69,7 @@ func main() {
 	rawSearchAndAdd := container.NewVBox(
 		layout.NewSpacer(),
 		container.NewGridWithColumns(2, searchButton, buttonAdd),
+		container.NewGridWithColumns(2, preButton, nextButton),
 	)
 
 	rightColumnContenttt := container.NewVBox(

@@ -3,12 +3,17 @@
         {
             "name": "disk1",
             "comment": "one",
-            "fileAddress": "/Users/macbookpro/Desktop/exططططample_db"
+            "fileAddress": "/Users/macbookpro/Desktop/example_db"
         },
         {
             "name": "disk2",
-            "comment": "one",
-            "fileAddress": "/Users/macbookpro/Desktop/example_db 2"
+            "comment": "two",
+            "fileAddress": "/Users/macbookpro/Desktop/exططططample_db"
+        },
+        {
+            "name": "doc",
+            "comment": "three",
+            "fileAddress": "/Users/macbookpro/Documents/GitHub/Bitcoin-prices/example_db"
         }
     ]
 }

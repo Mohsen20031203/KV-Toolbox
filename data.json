@@ -7,8 +7,13 @@
         },
         {
             "name": "disk2",
-            "comment": "",
-            "fileAddress": "/Users/macbookpro/Desktop/example_db 2"
+            "comment": "two",
+            "fileAddress": "/Users/macbookpro/Desktop/exططططample_db"
+        },
+        {
+            "name": "disk3",
+            "comment": "three",
+            "fileAddress": "/Users/macbookpro/Documents/GitHub/Bitcoin-prices/example_db"
         }
     ]
 }
