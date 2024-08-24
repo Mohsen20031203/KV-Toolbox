@@ -12,6 +12,7 @@ import (
 )
 
 var count int
+var lastkey datebace
 
 type datebace struct {
 	key   string
@@ -95,7 +96,7 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 	}
 
 	for _, item := range data {
-		if count >= 4 {
+		if count >= 5 {
 			count = 0
 			break
 		}
@@ -109,6 +110,7 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
+		lastkey = item
 
 	}
 

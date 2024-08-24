@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 
 	"fyne.io/fyne/v2"
@@ -11,6 +12,9 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
+
+var lastKey datebace
+var ball bool
 
 func main() {
 	myApp := app.New()
@@ -39,13 +43,6 @@ func main() {
 	})
 	buttonAdd.Disable()
 
-	nextButton := widget.NewButton("next", func() {
-
-	})
-	preButton := widget.NewButton("prev", func() {
-		handleProjectSelection(folderPath, rightColumnContent, buttonAdd)
-	})
-
 	t := container.NewGridWithColumns(2, keyRightColunm, valueRightColunm)
 
 	lastColumnContent := setupLastColumn(rightColumnContent, nameButtonProject, buttonAdd)
@@ -60,10 +57,106 @@ func main() {
 		spacer,
 	)
 
+	nextButton := widget.NewButton("next", func() {
+		if !checkCondition(rightColumnContent) {
+			newObjects := []fyne.CanvasObject{}
+
+			rightColumnContent.Objects = newObjects
+
+			rightColumnContent.Refresh()
+		}
+
+		err, data := readDatabace(folderPath)
+		if err != nil {
+			fmt.Println("Failed to read database:", err)
+			return
+		}
+
+		for _, item := range data {
+
+			if lastkey != item && !ball {
+				continue
+			}
+			ball = true
+
+			if count >= 5 {
+				count = 0
+				ball = false
+				break
+			}
+			lastkey = item
+			count++
+
+			if ball {
+
+				truncatedKey := truncateString(item.key, 20)
+				truncatedValue := truncateString(item.value, 50)
+
+				valueLabel := buidLableKeyAndValue("value", item.key, item.value, truncatedValue, folderPath, rightColumnContent)
+				keyLabel := buidLableKeyAndValue("key", item.key, item.value, truncatedKey, folderPath, rightColumnContent)
+
+				buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
+				rightColumnContent.Add(buttonRow)
+			}
+
+		}
+
+		rightColumnContent.Refresh()
+
+	})
+	preButton := widget.NewButton("prev", func() {
+		// چک کردن وضعیت و پاکسازی محتوای ستون راست
+		if !checkCondition(rightColumnContent) {
+			newObjects := []fyne.CanvasObject{}
+			rightColumnContent.Objects = newObjects
+			rightColumnContent.Refresh()
+		}
+
+		// خواندن داده‌ها از دیتابیس
+		err, data := readDatabace(folderPath)
+		if err != nil {
+			fmt.Println("Failed to read database:", err)
+			return
+		}
+
+		// پیمایش لیست از انتها به ابتدا
+		for i := len(data) - 1; i >= 0; i-- {
+			item := data[i]
+
+			// ادامه تا رسیدن به lastkey
+			if lastkey != item && !ball {
+				continue
+			}
+			ball = true
+
+			// نمایش حداکثر 5 آیتم و سپس توقف
+			if count >= 5 {
+				count = 0
+				ball = false
+				break
+			}
+			lastkey = item
+			count++
+
+			// ساخت و اضافه کردن برچسب‌ها به ستون راست
+			truncatedKey := truncateString(item.key, 20)
+			truncatedValue := truncateString(item.value, 50)
+
+			valueLabel := buidLableKeyAndValue("value", item.key, item.value, truncatedValue, folderPath, rightColumnContent)
+			keyLabel := buidLableKeyAndValue("key", item.key, item.value, truncatedKey, folderPath, rightColumnContent)
+
+			buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
+			rightColumnContent.Add(buttonRow)
+		}
+
+		// تازه‌سازی محتوای ستون راست
+		rightColumnContent.Refresh()
+	})
+
 	centeredContainer := container.NewHBox(
-		layout.NewSpacer(), // Spacer برای قرار دادن فاصله در بالا
-		nameButtonProject,  // لیبل
-		layout.NewSpacer(), // Spacer برای قرار دادن فاصله در پایین
+		layout.NewSpacer(),
+		nameButtonProject,
+		layout.NewSpacer(),
 	)
 
 	rawSearchAndAdd := container.NewVBox(
