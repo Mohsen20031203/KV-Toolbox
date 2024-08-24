@@ -40,7 +40,7 @@ func main() {
 	buttonAdd.Disable()
 
 	nextButton := widget.NewButton("next", func() {
-		handleProjectSelection(folderPath, rightColumnContent, buttonAdd)
+
 	})
 	preButton := widget.NewButton("prev", func() {
 		handleProjectSelection(folderPath, rightColumnContent, buttonAdd)

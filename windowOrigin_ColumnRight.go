@@ -12,8 +12,6 @@ import (
 )
 
 var count int
-var lastKey datebace
-var ball bool
 
 type datebace struct {
 	key   string
@@ -97,36 +95,20 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 	}
 
 	for _, item := range data {
-
-		if lastKey.key == "" {
-			lastKey = item
-			ball = true
-		}
-
-		if lastKey != item && !ball {
-			continue
-		}
-		ball = true
-
 		if count >= 4 {
 			count = 0
-			ball = false
 			break
 		}
-		lastKey = item
 		count++
 
-		if ball {
+		truncatedKey := truncateString(item.key, 20)
+		truncatedValue := truncateString(item.value, 50)
 
-			truncatedKey := truncateString(item.key, 20)
-			truncatedValue := truncateString(item.value, 50)
+		valueLabel := buidLableKeyAndValue("value", item.key, item.value, truncatedValue, dbPath, rightColumnContent)
+		keyLabel := buidLableKeyAndValue("key", item.key, item.value, truncatedKey, dbPath, rightColumnContent)
 
-			valueLabel := buidLableKeyAndValue("value", item.key, item.value, truncatedValue, dbPath, rightColumnContent)
-			keyLabel := buidLableKeyAndValue("key", item.key, item.value, truncatedKey, dbPath, rightColumnContent)
-
-			buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
-			rightColumnContent.Add(buttonRow)
-		}
+		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
+		rightColumnContent.Add(buttonRow)
 
 	}
 
