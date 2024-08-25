@@ -13,8 +13,12 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var lastKey datebace
+var firstKey datebace
 var ball bool
+var currentPage int
+var itemsPerPage = 20
+var nextButton, prevButton *widget.Button
+var pageLabel *widget.Label // برچسب برای نمایش شماره صفحه
 
 func main() {
 	myApp := app.New()
@@ -57,100 +61,18 @@ func main() {
 		spacer,
 	)
 
-	nextButton := widget.NewButton("next", func() {
-		if !checkCondition(rightColumnContent) {
-			newObjects := []fyne.CanvasObject{}
+	pageLabel = widget.NewLabel(fmt.Sprintf("Page %d", currentPage+1)) // ایجاد برچسب برای شماره صفحه
 
-			rightColumnContent.Objects = newObjects
-
-			rightColumnContent.Refresh()
-		}
-
-		err, data := readDatabace(folderPath)
-		if err != nil {
-			fmt.Println("Failed to read database:", err)
-			return
-		}
-
-		for _, item := range data {
-
-			if lastkey != item && !ball {
-				continue
-			}
-			ball = true
-
-			if count >= 5 {
-				count = 0
-				ball = false
-				break
-			}
-			lastkey = item
-			count++
-
-			if ball {
-
-				truncatedKey := truncateString(item.key, 20)
-				truncatedValue := truncateString(item.value, 50)
-
-				valueLabel := buidLableKeyAndValue("value", item.key, item.value, truncatedValue, folderPath, rightColumnContent)
-				keyLabel := buidLableKeyAndValue("key", item.key, item.value, truncatedKey, folderPath, rightColumnContent)
-
-				buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
-				rightColumnContent.Add(buttonRow)
-			}
-
-		}
-
-		rightColumnContent.Refresh()
-
+	nextButton = widget.NewButton("next", func() {
+		currentPage++
+		updatePage(rightColumnContent)
 	})
-	preButton := widget.NewButton("prev", func() {
-		// چک کردن وضعیت و پاکسازی محتوای ستون راست
-		if !checkCondition(rightColumnContent) {
-			newObjects := []fyne.CanvasObject{}
-			rightColumnContent.Objects = newObjects
-			rightColumnContent.Refresh()
+
+	prevButton = widget.NewButton("prev", func() {
+		if currentPage > 0 {
+			currentPage--
+			updatePage(rightColumnContent)
 		}
-
-		// خواندن داده‌ها از دیتابیس
-		err, data := readDatabace(folderPath)
-		if err != nil {
-			fmt.Println("Failed to read database:", err)
-			return
-		}
-
-		// پیمایش لیست از انتها به ابتدا
-		for i := len(data) - 1; i >= 0; i-- {
-			item := data[i]
-
-			// ادامه تا رسیدن به lastkey
-			if lastkey != item && !ball {
-				continue
-			}
-			ball = true
-
-			// نمایش حداکثر 5 آیتم و سپس توقف
-			if count >= 5 {
-				count = 0
-				ball = false
-				break
-			}
-			lastkey = item
-			count++
-
-			// ساخت و اضافه کردن برچسب‌ها به ستون راست
-			truncatedKey := truncateString(item.key, 20)
-			truncatedValue := truncateString(item.value, 50)
-
-			valueLabel := buidLableKeyAndValue("value", item.key, item.value, truncatedValue, folderPath, rightColumnContent)
-			keyLabel := buidLableKeyAndValue("key", item.key, item.value, truncatedKey, folderPath, rightColumnContent)
-
-			buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
-			rightColumnContent.Add(buttonRow)
-		}
-
-		// تازه‌سازی محتوای ستون راست
-		rightColumnContent.Refresh()
 	})
 
 	centeredContainer := container.NewHBox(
@@ -158,11 +80,16 @@ func main() {
 		nameButtonProject,
 		layout.NewSpacer(),
 	)
+	pageLabelposition := container.NewHBox(
+		layout.NewSpacer(),
+		pageLabel,
+		layout.NewSpacer(),
+	)
 
 	rawSearchAndAdd := container.NewVBox(
 		layout.NewSpacer(),
+		container.NewGridWithColumns(3, prevButton, pageLabelposition, nextButton), // افزودن شماره صفحه بین دکمه‌ها
 		container.NewGridWithColumns(2, searchButton, buttonAdd),
-		container.NewGridWithColumns(2, preButton, nextButton),
 	)
 
 	rightColumnContenttt := container.NewVBox(
@@ -179,4 +106,54 @@ func main() {
 	myWindow.SetContent(containerAll)
 	myWindow.Resize(fyne.NewSize(1200, 800))
 	myWindow.ShowAndRun()
+}
+
+func updatePage(rightColumnContent *fyne.Container) {
+	if !checkCondition(rightColumnContent) {
+		rightColumnContent.Objects = []fyne.CanvasObject{}
+		rightColumnContent.Refresh()
+	}
+
+	err, data := readDatabace(folderPath)
+	if err != nil {
+		fmt.Println("Failed to read database:", err)
+		return
+	}
+
+	startIndex := currentPage * itemsPerPage
+	endIndex := startIndex + itemsPerPage
+
+	if endIndex > len(data) {
+		endIndex = len(data)
+	}
+
+	// پاک کردن محتوای قبلی
+	rightColumnContent.Objects = nil
+
+	for _, item := range data[startIndex:endIndex] {
+		truncatedKey := truncateString(item.key, 20)
+		truncatedValue := truncateString(item.value, 50)
+
+		valueLabel := buidLableKeyAndValue("value", item.key, item.value, truncatedValue, folderPath, rightColumnContent)
+		keyLabel := buidLableKeyAndValue("key", item.key, item.value, truncatedKey, folderPath, rightColumnContent)
+
+		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
+		rightColumnContent.Add(buttonRow)
+	}
+
+	// به‌روزرسانی شماره صفحه
+	pageLabel.SetText(fmt.Sprintf("Page %d", currentPage+1))
+
+	// غیرفعال کردن دکمه‌ها بر اساس موقعیت فعلی
+	prevButton.Disable()
+	nextButton.Disable()
+
+	if currentPage > 0 {
+		prevButton.Enable()
+	}
+	if endIndex < len(data) {
+		nextButton.Enable()
+	}
+
+	rightColumnContent.Refresh()
 }

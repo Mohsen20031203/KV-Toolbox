@@ -96,7 +96,7 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 	}
 
 	for _, item := range data {
-		if count >= 5 {
+		if count >= itemsPerPage {
 			count = 0
 			break
 		}
