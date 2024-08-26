@@ -20,7 +20,10 @@ import (
 var folderPath string
 
 func projectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
+	fileHandler := &DefaultFileHandler{}
+	jsonHandler := &DefaultJsonHandler{}
 	projectButton := widget.NewButton(inputText, func() {
+		pageLabel.Text = "Page 1"
 		folderPath = path
 		handleProjectSelection(path, rightColumnContentORG, buttonAdd)
 		if nameButtonProject.Text == "" {
@@ -29,7 +32,9 @@ func projectButton(inputText string, lastColumnContent *fyne.Container, path str
 			nameButtonProject.Text = ""
 			nameButtonProject.Text = inputText
 		}
+
 		nameButtonProject.Refresh()
+		pageLabel.Refresh()
 	})
 
 	if nameButtonProject.Text == "" {
@@ -55,7 +60,7 @@ func projectButton(inputText string, lastColumnContent *fyne.Container, path str
 			rightColumnContentORG.Refresh()
 		}
 
-		err := removeProjectFromJsonFile(inputText)
+		err := removeProjectFromJsonFile(inputText, fileHandler, jsonHandler)
 		if err != nil {
 			fmt.Println("Failed to remove project from JSON:", err)
 		} else {
@@ -70,6 +75,8 @@ func projectButton(inputText string, lastColumnContent *fyne.Container, path str
 }
 
 func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) {
+	fileHandler := &DefaultFileHandler{}
+	jsonHandler := &DefaultJsonHandler{}
 	newWindow := a.NewWindow(title)
 
 	createSeparator := func() *canvas.Line {
@@ -147,7 +154,7 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	})
 
 	buttonOk := widget.NewButton("Add", func() {
-		err, addButton := addProjectToJsonFile(pathEntry2, pathEntry, pathEntryComment, newWindow)
+		err, addButton := addProjectToJsonFile(pathEntry2, pathEntry, pathEntryComment, newWindow, fileHandler, jsonHandler)
 		if err != nil {
 			dialog.ShowInformation("Error ", "There is something wrong with your file and I can't connect to it", newWindow)
 		} else {

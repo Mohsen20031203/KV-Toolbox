@@ -10,9 +10,11 @@ import (
 
 func setupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
 	lastColumnContent := container.NewVBox()
+	fileHandler := &DefaultFileHandler{}
+	jsonHandler := &DefaultJsonHandler{}
 
 	go func() {
-		jsonData, err := loadJsonData("data.json")
+		jsonData, err := loadJsonData("data.json", fileHandler, jsonHandler)
 		if err != nil {
 			println("Error loading JSON data:", err)
 		} else {

@@ -1,4 +1,5 @@
-package main
+// internal/ui/main_window.go
+package ui
 
 import (
 	"fmt"
@@ -13,12 +14,8 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var currentPage int
-var itemsPerPage = 20
-var nextButton, prevButton *widget.Button
-var pageLabel *widget.Label // برچسب برای نمایش شماره صفحه
-
-func main() {
+// MainWindow تنظیمات و محتوای پنجره اصلی برنامه را شامل می‌شود
+func MainWindow() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Non-Scrollable List")
 
@@ -59,14 +56,13 @@ func main() {
 		spacer,
 	)
 
-	pageLabel = widget.NewLabel(fmt.Sprintf("Page %d", currentPage+1))
-
-	nextButton = widget.NewButton("next", func() {
+	pageLabel := widget.NewLabel(fmt.Sprintf("Page %d", currentPage+1))
+	nextButton := widget.NewButton("next", func() {
 		currentPage++
 		updatePage(rightColumnContent)
 	})
 
-	prevButton = widget.NewButton("prev", func() {
+	prevButton := widget.NewButton("prev", func() {
 		if currentPage > 0 {
 			currentPage--
 			updatePage(rightColumnContent)
@@ -86,7 +82,7 @@ func main() {
 
 	rawSearchAndAdd := container.NewVBox(
 		layout.NewSpacer(),
-		container.NewGridWithColumns(3, prevButton, pageLabelposition, nextButton), // افزودن شماره صفحه بین دکمه‌ها
+		container.NewGridWithColumns(3, prevButton, pageLabelposition, nextButton),
 		container.NewGridWithColumns(2, searchButton, buttonAdd),
 	)
 
@@ -105,73 +101,3 @@ func main() {
 	myWindow.Resize(fyne.NewSize(1200, 800))
 	myWindow.ShowAndRun()
 }
-
-func updatePage(rightColumnContent *fyne.Container) {
-	if !checkCondition(rightColumnContent) {
-		rightColumnContent.Objects = []fyne.CanvasObject{}
-		rightColumnContent.Refresh()
-	}
-
-	err, data := readDatabace(folderPath)
-	if err != nil {
-		fmt.Println("Failed to read database:", err)
-		return
-	}
-
-	startIndex := currentPage * itemsPerPage
-	endIndex := startIndex + itemsPerPage
-
-	if endIndex > len(data) {
-		endIndex = len(data)
-	}
-
-	// پاک کردن محتوای قبلی
-	rightColumnContent.Objects = nil
-
-	for _, item := range data[startIndex:endIndex] {
-		truncatedKey := truncateString(item.key, 20)
-		truncatedValue := truncateString(item.value, 50)
-
-		valueLabel := buidLableKeyAndValue("value", item.key, item.value, truncatedValue, folderPath, rightColumnContent)
-		keyLabel := buidLableKeyAndValue("key", item.key, item.value, truncatedKey, folderPath, rightColumnContent)
-
-		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
-		rightColumnContent.Add(buttonRow)
-	}
-
-	// به‌روزرسانی شماره صفحه
-	pageLabel.SetText(fmt.Sprintf("Page %d", currentPage+1))
-
-	// غیرفعال کردن دکمه‌ها بر اساس موقعیت فعلی
-	prevButton.Disable()
-	nextButton.Disable()
-
-	if currentPage > 0 {
-		prevButton.Enable()
-	}
-	if endIndex < len(data) {
-		nextButton.Enable()
-	}
-
-	rightColumnContent.Refresh()
-}
-
-/*
-package main
-
-import (
-	"testgui/internal/ui"
-
-	"fyne.io/fyne/v2/widget"
-)
-
-var currentPage int
-var itemsPerPage = 20
-var nextButton, prevButton *widget.Button
-var pageLabel *widget.Label // برچسب برای نمایش شماره صفحه
-
-func main() {
-	ui.NewUi()
-}
-
-*/
