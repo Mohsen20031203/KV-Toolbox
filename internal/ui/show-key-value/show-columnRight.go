@@ -3,60 +3,19 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	dbpak "testgui/pkg"
+
+	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	"github.com/syndtr/goleveldb/leveldb"
 )
 
+var currentDBClient dbpak.DBClient
 var count int
-var lastkey datebace
-
-type datebace struct {
-	key   string
-	value string
-}
-
-func isValidJSON(data string) bool {
-	var js json.RawMessage
-	m := json.Unmarshal([]byte(data), &js) == nil
-	return m
-}
-
-func checkCondition(rightColumnContent *fyne.Container) bool {
-	if len(rightColumnContent.Objects) > 2 {
-		return false
-	}
-	return true
-}
-
-func readDatabace(Addres string) (error, []datebace) {
-	var Item []datebace
-	db, err := leveldb.OpenFile(Addres, nil)
-	if err != nil {
-		return err, Item
-	}
-	defer db.Close()
-
-	iter := db.NewIterator(nil, nil)
-	for iter.Next() {
-		key := string(iter.Key())
-		value := string(iter.Value())
-		Item = append(Item, datebace{key: key, value: value})
-	}
-	iter.Release()
-
-	return nil, Item
-}
-
-func truncateString(str string, maxLength int) string {
-	if len(str) > maxLength {
-		return str[:maxLength] + "..."
-	}
-	return str
-}
+var lastkey dbpak.Database
 
 type TappableLabel struct {
 	widget.Label
@@ -81,7 +40,7 @@ func (t *TappableLabel) Tapped(_ *fyne.PointEvent) {
 func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container, buttonAdd *widget.Button) {
 
 	buttonAdd.Enable()
-	if !checkCondition(rightColumnContent) {
+	if !utils.CheckCondition(rightColumnContent) {
 		newObjects := []fyne.CanvasObject{}
 
 		rightColumnContent.Objects = newObjects
@@ -89,24 +48,31 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 		rightColumnContent.Refresh()
 	}
 
-	err, data := readDatabace(dbPath)
+	//currentDBClient = newFunc
+	currentPage = 0
+	prevButton.Disable()
+
+	err, data := currentDBClient.Read()
 	if err != nil {
 		fmt.Println("Failed to read database:", err)
 		return
 	}
 
 	for _, item := range data {
+		if currentPage < len(data)/itemsPerPage {
+			nextButton.Enable()
+		}
 		if count >= itemsPerPage {
 			count = 0
 			break
 		}
 		count++
 
-		truncatedKey := truncateString(item.key, 20)
-		truncatedValue := truncateString(item.value, 50)
+		truncatedKey := utils.TruncateString(item.Key, 20)
+		truncatedValue := utils.TruncateString(item.Value, 50)
 
-		valueLabel := buidLableKeyAndValue("value", item.key, item.value, truncatedValue, dbPath, rightColumnContent)
-		keyLabel := buidLableKeyAndValue("key", item.key, item.value, truncatedKey, dbPath, rightColumnContent)
+		valueLabel := buidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, dbPath, rightColumnContent)
+		keyLabel := buidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, dbPath, rightColumnContent)
 
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
@@ -127,7 +93,7 @@ func buidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 		valueEntry := widget.NewMultiLineEntry()
 		valueEntry.Resize(fyne.NewSize(500, 500))
 		if eidtKeyAbdValue == "value" {
-			if isValidJSON(value) {
+			if utils.IsValidJSON(value) {
 				var formattedJSON map[string]interface{}
 				json.Unmarshal([]byte(value), &formattedJSON)
 				jsonString, _ := json.MarshalIndent(formattedJSON, "", "  ")
@@ -144,30 +110,32 @@ func buidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 		scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
 		saveButton := widget.NewButton("Save", func() {
 			var truncatedKey2 string
-			db, err := leveldb.OpenFile(Addres, nil)
-			if err != nil {
-				return
-			}
-			defer db.Close()
+
+			err := currentDBClient.Open()
+			defer currentDBClient.Close()
 
 			if eidtKeyAbdValue == "value" {
-				db.Put([]byte(key), []byte(valueEntry.Text), nil)
-				truncatedKey2 = truncateString(valueEntry.Text, 50)
+				err := currentDBClient.Add(key, value)
+				if err != nil {
+					fmt.Println(err)
+				}
+				truncatedKey2 = utils.TruncateString(valueEntry.Text, 50)
 
 			} else {
-				valueBefor, err := db.Get([]byte(key), nil)
-				if err != nil {
-					return
-				}
+				valueBefor := currentDBClient.Get(key)
 
-				err = db.Delete([]byte(key), nil)
+				err = currentDBClient.Delet(key)
 				if err != nil {
 					return
 				}
 
 				key = valueEntry.Text
-				db.Put([]byte(key), []byte(valueBefor), nil)
-				truncatedKey2 = truncateString(key, 20)
+
+				err := currentDBClient.Add(key, valueBefor)
+				if err != nil {
+					fmt.Println(err)
+				}
+				truncatedKey2 = utils.TruncateString(key, 20)
 			}
 
 			lableKeyAndValue.SetText(truncatedKey2)

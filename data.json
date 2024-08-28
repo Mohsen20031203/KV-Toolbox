@@ -1,26 +1,21 @@
 {
-    "recentProjects": []
-}
-     {
-            "name": "disk2",
+    "recentProjects": [
+        {
+            "name": "disk1",
             "comment": "",
             "fileAddress": "/Users/macbookpro/Desktop/example_db"
-        }
-    ]
-}
-
-    ]
-}
-      "name": "disk2",
-            "comment": ",",
+        },
+        {
+            "name": "disk2",
+            "comment": "",
             "fileAddress": "/Users/macbookpro/Desktop/exططططample_db"
-        }
-    ]
-}
- {
+        },
+        {
             "name": "doc",
             "comment": "",
             "fileAddress": "/Users/macbookpro/Documents/GitHub/Bitcoin-prices/example_db"
         }
     ]
+}
+
 }

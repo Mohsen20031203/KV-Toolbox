@@ -1,6 +1,8 @@
-package main
+package windowaddkeyvalue
 
 import (
+	"testgui/internal/utils"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -26,8 +28,8 @@ func openWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container, myW
 
 		}
 
-		truncatedKey := truncateString(iputKey.Text, 20)
-		truncatedValue := truncateString(iputvalue.Text, 50)
+		truncatedKey := utils.TruncateString(iputKey.Text, 20)
+		truncatedValue := utils.TruncateString(iputvalue.Text, 50)
 
 		db, err := leveldb.OpenFile(folderPath, nil)
 		if err != nil {

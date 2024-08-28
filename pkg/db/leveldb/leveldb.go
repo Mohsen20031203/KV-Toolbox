@@ -1,0 +1,74 @@
+package leveldbb
+
+import (
+	"fmt"
+	dbpak "testgui/pkg/db"
+
+	"github.com/syndtr/goleveldb/leveldb"
+)
+
+type ConstantDatabase struct {
+	address string
+	db      *leveldb.DB
+}
+
+func NewDataBase(address string) dbpak.DBClient {
+	return &ConstantDatabase{
+		address: address,
+	}
+}
+
+func (constant *ConstantDatabase) Delet(key string) error {
+	err := constant.db.Delete([]byte(key), nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (constant *ConstantDatabase) Open() error {
+	var err error
+	constant.db, err = leveldb.OpenFile(constant.address, nil)
+	return err
+}
+
+func (constant *ConstantDatabase) Close() {
+	if constant.db != nil {
+		constant.db.Close()
+	}
+}
+
+func (constant *ConstantDatabase) Add(key, value string) error {
+	if constant.db == nil {
+		return fmt.Errorf("database not opened")
+	}
+	return constant.db.Put([]byte(key), []byte(value), nil)
+}
+
+func (constant *ConstantDatabase) Get(key string) string {
+	if constant.db == nil {
+		return ""
+	}
+	data, err := constant.db.Get([]byte(key), nil)
+	if err != nil {
+		return ""
+	}
+	return string(data)
+}
+
+func (constant *ConstantDatabase) Read() (error, []dbpak.Database) {
+	var Item []dbpak.Database
+
+	constant.Open()
+	defer constant.Close()
+
+	iter := constant.db.NewIterator(nil, nil)
+	for iter.Next() {
+		key := string(iter.Key())
+		value := string(iter.Value())
+		Item = append(Item, dbpak.Database{Key: key, Value: value})
+	}
+	iter.Release()
+
+	return nil, Item
+}

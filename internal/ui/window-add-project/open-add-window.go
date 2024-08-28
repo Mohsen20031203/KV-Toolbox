@@ -20,8 +20,6 @@ import (
 var folderPath string
 
 func projectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
-	fileHandler := &DefaultFileHandler{}
-	jsonHandler := &DefaultJsonHandler{}
 	projectButton := widget.NewButton(inputText, func() {
 		pageLabel.Text = "Page 1"
 		folderPath = path
@@ -35,6 +33,7 @@ func projectButton(inputText string, lastColumnContent *fyne.Container, path str
 
 		nameButtonProject.Refresh()
 		pageLabel.Refresh()
+
 	})
 
 	if nameButtonProject.Text == "" {
@@ -60,7 +59,7 @@ func projectButton(inputText string, lastColumnContent *fyne.Container, path str
 			rightColumnContentORG.Refresh()
 		}
 
-		err := removeProjectFromJsonFile(inputText, fileHandler, jsonHandler)
+		err := removeProjectFromJsonFile(inputText)
 		if err != nil {
 			fmt.Println("Failed to remove project from JSON:", err)
 		} else {
@@ -75,8 +74,7 @@ func projectButton(inputText string, lastColumnContent *fyne.Container, path str
 }
 
 func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) {
-	fileHandler := &DefaultFileHandler{}
-	jsonHandler := &DefaultJsonHandler{}
+
 	newWindow := a.NewWindow(title)
 
 	createSeparator := func() *canvas.Line {
@@ -154,11 +152,19 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	})
 
 	buttonOk := widget.NewButton("Add", func() {
-		err, addButton := addProjectToJsonFile(pathEntry2, pathEntry, pathEntryComment, newWindow, fileHandler, jsonHandler)
+		err, addButton := addProjectToJsonFile(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow)
 		if err != nil {
 			dialog.ShowInformation("Error ", "There is something wrong with your file and I can't connect to it", newWindow)
 		} else {
 			if !addButton {
+
+				if !checkCondition(rightColumnContentORG) {
+					newObjects := []fyne.CanvasObject{}
+
+					rightColumnContentORG.Objects = newObjects
+
+					rightColumnContentORG.Refresh()
+				}
 
 				buttonContainer := projectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG, nameButtonProject, buttonAdd)
 				lastColumnContent.Add(buttonContainer)
