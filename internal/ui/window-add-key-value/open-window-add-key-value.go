@@ -10,7 +10,7 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
-func openWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container, myWindow fyne.Window) {
+func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container, myWindow fyne.Window) {
 	windowAdd := myApp.NewWindow("add Key and Value")
 	iputKey := widget.NewEntry()
 	iputKey.SetPlaceHolder("Key")

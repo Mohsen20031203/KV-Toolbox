@@ -1,9 +1,10 @@
-package main
+package showkeyvalue
 
 import (
 	"encoding/json"
 	"fmt"
 	dbpak "testgui/pkg"
+	leveldbb "testgui/pkg/db/leveldb"
 
 	"testgui/internal/utils"
 
@@ -13,7 +14,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var currentDBClient dbpak.DBClient
+var CurrentDBClient dbpak.DBClient
 var count int
 var lastkey dbpak.Database
 
@@ -37,7 +38,7 @@ func (t *TappableLabel) Tapped(_ *fyne.PointEvent) {
 	t.onTapped()
 }
 
-func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container, buttonAdd *widget.Button) {
+func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, buttonAdd *widget.Button) {
 
 	buttonAdd.Enable()
 	if !utils.CheckCondition(rightColumnContent) {
@@ -48,11 +49,11 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 		rightColumnContent.Refresh()
 	}
 
-	//currentDBClient = newFunc
-	currentPage = 0
+	CurrentDBClient = leveldbb.NewDataBase(dbPath)
+	main = 0
 	prevButton.Disable()
 
-	err, data := currentDBClient.Read()
+	err, data := CurrentDBClient.Read()
 	if err != nil {
 		fmt.Println("Failed to read database:", err)
 		return
@@ -83,7 +84,7 @@ func handleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 	rightColumnContent.Refresh()
 }
 
-func buidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, nameLable string, Addres string, rightColumnContent *fyne.Container) *TappableLabel {
+func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, nameLable string, Addres string, rightColumnContent *fyne.Container) *TappableLabel {
 	var lableKeyAndValue *TappableLabel
 
 	lableKeyAndValue = NewTappableLabel(nameLable, func() {
@@ -111,27 +112,27 @@ func buidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 		saveButton := widget.NewButton("Save", func() {
 			var truncatedKey2 string
 
-			err := currentDBClient.Open()
-			defer currentDBClient.Close()
+			err := CurrentDBClient.Open()
+			defer CurrentDBClient.Close()
 
 			if eidtKeyAbdValue == "value" {
-				err := currentDBClient.Add(key, value)
+				err := CurrentDBClient.Add(key, value)
 				if err != nil {
 					fmt.Println(err)
 				}
 				truncatedKey2 = utils.TruncateString(valueEntry.Text, 50)
 
 			} else {
-				valueBefor := currentDBClient.Get(key)
+				valueBefor := CurrentDBClient.Get(key)
 
-				err = currentDBClient.Delet(key)
+				err = CurrentDBClient.Delet(key)
 				if err != nil {
 					return
 				}
 
 				key = valueEntry.Text
 
-				err := currentDBClient.Add(key, valueBefor)
+				err := CurrentDBClient.Add(key, valueBefor)
 				if err != nil {
 					fmt.Println(err)
 				}

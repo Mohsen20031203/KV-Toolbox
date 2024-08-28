@@ -1,4 +1,4 @@
-package main
+package windowaddproject
 
 import (
 	"fmt"
@@ -19,11 +19,11 @@ import (
 
 var folderPath string
 
-func projectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
+func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
 	projectButton := widget.NewButton(inputText, func() {
 		pageLabel.Text = "Page 1"
 		folderPath = path
-		handleProjectSelection(path, rightColumnContentORG, buttonAdd)
+		HandleProjectSelection(path, rightColumnContentORG, buttonAdd)
 		if nameButtonProject.Text == "" {
 			nameButtonProject.Text = inputText
 		} else {
@@ -73,7 +73,7 @@ func projectButton(inputText string, lastColumnContent *fyne.Container, path str
 	return buttonContainer
 }
 
-func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) {
+func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) {
 
 	newWindow := a.NewWindow(title)
 
@@ -204,7 +204,7 @@ func openNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	newWindow.Show()
 }
 
-func handleButtonClick(test string) error {
+func HandleButtonClick(test string) error {
 	db, err := leveldb.OpenFile(test, nil)
 	if err != nil {
 		return err
@@ -227,7 +227,7 @@ func handleButtonClick(test string) error {
 	return fmt.Errorf("no entries found in the database")
 }
 
-func hasManifestFile(folderPath string) bool {
+func HasManifestFile(folderPath string) bool {
 	files, err := ioutil.ReadDir(folderPath)
 	if err != nil {
 		fmt.Println("Error reading folder:", err)
