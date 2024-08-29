@@ -8,18 +8,18 @@ import (
 )
 
 type ConstantDatabase struct {
-	address string
-	db      *leveldb.DB
+	Address string
+	DB      *leveldb.DB
 }
 
 func NewDataBase(address string) dbpak.DBClient {
 	return &ConstantDatabase{
-		address: address,
+		Address: address,
 	}
 }
 
 func (constant *ConstantDatabase) Delet(key string) error {
-	err := constant.db.Delete([]byte(key), nil)
+	err := constant.DB.Delete([]byte(key), nil)
 	if err != nil {
 		return err
 	}
@@ -28,28 +28,28 @@ func (constant *ConstantDatabase) Delet(key string) error {
 
 func (constant *ConstantDatabase) Open() error {
 	var err error
-	constant.db, err = leveldb.OpenFile(constant.address, nil)
+	constant.DB, err = leveldb.OpenFile(constant.Address, nil)
 	return err
 }
 
 func (constant *ConstantDatabase) Close() {
-	if constant.db != nil {
-		constant.db.Close()
+	if constant.DB != nil {
+		constant.DB.Close()
 	}
 }
 
 func (constant *ConstantDatabase) Add(key, value string) error {
-	if constant.db == nil {
+	if constant.DB == nil {
 		return fmt.Errorf("database not opened")
 	}
-	return constant.db.Put([]byte(key), []byte(value), nil)
+	return constant.DB.Put([]byte(key), []byte(value), nil)
 }
 
 func (constant *ConstantDatabase) Get(key string) string {
-	if constant.db == nil {
+	if constant.DB == nil {
 		return ""
 	}
-	data, err := constant.db.Get([]byte(key), nil)
+	data, err := constant.DB.Get([]byte(key), nil)
 	if err != nil {
 		return ""
 	}
@@ -62,7 +62,7 @@ func (constant *ConstantDatabase) Read() (error, []dbpak.Database) {
 	constant.Open()
 	defer constant.Close()
 
-	iter := constant.db.NewIterator(nil, nil)
+	iter := constant.DB.NewIterator(nil, nil)
 	for iter.Next() {
 		key := string(iter.Key())
 		value := string(iter.Value())

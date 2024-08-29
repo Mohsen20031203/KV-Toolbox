@@ -18,7 +18,8 @@ type Project struct {
 
 type JsonFile interface {
 	Open() (*os.File, error)
-	Read(state JsonInformation) error
+	Read(file *os.File, state interface{}) error
 	Add(path string, name string, comment string, window fyne.Window) (error, bool)
 	Remove(projectName string) error
+	Load() (JsonInformation, error)
 }

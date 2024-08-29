@@ -6,13 +6,10 @@ import (
 
 	"fyne.io/fyne/container"
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/widget"
 )
 
 var CurrentPage int
 var ItemsPerPage = 20
-var NextButton, PrevButton *widget.Button
-var PageLabel *widget.Label
 
 func UpdatePage(rightColumnContent *fyne.Container) {
 	if !utils.CheckCondition(rightColumnContent) {

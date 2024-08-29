@@ -1,11 +1,14 @@
-package windowaddproject
+package addProjectwindowui
 
 import (
 	"fmt"
 	"image/color"
-	"io/ioutil"
 	"path/filepath"
-	"strings"
+	addprojectwindowlogic "testgui/internal/logic/addProjectwindowlogic"
+	"testgui/internal/logic/mainwindowlagic"
+	"testgui/internal/utils"
+	leveldbb "testgui/pkg/db/leveldb"
+	jsondata "testgui/pkg/json/jsonData"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -14,64 +17,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
-	"github.com/syndtr/goleveldb/leveldb"
 )
-
-var folderPath string
-
-func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
-	projectButton := widget.NewButton(inputText, func() {
-		pageLabel.Text = "Page 1"
-		folderPath = path
-		HandleProjectSelection(path, rightColumnContentORG, buttonAdd)
-		if nameButtonProject.Text == "" {
-			nameButtonProject.Text = inputText
-		} else {
-			nameButtonProject.Text = ""
-			nameButtonProject.Text = inputText
-		}
-
-		nameButtonProject.Refresh()
-		pageLabel.Refresh()
-
-	})
-
-	if nameButtonProject.Text == "" {
-		nameButtonProject.Text = inputText
-	} else {
-		nameButtonProject.Text = ""
-		nameButtonProject.Text = inputText
-	}
-	nameButtonProject.Refresh()
-
-	buttonContainer := container.NewHBox()
-
-	closeButton := widget.NewButton("✖", func() {
-
-		if !checkCondition(rightColumnContentORG) && nameButtonProject.Text == inputText {
-			newObjects := []fyne.CanvasObject{}
-
-			rightColumnContentORG.Objects = newObjects
-			buttonAdd.Disable()
-
-			nameButtonProject.Text = ""
-			nameButtonProject.Refresh()
-			rightColumnContentORG.Refresh()
-		}
-
-		err := removeProjectFromJsonFile(inputText)
-		if err != nil {
-			fmt.Println("Failed to remove project from JSON:", err)
-		} else {
-
-			lastColumnContent.Remove(buttonContainer)
-			lastColumnContent.Refresh()
-		}
-	})
-
-	buttonContainer = container.NewBorder(nil, nil, nil, closeButton, projectButton)
-	return buttonContainer
-}
 
 func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) {
 
@@ -99,7 +45,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 
 	testConnectionButton := widget.NewButton("Test Connection", func() {
 
-		err := handleButtonClick(pathEntry2.Text)
+		err := addprojectwindowlogic.HandleButtonClick(pathEntry2.Text)
 		if err != nil {
 			dialog.ShowError(err, newWindow)
 		} else {
@@ -128,10 +74,10 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 			}
 			filePath := dir.URI().Path()
 
-			folderPath = filepath.Dir(filePath)
+			mainwindowlagic.FolderPath = filepath.Dir(filePath)
 
-			if hasManifestFile(folderPath) {
-				pathEntry2.SetText(folderPath)
+			if addprojectwindowlogic.HasManifestFile(mainwindowlagic.FolderPath) {
+				pathEntry2.SetText(mainwindowlagic.FolderPath)
 				testConnectionButton.Enable()
 			} else {
 				dialog.ShowInformation("Invalid Folder", "The selected folder does not contain a valid LevelDB manifest file.", newWindow)
@@ -152,13 +98,15 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	})
 
 	buttonOk := widget.NewButton("Add", func() {
-		err, addButton := addProjectToJsonFile(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow)
+		mainwindowlagic.CurrentJson = jsondata.NewDataBase()
+		mainwindowlagic.CurrentDBClient = leveldbb.NewDataBase(pathEntry2.Text)
+		err, addButton := mainwindowlagic.CurrentJson.Add(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow)
 		if err != nil {
 			dialog.ShowInformation("Error ", "There is something wrong with your file and I can't connect to it", newWindow)
 		} else {
 			if !addButton {
 
-				if !checkCondition(rightColumnContentORG) {
+				if !utils.CheckCondition(rightColumnContentORG) {
 					newObjects := []fyne.CanvasObject{}
 
 					rightColumnContentORG.Objects = newObjects
@@ -166,7 +114,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 					rightColumnContentORG.Refresh()
 				}
 
-				buttonContainer := projectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG, nameButtonProject, buttonAdd)
+				buttonContainer := utils.ProjectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG, nameButtonProject, buttonAdd)
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 
@@ -202,46 +150,4 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	newWindow.CenterOnScreen()
 	newWindow.SetContent(rightColumnContent)
 	newWindow.Show()
-}
-
-func HandleButtonClick(test string) error {
-	db, err := leveldb.OpenFile(test, nil)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	iter := db.NewIterator(nil, nil)
-	defer iter.Release()
-
-	if iter.First() {
-		key := iter.Key()
-		value, err := db.Get(key, nil)
-		if err != nil {
-			return fmt.Errorf("failed to get value for key %s: %v", key, err)
-		}
-
-		fmt.Printf("First key: %s, value: %s\n", key, value)
-		return nil
-	}
-	return fmt.Errorf("no entries found in the database")
-}
-
-func HasManifestFile(folderPath string) bool {
-	files, err := ioutil.ReadDir(folderPath)
-	if err != nil {
-		fmt.Println("Error reading folder:", err)
-		return false
-	}
-	var count int64
-	for _, file := range files {
-		if strings.HasPrefix(file.Name(), "MANIFEST-") || filepath.Ext(file.Name()) == ".log" {
-			count++
-		}
-
-		if count == 2 {
-			return true
-		}
-	}
-	return false
 }
