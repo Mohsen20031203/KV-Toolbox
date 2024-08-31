@@ -3,22 +3,21 @@ package mainwindow
 import (
 	"fmt"
 	"image/color"
+	"log"
+	variable "testgui"
 
-	"testgui/internal/logic/mainwindowlagic"
+	"testgui/internal/logic"
 	"testgui/internal/ui/addProjectwindowui"
-	buttomaddkvui "testgui/internal/ui/buttomaddKVui"
-	buttonrightcolumn "testgui/internal/ui/showkeyvalue/buttonrightcolumn"
+	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
-
-var NextButton, PrevButton *widget.Button
-var PageLabel *widget.Label
 
 func MainWindow(myApp fyne.App) {
 
@@ -46,25 +45,27 @@ func MainWindow(myApp fyne.App) {
 
 	searchButton := widget.NewButton("Search", func() {})
 	buttonAdd := widget.NewButton("Add", func() {
-		buttomaddkvui.OpenWindowAddButton(myApp, rightColumnContent, myWindow)
+		OpenWindowAddButton(myApp, rightColumnContent, myWindow)
 	})
 	buttonAdd.Disable()
 
 	keyAndRight := container.NewGridWithColumns(2, keyRightColunm, valueRightColunm)
 
-	PageLabel = widget.NewLabel(fmt.Sprintf("Page %d", buttonrightcolumn.CurrentPage+1))
+	variable.PageLabel = widget.NewLabel(fmt.Sprintf("Page %d", variable.CurrentPage+1))
 
-	NextButton = widget.NewButton("next", func() {
-		buttonrightcolumn.CurrentPage++
-		buttonrightcolumn.UpdatePage(rightColumnContent)
+	variable.NextButton = widget.NewButton("next", func() {
+		variable.CurrentPage++
+		logic.UpdatePage(rightColumnContent)
 	})
 
-	PrevButton = widget.NewButton("prev", func() {
-		if buttonrightcolumn.CurrentPage > 0 {
-			buttonrightcolumn.CurrentPage--
-			buttonrightcolumn.UpdatePage(rightColumnContent)
+	variable.PrevButton = widget.NewButton("prev", func() {
+		if variable.CurrentPage > 0 {
+			variable.PrevButton.Enable()
+			variable.CurrentPage--
+			logic.UpdatePage(rightColumnContent)
 		}
 	})
+	variable.PrevButton.Disable()
 
 	centeredContainer := container.NewHBox(
 		layout.NewSpacer(),
@@ -73,13 +74,13 @@ func MainWindow(myApp fyne.App) {
 	)
 	pageLabelposition := container.NewHBox(
 		layout.NewSpacer(),
-		PageLabel,
+		variable.PageLabel,
 		layout.NewSpacer(),
 	)
 
 	rawSearchAndAdd := container.NewVBox(
 		layout.NewSpacer(),
-		container.NewGridWithColumns(3, PrevButton, pageLabelposition, NextButton),
+		container.NewGridWithColumns(3, variable.PrevButton, pageLabelposition, variable.NextButton),
 		container.NewGridWithColumns(2, searchButton, buttonAdd),
 	)
 
@@ -91,7 +92,7 @@ func MainWindow(myApp fyne.App) {
 	)
 
 	// left column
-	lastColumnContent := mainwindowlagic.SetupLastColumn(rightColumnContent, nameButtonProject, buttonAdd)
+	lastColumnContent := logic.SetupLastColumn(rightColumnContent, nameButtonProject, buttonAdd)
 	spacer.Resize(fyne.NewSize(0, 30))
 
 	pluss := widget.NewButton("+", func() {
@@ -102,7 +103,7 @@ func MainWindow(myApp fyne.App) {
 		spacer,
 	)
 
-	darkLight := mainwindowlagic.SetupThemeButtons(myApp)
+	darkLight := logic.SetupThemeButtons(myApp)
 
 	// all window
 	containerAll := ColumnContent(rightColumnContent, lastColumnContent, lastColumnContentt, darkLight, rightColumnContenttt, rawSearchAndAdd)
@@ -134,4 +135,54 @@ func ColumnContent(rightColumnContent *fyne.Container, lastColumnContent *fyne.C
 
 	container.NewScroll(columns)
 	return columns
+}
+
+func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container, myWindow fyne.Window) {
+	windowAdd := myApp.NewWindow("add Key and Value")
+	iputKey := widget.NewEntry()
+	iputKey.SetPlaceHolder("Key")
+	iputvalue := widget.NewMultiLineEntry()
+	iputvalue.SetPlaceHolder("value")
+	iputvalue.Resize(fyne.NewSize(500, 500))
+
+	scrollableEntry := container.NewScroll(iputvalue)
+
+	ButtonAddAdd := widget.NewButton("Add", func() {
+
+		if iputKey.Text == "" && iputvalue.Text == "" {
+			dialog.ShowInformation("Error", "Please enter both the key and the value", myWindow)
+		} else if iputvalue.Text != "" && iputKey.Text == "" {
+			dialog.ShowInformation("Error", "You cannot leave either the key or both fields empty.", myWindow)
+
+		}
+
+		truncatedKey := utils.TruncateString(iputKey.Text, 20)
+		truncatedValue := utils.TruncateString(iputvalue.Text, 50)
+
+		err := variable.CurrentDBClient.Open()
+		if err != nil {
+			return
+		}
+		defer variable.CurrentDBClient.Close()
+
+		err = variable.CurrentDBClient.Add(iputKey.Text, iputvalue.Text)
+		if err != nil {
+			log.Fatal("error in main window line 172")
+		}
+
+		valueLabel := logic.BuidLableKeyAndValue("value", iputKey.Text, iputvalue.Text, truncatedValue, variable.FolderPath, rightColumnContent)
+		keyLabel := logic.BuidLableKeyAndValue("key", iputKey.Text, iputvalue.Text, truncatedKey, variable.FolderPath, rightColumnContent)
+
+		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
+		rightColumnContent.Add(buttonRow)
+		windowAdd.Close()
+	})
+	cont := container.NewVBox(
+		iputKey,
+	)
+	m := container.NewBorder(cont, ButtonAddAdd, nil, nil, scrollableEntry)
+
+	windowAdd.SetContent(m)
+	windowAdd.Resize(fyne.NewSize(900, 500))
+	windowAdd.Show()
 }

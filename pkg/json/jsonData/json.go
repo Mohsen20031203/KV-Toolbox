@@ -23,60 +23,60 @@ func NewDataBase() jsFile.JsonFile {
 }
 
 func (j *ConstantJsonFile) Open() (*os.File, error) {
-	file, err := os.OpenFile(j.nameFile, os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
-		fmt.Println("Error opening file:", err)
-		return file, err
-	}
-	return file, nil
+	return os.OpenFile(j.nameFile, os.O_RDWR|os.O_CREATE, 0644)
 }
 
-func (j *ConstantJsonFile) Read(file *os.File, state interface{}) error {
-	decoder := json.NewDecoder(file)
-	if err := decoder.Decode(&state); err != nil {
+func (j *ConstantJsonFile) Read(state *jsFile.JsonInformation) error {
+	file, err := j.Open()
+	if err != nil {
 		return err
 	}
-	return nil
+	defer file.Close()
+
+	byteValue, err := ioutil.ReadAll(file)
+	if err != nil {
+		return fmt.Errorf("failed to read file: %v", err)
+	}
+
+	return json.Unmarshal(byteValue, &state)
+}
+
+func (j *ConstantJsonFile) Write(state interface{}) error {
+	file, err := j.Open()
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	file.Truncate(0)
+	file.Seek(0, 0)
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "    ")
+	return encoder.Encode(&state)
 }
 
 func (j *ConstantJsonFile) Add(path string, nameProject string, commentProject string, window fyne.Window) (error, bool) {
 	var state jsFile.JsonInformation
 
-	file, err := j.Open()
-	if err != nil {
-		fmt.Println("Error opening file:", err)
-	}
-	defer file.Close()
-
-	err = handleButtonClick(path)
+	err := handleButtonClick(path)
 	if err != nil {
 		return err, false
 	}
 
-	fileInfo, err := file.Stat()
-	if err != nil {
-		return fmt.Errorf("failed to get file info: %v", err), false
-	}
-
-	if fileInfo.Size() == 0 {
-		state = jsFile.JsonInformation{
-			RecentProjects: []jsFile.Project{},
-		}
-	} else {
-		err := j.Read(file, &state)
-		if err != nil {
-			return err, false
-		}
+	err = j.Read(&state)
+	if err != nil && err.Error() != "unexpected end of JSON input" {
+		return err, false
 	}
 
 	for _, addres := range state.RecentProjects {
 		if path == addres.FileAddress {
 			m := fmt.Sprintf("This database has already been added to your projects under the name '%s'", addres.Name)
 			dialog.ShowInformation("error", m, window)
-
 			return nil, true
 		}
 	}
+
 	newActivity := jsFile.Project{
 		Name:        nameProject,
 		Comment:     commentProject,
@@ -85,23 +85,13 @@ func (j *ConstantJsonFile) Add(path string, nameProject string, commentProject s
 
 	state.RecentProjects = append(state.RecentProjects, newActivity)
 
-	err = j.Read(file, state)
-	if err != nil {
-		return fmt.Errorf("failed to decode JSON: %v", err), false
-	}
-	return nil, false
+	return j.Write(state), false
 }
 
 func (j *ConstantJsonFile) Remove(projectName string) error {
 	var state jsFile.JsonInformation
 
-	file, err := j.Open()
-	if err != nil {
-		fmt.Println("Error opening file:", err)
-	}
-	defer file.Close()
-
-	err = j.Read(file, &state)
+	err := j.Read(&state)
 	if err != nil {
 		return err
 	}
@@ -113,25 +103,15 @@ func (j *ConstantJsonFile) Remove(projectName string) error {
 		}
 	}
 
-	return nil
+	return j.Write(state)
 }
 
 func (j *ConstantJsonFile) Load() (jsFile.JsonInformation, error) {
 	var jsonData jsFile.JsonInformation
 
-	file, err := os.Open(j.nameFile)
+	err := j.Read(&jsonData)
 	if err != nil {
-		return jsonData, fmt.Errorf("failed to open file: %v", err)
-	}
-	defer file.Close()
-
-	byteValue, err := ioutil.ReadAll(file)
-	if err != nil {
-		return jsonData, fmt.Errorf("failed to read file: %v", err)
-	}
-
-	if err := json.Unmarshal(byteValue, &jsonData); err != nil {
-		return jsonData, fmt.Errorf("failed to unmarshal JSON: %v", err)
+		return jsonData, err
 	}
 
 	return jsonData, nil

@@ -1,7 +1,9 @@
 package main
 
 import (
-	mainW "testgui/internal/ui/main-window"
+	variable "testgui"
+	"testgui/internal/ui/mainwindow"
+	jsondata "testgui/pkg/json/jsonData"
 
 	"fyne.io/fyne/v2/app"
 )
@@ -9,5 +11,7 @@ import (
 func main() {
 	myApp := app.New()
 
-	mainW.MainWindow(myApp)
+	variable.CurrentJson = jsondata.NewDataBase()
+
+	mainwindow.MainWindow(myApp)
 }

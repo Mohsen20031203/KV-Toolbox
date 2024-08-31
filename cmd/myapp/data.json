@@ -1,0 +1,14 @@
+{
+    "recentProjects": [
+        {
+            "name": "disk1",
+            "comment": "one",
+            "fileAddress": "/Users/macbookpro/Desktop/example_db"
+        },
+        {
+            "name": "doc",
+            "comment": "one",
+            "fileAddress": "/Users/macbookpro/Documents/GitHub/Bitcoin-prices/example_db"
+        }
+    ]
+}

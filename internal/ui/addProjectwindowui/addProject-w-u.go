@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"image/color"
 	"path/filepath"
-	addprojectwindowlogic "testgui/internal/logic/addProjectwindowlogic"
-	"testgui/internal/logic/mainwindowlagic"
+	variable "testgui"
+
+	//"testgui/internal/logic/logic"
+
+	"testgui/internal/logic"
 	"testgui/internal/utils"
-	leveldbb "testgui/pkg/db/leveldb"
-	jsondata "testgui/pkg/json/jsonData"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -45,7 +46,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 
 	testConnectionButton := widget.NewButton("Test Connection", func() {
 
-		err := addprojectwindowlogic.HandleButtonClick(pathEntry2.Text)
+		err := logic.HandleButtonClick(pathEntry2.Text)
 		if err != nil {
 			dialog.ShowError(err, newWindow)
 		} else {
@@ -74,10 +75,10 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 			}
 			filePath := dir.URI().Path()
 
-			mainwindowlagic.FolderPath = filepath.Dir(filePath)
+			variable.FolderPath = filepath.Dir(filePath)
 
-			if addprojectwindowlogic.HasManifestFile(mainwindowlagic.FolderPath) {
-				pathEntry2.SetText(mainwindowlagic.FolderPath)
+			if logic.HasManifestFile(variable.FolderPath) {
+				pathEntry2.SetText(variable.FolderPath)
 				testConnectionButton.Enable()
 			} else {
 				dialog.ShowInformation("Invalid Folder", "The selected folder does not contain a valid LevelDB manifest file.", newWindow)
@@ -98,9 +99,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	})
 
 	buttonOk := widget.NewButton("Add", func() {
-		mainwindowlagic.CurrentJson = jsondata.NewDataBase()
-		mainwindowlagic.CurrentDBClient = leveldbb.NewDataBase(pathEntry2.Text)
-		err, addButton := mainwindowlagic.CurrentJson.Add(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow)
+		err, addButton := variable.CurrentJson.Add(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow)
 		if err != nil {
 			dialog.ShowInformation("Error ", "There is something wrong with your file and I can't connect to it", newWindow)
 		} else {
@@ -114,7 +113,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 					rightColumnContentORG.Refresh()
 				}
 
-				buttonContainer := utils.ProjectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG, nameButtonProject, buttonAdd)
+				buttonContainer := logic.ProjectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG, nameButtonProject, buttonAdd)
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 
