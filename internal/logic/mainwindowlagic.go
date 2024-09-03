@@ -7,10 +7,10 @@ import (
 
 	// "testgui/internal/logic/addProjectwindowlogic"
 
+	jsondata "testgui/internal/logic/json/jsonData"
 	"testgui/internal/utils"
 	dbpak "testgui/pkg/db"
 	leveldbb "testgui/pkg/db/leveldb"
-	jsondata "testgui/pkg/json/jsonData"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -20,7 +20,6 @@ import (
 )
 
 var count int
-var ItemsPerPage = 20
 var lastkey dbpak.Database
 
 func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
@@ -66,8 +65,8 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		fmt.Println(err)
 	}
 
-	StartIndex := variable.CurrentPage * ItemsPerPage
-	EndIndex := StartIndex + ItemsPerPage
+	StartIndex := variable.CurrentPage * variable.ItemsPerPage
+	EndIndex := StartIndex + variable.ItemsPerPage
 
 	if EndIndex > len(data) {
 		EndIndex = len(data)
@@ -176,12 +175,12 @@ func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 		return
 	}
 
-	if len(data)/ItemsPerPage > 1 {
+	if len(data)/variable.ItemsPerPage > 1 {
 		variable.NextButton.Enable()
 		variable.CurrentPage = 0
 	}
 	for _, item := range data {
-		if count >= ItemsPerPage {
+		if count >= variable.ItemsPerPage {
 			count = 0
 			break
 		}

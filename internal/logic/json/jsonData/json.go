@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	jsFile "testgui/pkg/json"
+	variable "testgui"
+	jsFile "testgui/internal/logic/json"
+	leveldbb "testgui/pkg/db/leveldb"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
-	"github.com/syndtr/goleveldb/leveldb"
 )
 
 type ConstantJsonFile struct {
@@ -118,18 +119,19 @@ func (j *ConstantJsonFile) Load() (jsFile.JsonInformation, error) {
 }
 
 func handleButtonClick(test string) error {
-	db, err := leveldb.OpenFile(test, nil)
+	var dbb *leveldbb.ConstantDatabase
+	err := variable.CurrentDBClient.Open()
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer variable.CurrentDBClient.Close()
 
-	iter := db.NewIterator(nil, nil)
+	iter := dbb.DB.NewIterator(nil, nil)
 	defer iter.Release()
 
 	if iter.First() {
 		key := iter.Key()
-		value, err := db.Get(key, nil)
+		value := variable.CurrentDBClient.Get(string(key))
 		if err != nil {
 			return fmt.Errorf("failed to get value for key %s: %v", key, err)
 		}

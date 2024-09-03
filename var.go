@@ -1,8 +1,8 @@
 package variable
 
 import (
+	jsFile "testgui/internal/logic/json"
 	dbpak "testgui/pkg/db"
-	jsFile "testgui/pkg/json"
 
 	"fyne.io/fyne/v2/widget"
 )
@@ -10,7 +10,7 @@ import (
 var (
 	CurrentDBClient dbpak.DBClient
 	CurrentPage     int
-	ItemsPerPage    = 20
+	ItemsPerPage    = 10
 	FolderPath      string
 	CurrentJson     jsFile.JsonFile
 )

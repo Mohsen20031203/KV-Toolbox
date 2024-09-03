@@ -5,23 +5,21 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strings"
+	variable "testgui"
+	leveldbb "testgui/pkg/db/leveldb"
 
 	// "testgui/internal/logic/mainwindowlagic"
 
-	dbpak "testgui/pkg/db"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
-	"github.com/syndtr/goleveldb/leveldb"
 )
 
 type TappableLabel struct {
 	widget.Label
-	db       dbpak.DBClient
 	onTapped func()
 }
 
-func (t *TappableLabel) HasManifestFile(folderPath string) bool {
+func HasManifestFile(folderPath string) bool {
 	files, err := ioutil.ReadDir(folderPath)
 	if err != nil {
 		fmt.Println("Error reading folder:", err)
@@ -40,19 +38,20 @@ func (t *TappableLabel) HasManifestFile(folderPath string) bool {
 	return false
 }
 
-func (t *TappableLabel) HandleButtonClick(test string) error {
-	db, err := leveldb.OpenFile(test, nil)
+func HandleButtonClick(test string) error {
+	var dbb *leveldbb.ConstantDatabase
+	err := variable.CurrentDBClient.Open()
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer variable.CurrentDBClient.Close()
 
-	iter := db.NewIterator(nil, nil)
+	iter := dbb.DB.NewIterator(nil, nil)
 	defer iter.Release()
 
 	if iter.First() {
 		key := iter.Key()
-		value, err := db.Get(key, nil)
+		value := variable.CurrentDBClient.Get(string(key))
 		if err != nil {
 			return fmt.Errorf("failed to get value for key %s: %v", key, err)
 		}

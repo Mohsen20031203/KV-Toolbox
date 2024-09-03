@@ -117,9 +117,6 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 
-				/*handleProjectSelection(pathEntry2.Text, rightColumnContentORG, buttonAdd)
-				rightColumnContentORG.Refresh()*/
-
 				newWindow.Close()
 			}
 		}
