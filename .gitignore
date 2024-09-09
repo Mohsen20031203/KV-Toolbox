@@ -1,1 +1,8 @@
-/LevelManage.app
+# Ignore build script
+cmd/myapp/LevelManage.app/Contents
+*.ldb
+*.log
+LOG
+LOG.old
+CURRENT
+MANIFEST-*
