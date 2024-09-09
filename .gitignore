@@ -1,7 +1,1 @@
-# Ignore LevelDB database files
-*.ldb
-*.log
-LOG
-LOG.old
-CURRENT
-MANIFEST-*
+/LevelManage.app
