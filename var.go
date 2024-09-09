@@ -1,8 +1,8 @@
 package variable
 
 import (
+	dbpak "testgui/internal/db"
 	jsFile "testgui/internal/logic/json"
-	dbpak "testgui/pkg/db"
 
 	"fyne.io/fyne/v2/widget"
 )

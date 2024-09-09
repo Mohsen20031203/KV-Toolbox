@@ -7,10 +7,10 @@ import (
 
 	// "testgui/internal/logic/addProjectwindowlogic"
 
+	dbpak "testgui/internal/db"
+	leveldbb "testgui/internal/db/leveldb"
 	jsondata "testgui/internal/logic/json/jsonData"
 	"testgui/internal/utils"
-	dbpak "testgui/pkg/db"
-	leveldbb "testgui/pkg/db/leveldb"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"

@@ -2,7 +2,7 @@ package leveldbb
 
 import (
 	"fmt"
-	dbpak "testgui/pkg/db"
+	dbpak "testgui/internal/db"
 
 	"github.com/syndtr/goleveldb/leveldb"
 )
@@ -56,13 +56,13 @@ func (constant *ConstantDatabase) Get(key string) string {
 	return string(data)
 }
 
-func (constant *ConstantDatabase) Read() (error, []dbpak.Database) {
+func (c *ConstantDatabase) Read() (error, []dbpak.Database) {
 	var Item []dbpak.Database
 
-	constant.Open()
-	defer constant.Close()
+	c.Open()
+	defer c.Close()
 
-	iter := constant.DB.NewIterator(nil, nil)
+	iter := c.DB.NewIterator(nil, nil)
 	for iter.Next() {
 		key := string(iter.Key())
 		value := string(iter.Value())
