@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	variable "testgui"
-	leveldbb "testgui/pkg/db/leveldb"
+	leveldbb "testgui/internal/db/leveldb"
 
 	// "testgui/internal/logic/mainwindowlagic"
 

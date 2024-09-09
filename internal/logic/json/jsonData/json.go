@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	variable "testgui"
+	leveldbb "testgui/internal/db/leveldb"
 	jsFile "testgui/internal/logic/json"
-	leveldbb "testgui/pkg/db/leveldb"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"

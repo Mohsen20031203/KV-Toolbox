@@ -7,10 +7,9 @@ import (
 
 	// "testgui/internal/logic/addProjectwindowlogic"
 
+	leveldbb "testgui/internal/db/leveldb"
 	jsondata "testgui/internal/logic/json/jsonData"
 	"testgui/internal/utils"
-	dbpak "testgui/pkg/db"
-	leveldbb "testgui/pkg/db/leveldb"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -20,7 +19,6 @@ import (
 )
 
 var count int
-var lastkey dbpak.Database
 
 func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
 	lastColumnContent := container.NewVBox()
@@ -194,7 +192,6 @@ func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
-		lastkey = item
 
 	}
 
