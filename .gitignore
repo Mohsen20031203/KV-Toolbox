@@ -1,6 +1,12 @@
-/LevelManage.app
+# Ignore build script
+cmd/myapp/LevelManage.app/Contents
+*.ldb
+*.log
+LOG
+LOG.old
+CURRENT
+MANIFEST-*
 .DS_Store
 **/.DS_Store
 *.DS_Store
-/data.json
 
