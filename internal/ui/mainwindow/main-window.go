@@ -63,6 +63,7 @@ func MainWindow(myApp fyne.App) {
 			variable.PrevButton.Enable()
 			variable.CurrentPage--
 			logic.UpdatePage(rightColumnContent)
+			variable.NextButton.Enable()
 		}
 	})
 	variable.PrevButton.Disable()
