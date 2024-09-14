@@ -86,10 +86,12 @@ func (c *ConstantDatabase) Read(start, end *string, count int) (error, []dbpak.K
 	cnt := 0
 	if end != nil && start == nil {
 		iter.Last()
-		key := string(iter.Key())                                 // new
-		value := string(iter.Value())                             // new
-		Item = append(Item, dbpak.KVData{Key: key, Value: value}) // new
-		cnt++                                                     // new
+
+		key := string(iter.Key())
+		value := string(iter.Value())
+		Item = append(Item, dbpak.KVData{Key: key, Value: value})
+		cnt++
+
 		for iter.Prev() {
 			cnt++
 			if cnt > count {
@@ -99,7 +101,17 @@ func (c *ConstantDatabase) Read(start, end *string, count int) (error, []dbpak.K
 			value := string(iter.Value())
 			Item = append(Item, dbpak.KVData{Key: key, Value: value})
 		}
+		//reverse items
+		for i := 0; i < len(Item)/2; i++ {
+			j := len(Item) - i - 1
+			temp := Item[i]
+			Item[i] = Item[j]
+			Item[j] = temp
+		}
 	} else {
+		if start != nil {
+			iter.Next()
+		}
 		for iter.Next() {
 			cnt++
 			if cnt > count {

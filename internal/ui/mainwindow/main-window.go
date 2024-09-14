@@ -55,18 +55,17 @@ func MainWindow(myApp fyne.App) {
 
 	variable.NextButton = widget.NewButton("next", func() {
 		variable.CurrentPage++
+		variable.PrevButton.Enable()
 		logic.UpdatePage(rightColumnContent)
 	})
 
 	variable.PrevButton = widget.NewButton("prev", func() {
 		if variable.CurrentPage > 0 {
-			variable.PrevButton.Enable()
 			variable.CurrentPage--
 			logic.UpdatePage(rightColumnContent)
 			variable.NextButton.Enable()
 		}
 	})
-	variable.PrevButton.Disable()
 
 	centeredContainer := container.NewHBox(
 		layout.NewSpacer(),

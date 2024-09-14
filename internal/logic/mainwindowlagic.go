@@ -62,6 +62,7 @@ var currentData []dbpak.KVData
 var lastcurrentData []dbpak.KVData
 
 func UpdatePage(rightColumnContent *fyne.Container) {
+
 	if !utils.CheckCondition(rightColumnContent) {
 		rightColumnContent.Objects = []fyne.CanvasObject{}
 		rightColumnContent.Refresh()
@@ -73,18 +74,28 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 	var err error
 	if lastPage <= variable.CurrentPage {
 		//next page
-		err, data = variable.CurrentDBClient.Read(lastEnd, nil, variable.ItemsPerPage)
+		err, data = variable.CurrentDBClient.Read(lastEnd, nil, variable.ItemsPerPage+1)
 		if err != nil {
 			fmt.Println(err)
+		}
+		if len(data) > variable.ItemsPerPage {
+			variable.NextButton.Enable()
+		} else {
+			variable.NextButton.Disable()
 		}
 	} else {
 		//last page
 		if len(currentData) == 0 {
 			return
 		}
-		err, data = variable.CurrentDBClient.Read(nil, &lastcurrentData[0].Key, variable.ItemsPerPage)
+		err, data = variable.CurrentDBClient.Read(nil, &currentData[0].Key, variable.ItemsPerPage+1)
 		if err != nil {
 			fmt.Println(err)
+		}
+		if len(data) > variable.ItemsPerPage {
+			variable.PrevButton.Enable()
+		} else {
+			variable.PrevButton.Disable()
 		}
 	}
 	lastcurrentData = make([]dbpak.KVData, len(currentData))
@@ -111,7 +122,12 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 
 	*/
 
+	number := 0
 	for _, item := range data {
+		if number == variable.ItemsPerPage {
+			break
+		}
+		number++
 		truncatedKey := utils.TruncateString(item.Key, 20)
 		truncatedValue := utils.TruncateString(item.Value, 50)
 
@@ -124,15 +140,6 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 
 	variable.PageLabel.SetText(fmt.Sprintf("Page %d", variable.CurrentPage+1))
 
-	if len(data) < variable.ItemsPerPage {
-		variable.NextButton.Disable()
-	}
-	variable.PrevButton.Disable()
-
-	if variable.CurrentPage > 0 {
-		variable.PrevButton.Enable()
-	}
-
 	rightColumnContent.Refresh()
 }
 
@@ -140,6 +147,10 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	variable.CurrentDBClient = leveldbb.NewDataBase(path)
 	projectButton := widget.NewButton(inputText, func() {
 		variable.PrevButton.Disable()
+		lastStart = nil
+		lastPage = 0
+		variable.CurrentPage = 0
+		variable.NextButton.Enable()
 		variable.PageLabel.Text = "Page 1"
 		variable.FolderPath = path
 		HandleProjectSelection(path, rightColumnContentORG, buttonAdd)
@@ -214,16 +225,10 @@ func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 		rightColumnContent.Refresh()
 	}
 
-	iter := DBDB.NewIterator(nil, nil)
-	defer iter.Release()
-	countt := 0
-	for iter.Next() {
-		countt++
+	err, data := variable.CurrentDBClient.Read(nil, nil, variable.ItemsPerPage+1)
+	if err != nil {
+		fmt.Println(err)
 	}
-
-	iter.First()
-	firstKey := string(iter.Key())
-	err, data := variable.CurrentDBClient.Read(&firstKey, nil, countt)
 	if err != nil {
 		fmt.Println("Failed to read database:", err)
 		return
@@ -233,6 +238,8 @@ func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 		variable.NextButton.Enable()
 		variable.CurrentPage = 0
 	}
+	currentData = currentData[:0]
+	count = 0
 	for _, item := range data {
 		if count >= variable.ItemsPerPage {
 			count = 0

@@ -58,23 +58,15 @@ func testReadRange(db *leveldb.DB, start, end *string, count int) ([]KVData, err
 }
 
 func main() {
-	db, err := leveldb.OpenFile("testdb", nil)
+	db, err := leveldb.OpenFile("/Users/macbookpro/Documents/GitHub/Bitcoin-prices/example_db", nil)
 	if err != nil {
 		fmt.Println("Error opening DB:", err)
 		return
 	}
 	defer db.Close()
 
-	_ = db.Put([]byte("a"), []byte("apple"), nil)
-	_ = db.Put([]byte("b"), []byte("banana"), nil)
-	_ = db.Put([]byte("c"), []byte("cherry"), nil)
-	_ = db.Put([]byte("d"), []byte("date"), nil)
-	_ = db.Put([]byte("e"), []byte("elderberry"), nil)
-	_ = db.Put([]byte("f"), []byte("mohsen"), nil)
-	_ = db.Put([]byte("g"), []byte("ali"), nil)
-	_ = db.Put([]byte("h"), []byte("reza"), nil)
-	_ = db.Put([]byte("i"), []byte("mohammad"), nil)
-	_ = db.Put([]byte("j"), []byte("ehsan"), nil)
+	_ = db.Put([]byte("aaa"), []byte("apple"), nil)
+	_ = db.Put([]byte("bbb"), []byte("banana"), nil)
 
 	start := "d"
 
