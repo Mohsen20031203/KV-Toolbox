@@ -5,7 +5,6 @@ import (
 	dbpak "testgui/internal/db"
 
 	"github.com/syndtr/goleveldb/leveldb"
-	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/util"
 )
 
@@ -28,18 +27,10 @@ func (constant *ConstantDatabase) Delet(key string) error {
 	return nil
 }
 
-func (c *ConstantDatabase) Open() error {
-
+func (constant *ConstantDatabase) Open() error {
 	var err error
-	opts := &opt.Options{
-		ReadOnly: true,
-	}
-	c.DB, err = leveldb.OpenFile(c.Address, opts)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	constant.DB, err = leveldb.OpenFile(constant.Address, nil)
+	return err
 }
 
 func (constant *ConstantDatabase) Close() {
