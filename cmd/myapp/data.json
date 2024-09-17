@@ -4,6 +4,11 @@
             "name": "doc one",
             "comment": "one",
             "fileAddress": "/Users/macbookpro/Documents/GitHub/Bitcoin-prices/example_db"
+        },
+        {
+            "name": "disk 1",
+            "comment": "one",
+            "fileAddress": "/Users/macbookpro/Desktop/example_db"
         }
     ]
 }
