@@ -144,8 +144,8 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 }
 
 func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
-	variable.CurrentDBClient = leveldbb.NewDataBase(path)
 	projectButton := widget.NewButton(inputText, func() {
+		variable.CurrentDBClient = leveldbb.NewDataBase(path)
 		variable.PrevButton.Disable()
 		lastStart = nil
 		lastPage = 0

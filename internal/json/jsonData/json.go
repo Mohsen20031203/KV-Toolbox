@@ -122,14 +122,13 @@ func (j *ConstantJsonFile) Load() (jsFile.JsonInformation, error) {
 func handleButtonClick(test string) error {
 
 	opts := &opt.Options{
-		ReadOnly: true, // فقط خواندنی
+		ReadOnly: true,
 	}
 	db, err := leveldb.OpenFile(test, opts)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-	return nil
 
 	iter := db.NewIterator(nil, nil)
 	defer iter.Release()
