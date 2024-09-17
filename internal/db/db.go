@@ -1,5 +1,7 @@
 package dbpak
 
+import "github.com/syndtr/goleveldb/leveldb"
+
 type KVData struct {
 	Key   string
 	Value string
@@ -12,4 +14,5 @@ type DBClient interface {
 	Get(key string) string
 	Read(start, end *string, count int) (error, []KVData)
 	Delet(key string) error
+	GetDB() leveldb.DB
 }

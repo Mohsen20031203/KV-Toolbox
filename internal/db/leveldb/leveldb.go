@@ -116,3 +116,8 @@ func (c *ConstantDatabase) Read(start, end *string, count int) (error, []dbpak.K
 
 	return nil, Item
 }
+
+func (c *ConstantDatabase) GetDB() leveldb.DB {
+	db := c.DB
+	return *db
+}

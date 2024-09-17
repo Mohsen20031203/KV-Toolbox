@@ -17,8 +17,6 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/syndtr/goleveldb/leveldb"
-	"github.com/syndtr/goleveldb/leveldb/opt"
 )
 
 var count int
@@ -160,9 +158,6 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 			nameButtonProject.Text = ""
 			nameButtonProject.Text = inputText
 		}
-
-		variable.CurrentDBClient = leveldbb.NewDataBase(path)
-
 		nameButtonProject.Refresh()
 		variable.PageLabel.Refresh()
 
@@ -206,15 +201,6 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 }
 
 func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, buttonAdd *widget.Button) {
-
-	opts := &opt.Options{
-		ReadOnly: true,
-	}
-	DBDB, err := leveldb.OpenFile(dbPath, opts)
-	if err != nil {
-		return
-	}
-	defer DBDB.Close()
 
 	buttonAdd.Enable()
 	if !utils.CheckCondition(rightColumnContent) {
