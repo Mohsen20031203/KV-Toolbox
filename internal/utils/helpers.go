@@ -21,7 +21,7 @@ func IsValidJSON(data string) bool {
 }
 
 func CheckCondition(rightColumnContent *fyne.Container) bool {
-	if len(rightColumnContent.Objects) > 2 {
+	if len(rightColumnContent.Objects) > 0 {
 		return false
 	}
 	return true

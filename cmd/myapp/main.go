@@ -2,7 +2,7 @@ package main
 
 import (
 	variable "testgui"
-	jsondata "testgui/internal/logic/json/jsonData"
+	jsondata "testgui/internal/json/jsonData"
 	"testgui/internal/ui/mainwindow"
 
 	"fyne.io/fyne/v2/app"

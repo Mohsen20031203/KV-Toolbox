@@ -9,7 +9,7 @@ import (
 
 	dbpak "testgui/internal/db"
 	leveldbb "testgui/internal/db/leveldb"
-	jsondata "testgui/internal/logic/json/jsonData"
+	jsondata "testgui/internal/json/jsonData"
 	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
@@ -17,10 +17,11 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/syndtr/goleveldb/leveldb/opt"
 )
 
 var count int
-var lastkey dbpak.Database
 
 func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
 	lastColumnContent := container.NewVBox()
@@ -54,27 +55,79 @@ func SetupThemeButtons(app fyne.App) *fyne.Container {
 	return darkLight
 }
 
+var lastStart *string
+var lastEnd *string
+var lastPage int
+var currentData []dbpak.KVData
+var lastcurrentData []dbpak.KVData
+
 func UpdatePage(rightColumnContent *fyne.Container) {
+
 	if !utils.CheckCondition(rightColumnContent) {
 		rightColumnContent.Objects = []fyne.CanvasObject{}
 		rightColumnContent.Refresh()
 	}
-
-	err, data := variable.CurrentDBClient.Read()
-	if err != nil {
-		fmt.Println(err)
+	if lastStart == nil {
+		lastEnd = &currentData[variable.ItemsPerPage-1].Key
+	}
+	var data = make([]dbpak.KVData, 0)
+	var err error
+	if lastPage <= variable.CurrentPage {
+		//next page
+		err, data = variable.CurrentDBClient.Read(lastEnd, nil, variable.ItemsPerPage+1)
+		if err != nil {
+			fmt.Println(err)
+		}
+		if len(data) > variable.ItemsPerPage {
+			variable.NextButton.Enable()
+		} else {
+			variable.NextButton.Disable()
+		}
+	} else {
+		//last page
+		if len(currentData) == 0 {
+			return
+		}
+		err, data = variable.CurrentDBClient.Read(nil, &currentData[0].Key, variable.ItemsPerPage+1)
+		if err != nil {
+			fmt.Println(err)
+		}
+		if len(data) > variable.ItemsPerPage {
+			variable.PrevButton.Enable()
+		} else {
+			variable.PrevButton.Disable()
+		}
+	}
+	lastcurrentData = make([]dbpak.KVData, len(currentData))
+	copy(lastcurrentData, currentData)
+	currentData = make([]dbpak.KVData, len(data))
+	copy(currentData, data)
+	if len(data) == 0 {
+		return
 	}
 
-	StartIndex := variable.CurrentPage * variable.ItemsPerPage
-	EndIndex := StartIndex + variable.ItemsPerPage
+	lastPage = variable.CurrentPage
+	lastStart = &data[0].Key
+	lastEnd = &data[len(data)-1].Key
 
-	if EndIndex > len(data) {
-		EndIndex = len(data)
-	}
+	/*
+		StartIndex := variable.CurrentPage * variable.ItemsPerPage
+		EndIndex := StartIndex + variable.ItemsPerPage
 
-	rightColumnContent.Objects = nil
+		if EndIndex > len(data) {
+			EndIndex = len(data)
+		}
 
-	for _, item := range data[StartIndex:EndIndex] {
+		rightColumnContent.Objects = nil
+
+	*/
+
+	number := 0
+	for _, item := range data {
+		if number == variable.ItemsPerPage {
+			break
+		}
+		number++
 		truncatedKey := utils.TruncateString(item.Key, 20)
 		truncatedValue := utils.TruncateString(item.Value, 50)
 
@@ -87,16 +140,6 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 
 	variable.PageLabel.SetText(fmt.Sprintf("Page %d", variable.CurrentPage+1))
 
-	variable.PrevButton.Disable()
-	variable.NextButton.Disable()
-
-	if variable.CurrentPage > 0 {
-		variable.PrevButton.Enable()
-	}
-	if EndIndex < len(data) {
-		variable.NextButton.Enable()
-	}
-
 	rightColumnContent.Refresh()
 }
 
@@ -104,6 +147,10 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	projectButton := widget.NewButton(inputText, func() {
 		variable.CurrentDBClient = leveldbb.NewDataBase(path)
 		variable.PrevButton.Disable()
+		lastStart = nil
+		lastPage = 0
+		variable.CurrentPage = 0
+		variable.NextButton.Enable()
 		variable.PageLabel.Text = "Page 1"
 		variable.FolderPath = path
 		HandleProjectSelection(path, rightColumnContentORG, buttonAdd)
@@ -160,6 +207,15 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 
 func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, buttonAdd *widget.Button) {
 
+	opts := &opt.Options{
+		ReadOnly: true,
+	}
+	DBDB, err := leveldb.OpenFile(dbPath, opts)
+	if err != nil {
+		return
+	}
+	defer DBDB.Close()
+
 	buttonAdd.Enable()
 	if !utils.CheckCondition(rightColumnContent) {
 		newObjects := []fyne.CanvasObject{}
@@ -169,7 +225,10 @@ func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 		rightColumnContent.Refresh()
 	}
 
-	err, data := variable.CurrentDBClient.Read()
+	err, data := variable.CurrentDBClient.Read(nil, nil, variable.ItemsPerPage+1)
+	if err != nil {
+		fmt.Println(err)
+	}
 	if err != nil {
 		fmt.Println("Failed to read database:", err)
 		return
@@ -179,11 +238,14 @@ func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 		variable.NextButton.Enable()
 		variable.CurrentPage = 0
 	}
+	currentData = currentData[:0]
+	count = 0
 	for _, item := range data {
 		if count >= variable.ItemsPerPage {
 			count = 0
 			break
 		}
+		currentData = append(currentData, item)
 		count++
 
 		truncatedKey := utils.TruncateString(item.Key, 20)
@@ -194,7 +256,6 @@ func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
-		lastkey = item
 
 	}
 
@@ -230,6 +291,9 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			var truncatedKey2 string
 
 			err := variable.CurrentDBClient.Open()
+			if err != nil {
+				fmt.Println("error Open")
+			}
 			defer variable.CurrentDBClient.Close()
 
 			if eidtKeyAbdValue == "value" {
@@ -282,28 +346,3 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 	})
 	return lableKeyAndValue
 }
-
-/*
-func handleButtonClick(test string) error {
-	db, err := leveldb.OpenFile(test, nil)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	iter := db.NewIterator(nil, nil)
-	defer iter.Release()
-
-	if iter.First() {
-		key := iter.Key()
-		value, err := db.Get(key, nil)
-		if err != nil {
-			return fmt.Errorf("failed to get value for key %s: %v", key, err)
-		}
-
-		fmt.Printf("First key: %s, value: %s\n", key, value)
-		return nil
-	}
-	return fmt.Errorf("no entries found in the database")
-}
-*/

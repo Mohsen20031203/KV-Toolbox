@@ -5,6 +5,7 @@ import (
 	dbpak "testgui/internal/db"
 
 	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/syndtr/goleveldb/leveldb/util"
 )
 
 type ConstantDatabase struct {
@@ -56,19 +57,62 @@ func (constant *ConstantDatabase) Get(key string) string {
 	return string(data)
 }
 
-func (c *ConstantDatabase) Read() (error, []dbpak.Database) {
-	var Item []dbpak.Database
+func (c *ConstantDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
+	var Item []dbpak.KVData
 
-	c.Open()
+	err := c.Open()
+	if err != nil {
+		fmt.Print("error : Open leveldb in func Read")
+	}
 	defer c.Close()
+	readRange := &util.Range{}
+	if start != nil {
+		readRange.Start = []byte(*start)
+	}
+	if end != nil {
+		readRange.Limit = []byte(*end)
+	}
+	iter := c.DB.NewIterator(readRange, nil)
+	defer iter.Release()
+	cnt := 0
+	if end != nil && start == nil {
+		iter.Last()
 
-	iter := c.DB.NewIterator(nil, nil)
-	for iter.Next() {
 		key := string(iter.Key())
 		value := string(iter.Value())
-		Item = append(Item, dbpak.Database{Key: key, Value: value})
+		Item = append(Item, dbpak.KVData{Key: key, Value: value})
+		cnt++
+
+		for iter.Prev() {
+			cnt++
+			if cnt > count {
+				break
+			}
+			key := string(iter.Key())
+			value := string(iter.Value())
+			Item = append(Item, dbpak.KVData{Key: key, Value: value})
+		}
+		//reverse items
+		for i := 0; i < len(Item)/2; i++ {
+			j := len(Item) - i - 1
+			temp := Item[i]
+			Item[i] = Item[j]
+			Item[j] = temp
+		}
+	} else {
+		if start != nil {
+			iter.Next()
+		}
+		for iter.Next() {
+			cnt++
+			if cnt > count {
+				break
+			}
+			key := string(iter.Key())
+			value := string(iter.Value())
+			Item = append(Item, dbpak.KVData{Key: key, Value: value})
+		}
 	}
-	iter.Release()
 
 	return nil, Item
 }

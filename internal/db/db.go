@@ -1,6 +1,6 @@
 package dbpak
 
-type Database struct {
+type KVData struct {
 	Key   string
 	Value string
 }
@@ -10,6 +10,6 @@ type DBClient interface {
 	Close()
 	Add(key, value string) error
 	Get(key string) string
-	Read() (error, []Database)
+	Read(start, end *string, count int) (error, []KVData)
 	Delet(key string) error
 }
