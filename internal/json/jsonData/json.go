@@ -10,8 +10,6 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
-	"github.com/syndtr/goleveldb/leveldb"
-	"github.com/syndtr/goleveldb/leveldb/opt"
 )
 
 type ConstantJsonFile struct {
@@ -121,16 +119,14 @@ func (j *ConstantJsonFile) Load() (jsFile.JsonInformation, error) {
 
 func handleButtonClick(test string) error {
 
-	opts := &opt.Options{
-		ReadOnly: true,
-	}
-	db, err := leveldb.OpenFile(test, opts)
+	err := variable.CurrentDBClient.Open()
 	if err != nil {
-		return err
+		return nil
 	}
-	defer db.Close()
+	defer variable.CurrentDBClient.Close()
 
-	iter := db.NewIterator(nil, nil)
+	dbb := variable.CurrentDBClient.GetDB()
+	iter := dbb.NewIterator(nil, nil)
 	defer iter.Release()
 
 	if iter.First() {
