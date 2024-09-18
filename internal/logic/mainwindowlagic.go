@@ -283,7 +283,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			defer variable.CurrentDBClient.Close()
 
 			if eidtKeyAbdValue == "value" {
-				err := variable.CurrentDBClient.Add(key, value)
+				err := variable.CurrentDBClient.Add(key, valueEntry.Text)
 				if err != nil {
 					fmt.Println(err)
 				}

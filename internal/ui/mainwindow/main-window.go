@@ -8,7 +8,6 @@ import (
 
 	"testgui/internal/logic"
 	"testgui/internal/ui/addProjectwindowui"
-	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -156,9 +155,6 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container, myW
 
 		}
 
-		truncatedKey := utils.TruncateString(iputKey.Text, 20)
-		truncatedValue := utils.TruncateString(iputvalue.Text, 50)
-
 		err := variable.CurrentDBClient.Open()
 		if err != nil {
 			return
@@ -170,11 +166,6 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container, myW
 			log.Fatal("error in main window line 172")
 		}
 
-		valueLabel := logic.BuidLableKeyAndValue("value", iputKey.Text, iputvalue.Text, truncatedValue, variable.FolderPath, rightColumnContent)
-		keyLabel := logic.BuidLableKeyAndValue("key", iputKey.Text, iputvalue.Text, truncatedKey, variable.FolderPath, rightColumnContent)
-
-		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
-		rightColumnContent.Add(buttonRow)
 		windowAdd.Close()
 	})
 	cont := container.NewVBox(
