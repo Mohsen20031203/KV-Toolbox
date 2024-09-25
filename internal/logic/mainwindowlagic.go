@@ -7,8 +7,8 @@ import (
 
 	// "testgui/internal/logic/addProjectwindowlogic"
 
-	dbpak "testgui/internal/db"
-	leveldbb "testgui/internal/db/leveldb"
+	dbpak "testgui/internal/Databaces"
+	leveldbb "testgui/internal/Databaces/leveldb"
 	jsondata "testgui/internal/json/jsonData"
 	"testgui/internal/utils"
 
@@ -108,18 +108,6 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 	lastStart = &data[0].Key
 	lastEnd = &data[len(data)-1].Key
 
-	/*
-		StartIndex := variable.CurrentPage * variable.ItemsPerPage
-		EndIndex := StartIndex + variable.ItemsPerPage
-
-		if EndIndex > len(data) {
-			EndIndex = len(data)
-		}
-
-		rightColumnContent.Objects = nil
-
-	*/
-
 	number := 0
 	for _, item := range data {
 		if number == variable.ItemsPerPage {
@@ -143,7 +131,7 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 
 func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
 	projectButton := widget.NewButton(inputText, func() {
-		variable.CurrentDBClient = leveldbb.NewDataBase(path)
+		variable.CurrentDBClient = leveldbb.NewDataBaseLeveldb(path)
 		variable.PrevButton.Disable()
 		lastStart = nil
 		lastPage = 0

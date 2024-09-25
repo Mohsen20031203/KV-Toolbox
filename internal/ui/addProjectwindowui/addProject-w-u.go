@@ -8,7 +8,6 @@ import (
 
 	//"testgui/internal/logic/logic"
 
-	leveldbb "testgui/internal/db/leveldb"
 	"testgui/internal/logic"
 	"testgui/internal/utils"
 
@@ -100,7 +99,6 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	})
 
 	buttonOk := widget.NewButton("Add", func() {
-		variable.CurrentDBClient = leveldbb.NewDataBase(pathEntry2.Text)
 		err, addButton := variable.CurrentJson.Add(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow)
 		if err != nil {
 			dialog.ShowInformation("Error ", "There is something wrong with your file and I can't connect to it", newWindow)

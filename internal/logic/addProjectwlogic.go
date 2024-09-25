@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	variable "testgui"
-	leveldbb "testgui/internal/db/leveldb"
+	leveldbb "testgui/internal/Databaces/leveldb"
 
 	// "testgui/internal/logic/mainwindowlagic"
 
@@ -39,7 +39,7 @@ func HasManifestFile(folderPath string) bool {
 }
 
 func HandleButtonClick(test string) error {
-	var dbb *leveldbb.ConstantDatabase
+	var dbb *leveldbb.LeveldbDatabase
 	err := variable.CurrentDBClient.Open()
 	if err != nil {
 		return err

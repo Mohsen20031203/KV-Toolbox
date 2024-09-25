@@ -2,24 +2,24 @@ package leveldbb
 
 import (
 	"fmt"
-	dbpak "testgui/internal/db"
+	dbpak "testgui/internal/Databaces"
 
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/util"
 )
 
-type ConstantDatabase struct {
+type LeveldbDatabase struct {
 	Address string
 	DB      *leveldb.DB
 }
 
-func NewDataBase(address string) dbpak.DBClient {
-	return &ConstantDatabase{
+func NewDataBaseLeveldb(address string) dbpak.DBClient {
+	return &LeveldbDatabase{
 		Address: address,
 	}
 }
 
-func (constant *ConstantDatabase) Delet(key string) error {
+func (constant *LeveldbDatabase) Delet(key string) error {
 	err := constant.DB.Delete([]byte(key), nil)
 	if err != nil {
 		return err
@@ -27,26 +27,26 @@ func (constant *ConstantDatabase) Delet(key string) error {
 	return nil
 }
 
-func (constant *ConstantDatabase) Open() error {
+func (constant *LeveldbDatabase) Open() error {
 	var err error
 	constant.DB, err = leveldb.OpenFile(constant.Address, nil)
 	return err
 }
 
-func (constant *ConstantDatabase) Close() {
+func (constant *LeveldbDatabase) Close() {
 	if constant.DB != nil {
 		constant.DB.Close()
 	}
 }
 
-func (constant *ConstantDatabase) Add(key, value string) error {
+func (constant *LeveldbDatabase) Add(key, value string) error {
 	if constant.DB == nil {
 		return fmt.Errorf("database not opened")
 	}
 	return constant.DB.Put([]byte(key), []byte(value), nil)
 }
 
-func (constant *ConstantDatabase) Get(key string) string {
+func (constant *LeveldbDatabase) Get(key string) string {
 	if constant.DB == nil {
 		return ""
 	}
@@ -57,7 +57,7 @@ func (constant *ConstantDatabase) Get(key string) string {
 	return string(data)
 }
 
-func (c *ConstantDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
+func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
 	var Item []dbpak.KVData
 
 	err := c.Open()
@@ -115,9 +115,4 @@ func (c *ConstantDatabase) Read(start, end *string, count int) (error, []dbpak.K
 	}
 
 	return nil, Item
-}
-
-func (c *ConstantDatabase) GetDB() leveldb.DB {
-	db := c.DB
-	return *db
 }

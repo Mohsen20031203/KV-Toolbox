@@ -94,11 +94,33 @@ func MainWindow(myApp fyne.App) {
 	lastColumnContent := logic.SetupLastColumn(rightColumnContent, nameButtonProject, buttonAdd)
 	spacer.Resize(fyne.NewSize(0, 30))
 
-	pluss := widget.NewButton("+", func() {
+	leveldbButton := widget.NewButton("levelDB", func() {
 		addProjectwindowui.OpenNewWindow(myApp, "levelDB", lastColumnContent, rightColumnContent, nameButtonProject, buttonAdd)
 	})
+
+	radisButton := widget.NewButton("Pebble", func() {
+		addProjectwindowui.OpenNewWindow(myApp, "Pebble", lastColumnContent, rightColumnContent, nameButtonProject, buttonAdd)
+	})
+	buttonsVisible := false
+
+	toggleButtonsContainer := container.NewVBox()
+
+	pluss := widget.NewButton("+", func() {
+		if buttonsVisible {
+
+			toggleButtonsContainer.Objects = nil
+		} else {
+
+			toggleButtonsContainer.Add(radisButton)
+			toggleButtonsContainer.Add(leveldbButton)
+		}
+		buttonsVisible = !buttonsVisible
+		toggleButtonsContainer.Refresh()
+	})
+
 	lastColumnContentt := container.NewVBox(
 		pluss,
+		toggleButtonsContainer,
 		spacer,
 	)
 

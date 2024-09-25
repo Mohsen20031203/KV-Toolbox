@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	variable "testgui"
+	leveldbb "testgui/internal/Databaces/leveldb"
 	jsFile "testgui/internal/json"
 
 	"fyne.io/fyne/v2"
@@ -58,6 +59,7 @@ func (j *ConstantJsonFile) Write(state interface{}) error {
 
 func (j *ConstantJsonFile) Add(path string, nameProject string, commentProject string, window fyne.Window) (error, bool) {
 	var state jsFile.JsonInformation
+	variable.CurrentDBClient = leveldbb.NewDataBaseLeveldb(path)
 
 	err := handleButtonClick(path)
 	if err != nil {
@@ -125,16 +127,5 @@ func handleButtonClick(test string) error {
 	}
 	defer variable.CurrentDBClient.Close()
 
-	dbb := variable.CurrentDBClient.GetDB()
-	iter := dbb.NewIterator(nil, nil)
-	defer iter.Release()
-
-	if iter.First() {
-		key := iter.Key()
-		value := variable.CurrentDBClient.Get(string(key))
-
-		fmt.Printf("First key: %s, value: %s\n", key, value)
-		return nil
-	}
 	return fmt.Errorf("no entries found in the database")
 }
