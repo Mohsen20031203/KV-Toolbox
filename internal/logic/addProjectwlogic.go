@@ -5,8 +5,6 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strings"
-	variable "testgui"
-	leveldbb "testgui/internal/Databaces/leveldb"
 
 	// "testgui/internal/logic/mainwindowlagic"
 
@@ -36,30 +34,6 @@ func HasManifestFile(folderPath string) bool {
 		}
 	}
 	return false
-}
-
-func HandleButtonClick(test string) error {
-	var dbb *leveldbb.LeveldbDatabase
-	err := variable.CurrentDBClient.Open()
-	if err != nil {
-		return err
-	}
-	defer variable.CurrentDBClient.Close()
-
-	iter := dbb.DB.NewIterator(nil, nil)
-	defer iter.Release()
-
-	if iter.First() {
-		key := iter.Key()
-		value := variable.CurrentDBClient.Get(string(key))
-		if err != nil {
-			return fmt.Errorf("failed to get value for key %s: %v", key, err)
-		}
-
-		fmt.Printf("First key: %s, value: %s\n", key, value)
-		return nil
-	}
-	return fmt.Errorf("no entries found in the database")
 }
 
 func NewTappableLabel(text string, tapped func()) *TappableLabel {

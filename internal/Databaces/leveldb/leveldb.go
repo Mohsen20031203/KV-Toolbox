@@ -100,9 +100,7 @@ func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KV
 			Item[j] = temp
 		}
 	} else {
-		if start != nil {
-			iter.Next()
-		}
+
 		for iter.Next() {
 			cnt++
 			if cnt > count {

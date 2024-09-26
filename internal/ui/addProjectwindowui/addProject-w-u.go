@@ -8,6 +8,7 @@ import (
 
 	//"testgui/internal/logic/logic"
 
+	jsondata "testgui/internal/json/jsonData"
 	"testgui/internal/logic"
 	"testgui/internal/utils"
 
@@ -46,7 +47,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 
 	testConnectionButton := widget.NewButton("Test Connection", func() {
 
-		err := logic.HandleButtonClick(pathEntry2.Text)
+		err := jsondata.HandleButtonClick(pathEntry2.Text, title)
 		if err != nil {
 			dialog.ShowError(err, newWindow)
 		} else {
@@ -99,7 +100,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	})
 
 	buttonOk := widget.NewButton("Add", func() {
-		err, addButton := variable.CurrentJson.Add(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow)
+		err, addButton := variable.CurrentJson.Add(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow, title)
 		if err != nil {
 			dialog.ShowInformation("Error ", "There is something wrong with your file and I can't connect to it", newWindow)
 		} else {
@@ -113,7 +114,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 					rightColumnContentORG.Refresh()
 				}
 
-				buttonContainer := logic.ProjectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG, nameButtonProject, buttonAdd)
+				buttonContainer := logic.ProjectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG, nameButtonProject, buttonAdd, title)
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 
