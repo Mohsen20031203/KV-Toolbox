@@ -7,6 +7,7 @@ import (
 	"os"
 	variable "testgui"
 	jsFile "testgui/internal/json"
+	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
@@ -56,10 +57,10 @@ func (j *ConstantJsonFile) Write(state interface{}) error {
 	return encoder.Encode(&state)
 }
 
-func (j *ConstantJsonFile) Add(path string, nameProject string, commentProject string, window fyne.Window) (error, bool) {
+func (j *ConstantJsonFile) Add(path string, nameProject string, commentProject string, window fyne.Window, nameDatabace string) (error, bool) {
 	var state jsFile.JsonInformation
 
-	err := handleButtonClick(path)
+	err := HandleButtonClick(path, nameDatabace)
 	if err != nil {
 		return err, false
 	}
@@ -81,6 +82,7 @@ func (j *ConstantJsonFile) Add(path string, nameProject string, commentProject s
 		Name:        nameProject,
 		Comment:     commentProject,
 		FileAddress: path,
+		Databace:    nameDatabace,
 	}
 
 	state.RecentProjects = append(state.RecentProjects, newActivity)
@@ -117,24 +119,14 @@ func (j *ConstantJsonFile) Load() (jsFile.JsonInformation, error) {
 	return jsonData, nil
 }
 
-func handleButtonClick(test string) error {
+func HandleButtonClick(test string, nameDatabace string) error {
 
+	utils.Checkdatabace(test, nameDatabace)
 	err := variable.CurrentDBClient.Open()
 	if err != nil {
-		return nil
+		return fmt.Errorf("no entries found in the database")
 	}
 	defer variable.CurrentDBClient.Close()
+	return nil
 
-	dbb := variable.CurrentDBClient.GetDB()
-	iter := dbb.NewIterator(nil, nil)
-	defer iter.Release()
-
-	if iter.First() {
-		key := iter.Key()
-		value := variable.CurrentDBClient.Get(string(key))
-
-		fmt.Printf("First key: %s, value: %s\n", key, value)
-		return nil
-	}
-	return fmt.Errorf("no entries found in the database")
 }

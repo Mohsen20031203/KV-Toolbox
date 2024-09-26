@@ -8,7 +8,6 @@ import (
 
 	"testgui/internal/logic"
 	"testgui/internal/ui/addProjectwindowui"
-	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -95,11 +94,33 @@ func MainWindow(myApp fyne.App) {
 	lastColumnContent := logic.SetupLastColumn(rightColumnContent, nameButtonProject, buttonAdd)
 	spacer.Resize(fyne.NewSize(0, 30))
 
-	pluss := widget.NewButton("+", func() {
+	leveldbButton := widget.NewButton("levelDB", func() {
 		addProjectwindowui.OpenNewWindow(myApp, "levelDB", lastColumnContent, rightColumnContent, nameButtonProject, buttonAdd)
 	})
+
+	radisButton := widget.NewButton("Pebble", func() {
+		addProjectwindowui.OpenNewWindow(myApp, "Pebble", lastColumnContent, rightColumnContent, nameButtonProject, buttonAdd)
+	})
+	buttonsVisible := false
+
+	toggleButtonsContainer := container.NewVBox()
+
+	pluss := widget.NewButton("+", func() {
+		if buttonsVisible {
+
+			toggleButtonsContainer.Objects = nil
+		} else {
+
+			toggleButtonsContainer.Add(radisButton)
+			toggleButtonsContainer.Add(leveldbButton)
+		}
+		buttonsVisible = !buttonsVisible
+		toggleButtonsContainer.Refresh()
+	})
+
 	lastColumnContentt := container.NewVBox(
 		pluss,
+		toggleButtonsContainer,
 		spacer,
 	)
 
@@ -156,9 +177,6 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container, myW
 
 		}
 
-		truncatedKey := utils.TruncateString(iputKey.Text, 20)
-		truncatedValue := utils.TruncateString(iputvalue.Text, 50)
-
 		err := variable.CurrentDBClient.Open()
 		if err != nil {
 			return
@@ -170,11 +188,6 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container, myW
 			log.Fatal("error in main window line 172")
 		}
 
-		valueLabel := logic.BuidLableKeyAndValue("value", iputKey.Text, iputvalue.Text, truncatedValue, variable.FolderPath, rightColumnContent)
-		keyLabel := logic.BuidLableKeyAndValue("key", iputKey.Text, iputvalue.Text, truncatedKey, variable.FolderPath, rightColumnContent)
-
-		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
-		rightColumnContent.Add(buttonRow)
 		windowAdd.Close()
 	})
 	cont := container.NewVBox(

@@ -7,8 +7,7 @@ import (
 
 	// "testgui/internal/logic/addProjectwindowlogic"
 
-	dbpak "testgui/internal/db"
-	leveldbb "testgui/internal/db/leveldb"
+	dbpak "testgui/internal/Databaces"
 	jsondata "testgui/internal/json/jsonData"
 	"testgui/internal/utils"
 
@@ -19,7 +18,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var count int
+var next_prev bool
 
 func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
 	lastColumnContent := container.NewVBox()
@@ -30,7 +29,7 @@ func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *w
 		println("Error loading JSON data:", err)
 	} else {
 		for _, project := range jsonDataa.RecentProjects {
-			buttonContainer := ProjectButton(project.Name, lastColumnContent, project.FileAddress, rightColumnContentORG, nameButtonProject, buttonAdd)
+			buttonContainer := ProjectButton(project.Name, lastColumnContent, project.FileAddress, rightColumnContentORG, nameButtonProject, buttonAdd, project.Databace)
 			lastColumnContent.Add(buttonContainer)
 		}
 	}
@@ -65,19 +64,20 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		rightColumnContent.Objects = []fyne.CanvasObject{}
 		rightColumnContent.Refresh()
 	}
-	if lastStart == nil {
-		lastEnd = &currentData[variable.ItemsPerPage-1].Key
-	}
+
 	var data = make([]dbpak.KVData, 0)
 	var err error
 	if lastPage <= variable.CurrentPage {
 		//next page
+
+		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
 		err, data = variable.CurrentDBClient.Read(lastEnd, nil, variable.ItemsPerPage+1)
 		if err != nil {
 			fmt.Println(err)
 		}
 		if len(data) > variable.ItemsPerPage {
 			variable.NextButton.Enable()
+			next_prev = true
 		} else {
 			variable.NextButton.Disable()
 		}
@@ -86,16 +86,21 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		if len(currentData) == 0 {
 			return
 		}
-		err, data = variable.CurrentDBClient.Read(nil, &currentData[0].Key, variable.ItemsPerPage+1)
+
+		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
+		err, data = variable.CurrentDBClient.Read(nil, lastStart, variable.ItemsPerPage+1)
 		if err != nil {
 			fmt.Println(err)
 		}
+
 		if len(data) > variable.ItemsPerPage {
 			variable.PrevButton.Enable()
+			next_prev = false
 		} else {
 			variable.PrevButton.Disable()
 		}
 	}
+
 	lastcurrentData = make([]dbpak.KVData, len(currentData))
 	copy(lastcurrentData, currentData)
 	currentData = make([]dbpak.KVData, len(data))
@@ -105,22 +110,31 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 	}
 
 	lastPage = variable.CurrentPage
-	lastStart = &data[0].Key
-	lastEnd = &data[len(data)-1].Key
+	if next_prev {
+		lastStart = &data[0].Key
+		if len(data) == variable.ItemsPerPage+1 {
 
-	/*
-		StartIndex := variable.CurrentPage * variable.ItemsPerPage
-		EndIndex := StartIndex + variable.ItemsPerPage
+			lastEnd = &data[len(data)-2].Key
+		} else {
+			lastEnd = &data[len(data)-1].Key
 
-		if EndIndex > len(data) {
-			EndIndex = len(data)
 		}
 
-		rightColumnContent.Objects = nil
+	} else {
+		lastEnd = &data[len(data)-1].Key
+		if len(data) >= variable.ItemsPerPage+1 {
+			lastStart = &data[1].Key
+		} else {
+			lastStart = &data[0].Key
+		}
+	}
 
-	*/
+	if !next_prev && len(data) == variable.ItemsPerPage+1 {
+		data = data[1:]
+	}
 
 	number := 0
+
 	for _, item := range data {
 		if number == variable.ItemsPerPage {
 			break
@@ -141,14 +155,16 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 	rightColumnContent.Refresh()
 }
 
-func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
+func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string) *fyne.Container {
 	projectButton := widget.NewButton(inputText, func() {
-		variable.CurrentDBClient = leveldbb.NewDataBase(path)
+		utils.Checkdatabace(path, nameDatabace)
 		variable.PrevButton.Disable()
 		lastStart = nil
 		lastPage = 0
 		variable.CurrentPage = 0
 		variable.NextButton.Enable()
+		lastEnd = nil
+		lastStart = nil
 		variable.PageLabel.Text = "Page 1"
 		variable.FolderPath = path
 		HandleProjectSelection(path, rightColumnContentORG, buttonAdd)
@@ -211,41 +227,10 @@ func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 		rightColumnContent.Refresh()
 	}
 
-	err, data := variable.CurrentDBClient.Read(nil, nil, variable.ItemsPerPage+1)
-	if err != nil {
-		fmt.Println(err)
-	}
-	if err != nil {
-		fmt.Println("Failed to read database:", err)
-		return
-	}
+	//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
 
-	if len(data)/variable.ItemsPerPage > 1 {
-		variable.NextButton.Enable()
-		variable.CurrentPage = 0
-	}
-	currentData = currentData[:0]
-	count = 0
-	for _, item := range data {
-		if count >= variable.ItemsPerPage {
-			count = 0
-			break
-		}
-		currentData = append(currentData, item)
-		count++
+	UpdatePage(rightColumnContent)
 
-		truncatedKey := utils.TruncateString(item.Key, 20)
-		truncatedValue := utils.TruncateString(item.Value, 50)
-
-		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, dbPath, rightColumnContent)
-		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, dbPath, rightColumnContent)
-
-		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
-		rightColumnContent.Add(buttonRow)
-
-	}
-
-	rightColumnContent.Refresh()
 }
 
 func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, nameLable string, Addres string, rightColumnContent *fyne.Container) *TappableLabel {
@@ -283,7 +268,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			defer variable.CurrentDBClient.Close()
 
 			if eidtKeyAbdValue == "value" {
-				err := variable.CurrentDBClient.Add(key, value)
+				err := variable.CurrentDBClient.Add(key, valueEntry.Text)
 				if err != nil {
 					fmt.Println(err)
 				}

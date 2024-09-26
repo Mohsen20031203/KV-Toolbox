@@ -3,6 +3,9 @@ package utils
 
 import (
 	"encoding/json"
+	variable "testgui"
+	"testgui/internal/Databaces/PebbleDB"
+	leveldbb "testgui/internal/Databaces/leveldb"
 
 	"fyne.io/fyne/v2"
 )
@@ -25,4 +28,14 @@ func CheckCondition(rightColumnContent *fyne.Container) bool {
 		return false
 	}
 	return true
+}
+
+func Checkdatabace(test string, nameDatabace string) {
+	if nameDatabace == "levelDB" {
+
+		variable.CurrentDBClient = leveldbb.NewDataBaseLeveldb(test)
+	} else if nameDatabace == "Pebble" {
+
+		variable.CurrentDBClient = PebbleDB.NewDataBasePebble(test)
+	}
 }
