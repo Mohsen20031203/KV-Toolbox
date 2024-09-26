@@ -19,8 +19,6 @@ func NewDataBaseLeveldb(address string) dbpak.DBClient {
 	}
 }
 
-var FirstAndLast bool
-
 func (constant *LeveldbDatabase) Delet(key string) error {
 	err := constant.DB.Delete([]byte(key), nil)
 	if err != nil {
@@ -102,10 +100,9 @@ func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KV
 			Item[j] = temp
 		}
 	} else {
+		if start != nil {
 
-		if FirstAndLast {
 			iter.Next()
-			FirstAndLast = false
 		}
 		for iter.Next() {
 			cnt++

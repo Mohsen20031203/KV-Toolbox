@@ -8,7 +8,6 @@ import (
 	// "testgui/internal/logic/addProjectwindowlogic"
 
 	dbpak "testgui/internal/Databaces"
-	leveldbb "testgui/internal/Databaces/leveldb"
 	jsondata "testgui/internal/json/jsonData"
 	"testgui/internal/utils"
 
@@ -87,28 +86,18 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		if len(currentData) == 0 {
 			return
 		}
-		if next_prev {
 
-			//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
-			err, data = variable.CurrentDBClient.Read(nil, &currentData[0].Key, variable.ItemsPerPage+1)
-			if err != nil {
-				fmt.Println(err)
-			}
-		} else {
-			//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
-			err, data = variable.CurrentDBClient.Read(nil, &currentData[1].Key, variable.ItemsPerPage+1)
-			if err != nil {
-				fmt.Println(err)
-			}
-
+		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
+		err, data = variable.CurrentDBClient.Read(nil, lastStart, variable.ItemsPerPage+1)
+		if err != nil {
+			fmt.Println(err)
 		}
-		lastStart = &data[1].Key
+
 		if len(data) > variable.ItemsPerPage {
 			variable.PrevButton.Enable()
 			next_prev = false
 		} else {
 			variable.PrevButton.Disable()
-			leveldbb.FirstAndLast = true
 		}
 	}
 
@@ -121,8 +110,24 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 	}
 
 	lastPage = variable.CurrentPage
-	lastStart = &data[0].Key
-	lastEnd = &data[len(data)-1].Key
+	if next_prev {
+		lastStart = &data[0].Key
+		if len(data) == variable.ItemsPerPage+1 {
+
+			lastEnd = &data[len(data)-2].Key
+		} else {
+			lastEnd = &data[len(data)-1].Key
+
+		}
+
+	} else {
+		lastEnd = &data[len(data)-1].Key
+		if len(data) >= variable.ItemsPerPage+1 {
+			lastStart = &data[1].Key
+		} else {
+			lastStart = &data[0].Key
+		}
+	}
 
 	if !next_prev && len(data) == variable.ItemsPerPage+1 {
 		data = data[1:]
