@@ -18,7 +18,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var nextAndPrev bool
+var count int
 
 func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
 	lastColumnContent := container.NewVBox()
@@ -60,12 +60,15 @@ var lastcurrentData []dbpak.KVData
 
 func UpdatePage(rightColumnContent *fyne.Container) {
 
-	var data = make([]dbpak.KVData, 0)
-	var err error
 	if !utils.CheckCondition(rightColumnContent) {
 		rightColumnContent.Objects = []fyne.CanvasObject{}
 		rightColumnContent.Refresh()
 	}
+	if lastStart == nil {
+		lastEnd = &currentData[variable.ItemsPerPage-1].Key
+	}
+	var data = make([]dbpak.KVData, 0)
+	var err error
 	if lastPage <= variable.CurrentPage {
 		//next page
 
@@ -74,8 +77,6 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		lastStart = &data[0].Key
-		nextAndPrev = true
 		if len(data) > variable.ItemsPerPage {
 			variable.NextButton.Enable()
 		} else {
@@ -92,12 +93,10 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 			fmt.Println(err)
 		}
 		lastStart = &data[1].Key
-		nextAndPrev = false
 		if len(data) > variable.ItemsPerPage {
 			variable.PrevButton.Enable()
 		} else {
 			variable.PrevButton.Disable()
-			lastStart = &data[0].Key
 		}
 	}
 
@@ -110,12 +109,11 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 	}
 
 	lastPage = variable.CurrentPage
+	lastStart = &data[0].Key
 	lastEnd = &data[len(data)-1].Key
 
 	number := 0
-	if !nextAndPrev && len(data) == variable.ItemsPerPage+1 {
-		data = data[1:]
-	}
+
 	for _, item := range data {
 		if number == variable.ItemsPerPage {
 			break
@@ -146,8 +144,6 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 		variable.NextButton.Enable()
 		variable.PageLabel.Text = "Page 1"
 		variable.FolderPath = path
-		lastEnd = nil
-		lastStart = nil
 		HandleProjectSelection(path, rightColumnContentORG, buttonAdd)
 		if nameButtonProject.Text == "" {
 			nameButtonProject.Text = inputText
@@ -209,7 +205,41 @@ func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, b
 	}
 
 	//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
-	UpdatePage(rightColumnContent)
+
+	err, data := variable.CurrentDBClient.Read(nil, nil, variable.ItemsPerPage+1)
+	if err != nil {
+		fmt.Println(err)
+	}
+	if err != nil {
+		fmt.Println("Failed to read database:", err)
+		return
+	}
+	if len(data)/variable.ItemsPerPage > 1 {
+		variable.NextButton.Enable()
+		variable.CurrentPage = 0
+	}
+	currentData = currentData[:0]
+	count = 0
+	for _, item := range data {
+		if count >= variable.ItemsPerPage {
+			count = 0
+			break
+		}
+		currentData = append(currentData, item)
+		count++
+
+		truncatedKey := utils.TruncateString(item.Key, 20)
+		truncatedValue := utils.TruncateString(item.Value, 50)
+
+		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, dbPath, rightColumnContent)
+		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, dbPath, rightColumnContent)
+
+		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
+		rightColumnContent.Add(buttonRow)
+
+	}
+
+	rightColumnContent.Refresh()
 
 }
 
