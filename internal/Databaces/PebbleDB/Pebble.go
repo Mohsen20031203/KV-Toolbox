@@ -111,7 +111,7 @@ func (c *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 	} else {
 		if start != nil {
 			iter.SeekGE([]byte(*start))
-
+			iter.Next()
 		} else {
 			iter.First()
 		}
