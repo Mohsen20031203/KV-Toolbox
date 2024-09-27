@@ -60,10 +60,7 @@ var lastcurrentData []dbpak.KVData
 
 func UpdatePage(rightColumnContent *fyne.Container) {
 
-	if !utils.CheckCondition(rightColumnContent) {
-		rightColumnContent.Objects = []fyne.CanvasObject{}
-		rightColumnContent.Refresh()
-	}
+	utils.CheckCondition(rightColumnContent)
 
 	var data = make([]dbpak.KVData, 0)
 	var err error
@@ -143,8 +140,8 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		truncatedKey := utils.TruncateString(item.Key, 20)
 		truncatedValue := utils.TruncateString(item.Value, 50)
 
-		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, variable.FolderPath, rightColumnContent)
-		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, variable.FolderPath, rightColumnContent)
+		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, rightColumnContent)
+		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, rightColumnContent)
 
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
@@ -191,15 +188,13 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 
 	closeButton := widget.NewButton("✖", func() {
 
-		if !utils.CheckCondition(rightColumnContentORG) && nameButtonProject.Text == inputText {
-			newObjects := []fyne.CanvasObject{}
+		if nameButtonProject.Text == inputText {
+			utils.CheckCondition(rightColumnContentORG)
 
-			rightColumnContentORG.Objects = newObjects
 			buttonAdd.Disable()
 
 			nameButtonProject.Text = ""
 			nameButtonProject.Refresh()
-			rightColumnContentORG.Refresh()
 		}
 
 		err := variable.CurrentJson.Remove(inputText)
@@ -219,21 +214,14 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, buttonAdd *widget.Button) {
 
 	buttonAdd.Enable()
-	if !utils.CheckCondition(rightColumnContent) {
-		newObjects := []fyne.CanvasObject{}
-
-		rightColumnContent.Objects = newObjects
-
-		rightColumnContent.Refresh()
-	}
+	utils.CheckCondition(rightColumnContent)
 
 	//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
 
 	UpdatePage(rightColumnContent)
-
 }
 
-func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, nameLable string, Addres string, rightColumnContent *fyne.Container) *TappableLabel {
+func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, nameLable string, rightColumnContent *fyne.Container) *TappableLabel {
 	var lableKeyAndValue *TappableLabel
 
 	lableKeyAndValue = NewTappableLabel(nameLable, func() {

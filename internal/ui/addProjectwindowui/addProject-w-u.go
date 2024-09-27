@@ -106,13 +106,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 		} else {
 			if !addButton {
 
-				if !utils.CheckCondition(rightColumnContentORG) {
-					newObjects := []fyne.CanvasObject{}
-
-					rightColumnContentORG.Objects = newObjects
-
-					rightColumnContentORG.Refresh()
-				}
+				utils.CheckCondition(rightColumnContentORG)
 
 				buttonContainer := logic.ProjectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG, nameButtonProject, buttonAdd, title)
 				lastColumnContent.Add(buttonContainer)

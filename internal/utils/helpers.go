@@ -23,11 +23,12 @@ func IsValidJSON(data string) bool {
 	return m
 }
 
-func CheckCondition(rightColumnContent *fyne.Container) bool {
+func CheckCondition(rightColumnContent *fyne.Container) {
 	if len(rightColumnContent.Objects) > 0 {
-		return false
+		newObjects := []fyne.CanvasObject{}
+		rightColumnContent.Objects = newObjects
+		rightColumnContent.Refresh()
 	}
-	return true
 }
 
 func Checkdatabace(test string, nameDatabace string) {

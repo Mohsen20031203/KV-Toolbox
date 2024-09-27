@@ -8,6 +8,7 @@ import (
 
 	"testgui/internal/logic"
 	"testgui/internal/ui/addProjectwindowui"
+	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -42,7 +43,50 @@ func MainWindow(myApp fyne.App) {
 		fyne.TextStyle{Bold: true},
 	)
 
-	searchButton := widget.NewButton("Search", func() {})
+	searchButton := widget.NewButton("Search", func() {
+		var valueSearch string
+		editWindow := fyne.CurrentApp().NewWindow("Enter the desired key")
+		editWindow.Resize(fyne.NewSize(600, 300))
+
+		valueEntry := widget.NewMultiLineEntry()
+		valueEntry.Resize(fyne.NewSize(500, 500))
+
+		buttomSearch := widget.NewButton("Search", func() {
+			err := variable.CurrentDBClient.Open()
+			if err != nil {
+				fmt.Println("errro in Search Database", err)
+			}
+			defer variable.CurrentDBClient.Close()
+			valueSearch = variable.CurrentDBClient.Get(valueEntry.Text)
+			if valueSearch == "" {
+				dialog.ShowError(fmt.Errorf("The key"+valueEntry.Text+"does not exist in your database"), editWindow)
+				valueEntry.Text = ""
+			} else {
+
+				utils.CheckCondition(rightColumnContent)
+
+				truncatedKey := utils.TruncateString(valueEntry.Text, 20)
+				truncatedValue := utils.TruncateString(valueSearch, 50)
+
+				valueLabel := logic.BuidLableKeyAndValue("value", valueEntry.Text, valueSearch, truncatedValue, rightColumnContent)
+				keyLabel := logic.BuidLableKeyAndValue("key", valueEntry.Text, valueSearch, truncatedKey, rightColumnContent)
+				buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
+				rightColumnContent.Add(buttonRow)
+				editWindow.Close()
+			}
+		})
+
+		editContent := container.NewVBox(
+			widget.NewLabel("Enter the desired key"),
+			valueEntry,
+			layout.NewSpacer(),
+			buttomSearch,
+		)
+		editWindow.SetContent(editContent)
+		editWindow.Show()
+
+	})
+
 	buttonAdd := widget.NewButton("Add", func() {
 		OpenWindowAddButton(myApp, rightColumnContent, myWindow)
 	})
