@@ -13,6 +13,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -121,13 +122,10 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		lastEnd = &data[len(data)-1].Key
 		if len(data) >= variable.ItemsPerPage+1 {
 			lastStart = &data[1].Key
+			data = data[1:]
 		} else {
 			lastStart = &data[0].Key
 		}
-	}
-
-	if !next_prev && len(data) == variable.ItemsPerPage+1 {
-		data = data[1:]
 	}
 
 	number := 0
@@ -304,4 +302,29 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 		editWindow.Show()
 	})
 	return lableKeyAndValue
+}
+
+func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {
+	var valueSearch string
+	err := variable.CurrentDBClient.Open()
+	if err != nil {
+		fmt.Println("errro in Search Database", err)
+	}
+	defer variable.CurrentDBClient.Close()
+	valueSearch = variable.CurrentDBClient.Get(valueEntry.Text)
+	if valueSearch == "" {
+		dialog.ShowError(fmt.Errorf("The key"+valueEntry.Text+"does not exist in your database"), editWindow)
+		valueEntry.Text = ""
+	} else {
+
+		utils.CheckCondition(rightColumnContent)
+
+		truncatedKey := utils.TruncateString(valueEntry.Text, 20)
+		truncatedValue := utils.TruncateString(valueSearch, 50)
+
+		valueLabel := BuidLableKeyAndValue("value", valueEntry.Text, valueSearch, truncatedValue, rightColumnContent)
+		keyLabel := BuidLableKeyAndValue("key", valueEntry.Text, valueSearch, truncatedKey, rightColumnContent)
+		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
+		rightColumnContent.Add(buttonRow)
+	}
 }
