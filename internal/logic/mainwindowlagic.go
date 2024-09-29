@@ -59,6 +59,8 @@ var lastPage int
 var currentData []dbpak.KVData
 var lastcurrentData []dbpak.KVData
 
+func UpdatePageWithout(rightColumnContent *fyne.Container) {
+}
 func UpdatePage(rightColumnContent *fyne.Container) {
 
 	utils.CheckCondition(rightColumnContent)

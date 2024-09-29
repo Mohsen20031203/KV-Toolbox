@@ -66,7 +66,6 @@ func MainWindow(myApp fyne.App) {
 		editWindow.Show()
 
 	})
-	searchButton.Disable()
 
 	buttonAdd := widget.NewButton("Add", func() {
 		OpenWindowAddButton(myApp, rightColumnContent, myWindow)
