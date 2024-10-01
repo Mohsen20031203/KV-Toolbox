@@ -35,6 +35,12 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container, myW
 		}
 		defer variable.CurrentDBClient.Close()
 
+		checkNow := variable.CurrentDBClient.Get(iputKey.Text)
+		if checkNow != "" {
+			dialog.ShowInformation("Error", "This key has already been added to your database", windowAdd)
+			return
+		}
+
 		err = variable.CurrentDBClient.Add(iputKey.Text, iputvalue.Text)
 		if err != nil {
 			log.Fatal("error in main window line 172")
