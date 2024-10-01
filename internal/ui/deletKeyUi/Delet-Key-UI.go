@@ -15,6 +15,7 @@ func DeleteKeyUi(rightColumnContent *fyne.Container) {
 
 	valueEntry := widget.NewMultiLineEntry()
 	valueEntry.Resize(fyne.NewSize(500, 500))
+	valueEntry.SetPlaceHolder("Key")
 
 	buttomSearch := widget.NewButton("Delet", func() {
 

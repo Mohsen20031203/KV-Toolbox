@@ -62,6 +62,7 @@ var lastcurrentData []dbpak.KVData
 
 func UpdatePageWithout(rightColumnContent *fyne.Container) {
 }
+
 func UpdatePage(rightColumnContent *fyne.Container) {
 
 	utils.CheckCondition(rightColumnContent)
@@ -319,6 +320,7 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		dialog.ShowError(fmt.Errorf("The key"+valueEntry.Text+"does not exist in your database"), editWindow)
 		valueEntry.Text = ""
 	} else {
+		editWindow.Close()
 
 		utils.CheckCondition(rightColumnContent)
 

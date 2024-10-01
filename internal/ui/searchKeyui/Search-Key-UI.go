@@ -15,11 +15,11 @@ func SearchKeyUi(rightColumnContent *fyne.Container) {
 
 	valueEntry := widget.NewMultiLineEntry()
 	valueEntry.Resize(fyne.NewSize(500, 500))
+	valueEntry.SetPlaceHolder("Key")
 
 	buttomSearch := widget.NewButton("Search", func() {
 
 		logic.SearchDatabase(valueEntry, editWindow, rightColumnContent)
-		editWindow.Close()
 
 	})
 
