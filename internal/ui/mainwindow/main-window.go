@@ -8,6 +8,8 @@ import (
 
 	"testgui/internal/logic"
 	"testgui/internal/ui/addProjectwindowui"
+	deletkeyui "testgui/internal/ui/deletKeyUi"
+	searchkeyui "testgui/internal/ui/searchKeyui"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -43,27 +45,8 @@ func MainWindow(myApp fyne.App) {
 	)
 
 	searchButton := widget.NewButton("Search", func() {
-		editWindow := fyne.CurrentApp().NewWindow("Enter the desired key")
-		editWindow.Resize(fyne.NewSize(600, 300))
 
-		valueEntry := widget.NewMultiLineEntry()
-		valueEntry.Resize(fyne.NewSize(500, 500))
-
-		buttomSearch := widget.NewButton("Search", func() {
-
-			logic.SearchDatabase(valueEntry, editWindow, rightColumnContent)
-			editWindow.Close()
-
-		})
-
-		editContent := container.NewVBox(
-			widget.NewLabel("Enter the desired key"),
-			valueEntry,
-			layout.NewSpacer(),
-			buttomSearch,
-		)
-		editWindow.SetContent(editContent)
-		editWindow.Show()
+		searchkeyui.SearchKeyUi(rightColumnContent)
 
 	})
 
@@ -71,6 +54,10 @@ func MainWindow(myApp fyne.App) {
 		OpenWindowAddButton(myApp, rightColumnContent, myWindow)
 	})
 	buttonAdd.Disable()
+
+	buttonDelet := widget.NewButton("Delet", func() {
+		deletkeyui.DeleteKeyUi(rightColumnContent)
+	})
 
 	keyAndRight := container.NewGridWithColumns(2, keyRightColunm, valueRightColunm)
 
@@ -104,7 +91,7 @@ func MainWindow(myApp fyne.App) {
 	rawSearchAndAdd := container.NewVBox(
 		layout.NewSpacer(),
 		container.NewGridWithColumns(3, variable.PrevButton, pageLabelposition, variable.NextButton),
-		container.NewGridWithColumns(2, searchButton, buttonAdd),
+		container.NewGridWithColumns(3, buttonDelet, searchButton, buttonAdd),
 	)
 
 	rightColumnContenttt := container.NewVBox(

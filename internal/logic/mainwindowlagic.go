@@ -3,6 +3,7 @@ package logic
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	variable "testgui"
 
 	// "testgui/internal/logic/addProjectwindowlogic"
@@ -329,4 +330,25 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
 	}
+}
+
+func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {
+	err := variable.CurrentDBClient.Open()
+	if err != nil {
+		log.Fatal("dont open databce in func DeletKeyLogic for delet key || err :", err)
+	}
+	defer variable.CurrentDBClient.Close()
+
+	valueSearch := variable.CurrentDBClient.Get(valueEntry.Text)
+	if valueSearch == "" {
+		dialog.ShowError(fmt.Errorf("This key does not exist in the database"), editWindow)
+	} else {
+		err = variable.CurrentDBClient.Delet(valueEntry.Text)
+		if err != nil {
+			log.Fatal("this err for func DeletKeyLogic part else delet || err : ", err)
+			return
+		}
+		editWindow.Close()
+	}
+
 }
