@@ -316,6 +316,7 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	if valueSearch == "" {
 		dialog.ShowError(fmt.Errorf("The key"+valueEntry.Text+"does not exist in your database"), editWindow)
 		valueEntry.Text = ""
+		valueEntry.Refresh()
 	} else {
 		editWindow.Close()
 
