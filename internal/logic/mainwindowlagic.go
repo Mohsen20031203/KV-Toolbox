@@ -60,9 +60,6 @@ var lastPage int
 var currentData []dbpak.KVData
 var lastcurrentData []dbpak.KVData
 
-func UpdatePageWithout(rightColumnContent *fyne.Container) {
-}
-
 func UpdatePage(rightColumnContent *fyne.Container) {
 
 	utils.CheckCondition(rightColumnContent)
@@ -352,5 +349,30 @@ func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		}
 		editWindow.Close()
 	}
+}
 
+func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.Window) {
+	if iputKey.Text == "" && iputvalue.Text == "" {
+		dialog.ShowInformation("Error", "Please enter both the key and the value", windowAdd)
+	} else if iputvalue.Text != "" && iputKey.Text == "" {
+		dialog.ShowInformation("Error", "You cannot leave either the key or both fields empty.", windowAdd)
+
+	}
+
+	err := variable.CurrentDBClient.Open()
+	if err != nil {
+		return
+	}
+	defer variable.CurrentDBClient.Close()
+
+	checkNow := variable.CurrentDBClient.Get(iputKey.Text)
+	if checkNow != "" {
+		dialog.ShowInformation("Error", "This key has already been added to your database", windowAdd)
+		return
+	}
+
+	err = variable.CurrentDBClient.Add(iputKey.Text, iputvalue.Text)
+	if err != nil {
+		log.Fatal("error in main window line 172")
+	}
 }

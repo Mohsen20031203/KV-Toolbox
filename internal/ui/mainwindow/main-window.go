@@ -50,7 +50,7 @@ func MainWindow(myApp fyne.App) {
 	})
 
 	buttonAdd := widget.NewButton("Add", func() {
-		addkeyui.OpenWindowAddButton(myApp, rightColumnContent, myWindow)
+		addkeyui.OpenWindowAddButton(myApp, rightColumnContent)
 	})
 	buttonAdd.Disable()
 

@@ -3,6 +3,7 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	variable "testgui"
 	"testgui/internal/Databaces/PebbleDB"
 	leveldbb "testgui/internal/Databaces/leveldb"
@@ -35,8 +36,17 @@ func Checkdatabace(test string, nameDatabace string) {
 	if nameDatabace == "levelDB" {
 
 		variable.CurrentDBClient = leveldbb.NewDataBaseLeveldb(test)
+		err := variable.CurrentDBClient.Open()
+		if err != nil {
+			fmt.Println("database not leveldb")
+		}
+
 	} else if nameDatabace == "Pebble" {
 
 		variable.CurrentDBClient = PebbleDB.NewDataBasePebble(test)
+		err := variable.CurrentDBClient.Open()
+		if err != nil {
+			fmt.Println("database not pebble")
+		}
 	}
 }
