@@ -37,6 +37,7 @@ func Checkdatabace(test string, nameDatabace string) {
 
 		variable.CurrentDBClient = leveldbb.NewDataBaseLeveldb(test)
 		err := variable.CurrentDBClient.Open()
+		variable.CurrentDBClient.Close()
 		if err != nil {
 			fmt.Println("database not leveldb")
 		}
@@ -45,6 +46,7 @@ func Checkdatabace(test string, nameDatabace string) {
 
 		variable.CurrentDBClient = PebbleDB.NewDataBasePebble(test)
 		err := variable.CurrentDBClient.Open()
+		variable.CurrentDBClient.Close()
 		if err != nil {
 			fmt.Println("database not pebble")
 		}
