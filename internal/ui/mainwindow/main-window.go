@@ -67,6 +67,7 @@ func MainWindow(myApp fyne.App) {
 		variable.PrevButton.Enable()
 		logic.UpdatePage(rightColumnContent)
 	})
+	variable.NextButton.Disable()
 
 	variable.PrevButton = widget.NewButton("prev", func() {
 		if variable.CurrentPage > 0 {

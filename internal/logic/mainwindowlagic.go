@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	variable "testgui"
+	"time"
 
 	// "testgui/internal/logic/addProjectwindowlogic"
 
@@ -155,7 +156,6 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	projectButton := widget.NewButton(inputText, func() {
 		utils.Checkdatabace(path, nameDatabace)
 		variable.PrevButton.Disable()
-		lastStart = nil
 		lastPage = 0
 		variable.CurrentPage = 0
 		variable.NextButton.Enable()
@@ -165,10 +165,10 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 		variable.FolderPath = path
 		HandleProjectSelection(path, rightColumnContentORG, buttonAdd)
 		if nameButtonProject.Text == "" {
-			nameButtonProject.Text = inputText
+			nameButtonProject.Text = inputText + " - " + nameDatabace
 		} else {
 			nameButtonProject.Text = ""
-			nameButtonProject.Text = inputText
+			nameButtonProject.Text = inputText + " - " + nameDatabace
 		}
 		nameButtonProject.Refresh()
 		variable.PageLabel.Refresh()
@@ -176,10 +176,10 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	})
 
 	if nameButtonProject.Text == "" {
-		nameButtonProject.Text = inputText
+		nameButtonProject.Text = inputText + " - " + nameDatabace
 	} else {
 		nameButtonProject.Text = ""
-		nameButtonProject.Text = inputText
+		nameButtonProject.Text = inputText + " - " + nameDatabace
 	}
 	nameButtonProject.Refresh()
 
@@ -187,7 +187,7 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 
 	closeButton := widget.NewButton("✖", func() {
 
-		if nameButtonProject.Text == inputText {
+		if nameButtonProject.Text == inputText+" - "+nameDatabace {
 			utils.CheckCondition(rightColumnContentORG)
 
 			buttonAdd.Disable()
@@ -262,8 +262,10 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 				truncatedKey2 = utils.TruncateString(valueEntry.Text, 50)
 
 			} else {
-				valueBefor := variable.CurrentDBClient.Get(key)
-
+				valueBefor, err := variable.CurrentDBClient.Get(key)
+				if err != nil {
+					return
+				}
 				err = variable.CurrentDBClient.Delet(key)
 				if err != nil {
 					return
@@ -271,7 +273,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 
 				key = valueEntry.Text
 
-				err := variable.CurrentDBClient.Add(key, valueBefor)
+				err = variable.CurrentDBClient.Add(key, valueBefor)
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -312,12 +314,15 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		fmt.Println("errro in Search Database", err)
 	}
 	defer variable.CurrentDBClient.Close()
-	valueSearch = variable.CurrentDBClient.Get(valueEntry.Text)
-	if valueSearch == "" {
-		dialog.ShowError(fmt.Errorf("The key"+valueEntry.Text+"does not exist in your database"), editWindow)
+	valueSearch, err = variable.CurrentDBClient.Get(valueEntry.Text)
+	if err != nil {
+		fmt.Println("error : func search logic for get key in database")
+	}
+	if valueSearch == "" && err != nil {
+		dialog.ShowError(fmt.Errorf("The key - "+valueEntry.Text+" - does not exist in your database"), editWindow)
 		valueEntry.Text = ""
 		valueEntry.Refresh()
-	} else {
+	} else if err == nil {
 		editWindow.Close()
 
 		utils.CheckCondition(rightColumnContent)
@@ -339,15 +344,20 @@ func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	}
 	defer variable.CurrentDBClient.Close()
 
-	valueSearch := variable.CurrentDBClient.Get(valueEntry.Text)
-	if valueSearch == "" {
-		dialog.ShowError(fmt.Errorf("This key does not exist in the database"), editWindow)
-	} else {
+	valueSearch, err := variable.CurrentDBClient.Get(valueEntry.Text)
+	if err != nil {
+		fmt.Println("error : delet func logic for get key in databace")
+	}
+	if valueSearch == "" && err != nil {
+		dialog.ShowInformation("Error", "This key does not exist in the database", editWindow)
+	} else if err == nil {
 		err = variable.CurrentDBClient.Delet(valueEntry.Text)
 		if err != nil {
 			log.Fatal("this err for func DeletKeyLogic part else delet || err : ", err)
 			return
 		}
+		dialog.ShowInformation("successful", "The operation was successful", editWindow)
+		time.Sleep(2 * time.Second)
 		editWindow.Close()
 	}
 }
@@ -360,20 +370,45 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 
 	}
 
-	err := variable.CurrentDBClient.Open()
+	var err error
+	err = variable.CurrentDBClient.Open()
 	if err != nil {
 		return
 	}
 	defer variable.CurrentDBClient.Close()
 
-	checkNow := variable.CurrentDBClient.Get(iputKey.Text)
-	if checkNow != "" {
-		dialog.ShowInformation("Error", "This key has already been added to your database", windowAdd)
-		return
-	}
-
-	err = variable.CurrentDBClient.Add(iputKey.Text, iputvalue.Text)
+	checkNow, err := variable.CurrentDBClient.Get(iputKey.Text)
 	if err != nil {
-		log.Fatal("error in main window line 172")
+		fmt.Println("error : delet func logic for get key in databace")
+	}
+	if checkNow != "" && err == nil {
+		dialog.ShowInformation("Error", "This key has already been added to your database", windowAdd)
+
+	} else if err != nil {
+		err = variable.CurrentDBClient.Add(iputKey.Text, iputvalue.Text)
+		if err != nil {
+			log.Fatal("error : this error in func addkeylogic for add key in database")
+		}
+		dialog.ShowInformation("successful", "The operation was successful", windowAdd)
+		time.Sleep(2 * time.Second)
+
+		windowAdd.Close()
 	}
 }
+
+/*
+func QueryKey(iputKey *widget.Entry) (string, error) {
+	var err error
+	err = variable.CurrentDBClient.Open()
+	if err != nil {
+		return "", err
+	}
+	defer variable.CurrentDBClient.Close()
+
+	checkNow, err := variable.CurrentDBClient.Get(iputKey.Text)
+	if err != nil {
+		fmt.Println("error : delet func logic for get key in databace")
+	}
+	return checkNow, err
+}
+*/

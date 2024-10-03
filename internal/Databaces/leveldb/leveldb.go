@@ -46,15 +46,15 @@ func (constant *LeveldbDatabase) Add(key, value string) error {
 	return constant.DB.Put([]byte(key), []byte(value), nil)
 }
 
-func (constant *LeveldbDatabase) Get(key string) string {
+func (constant *LeveldbDatabase) Get(key string) (string, error) {
 	if constant.DB == nil {
-		return ""
+		return "", nil
 	}
 	data, err := constant.DB.Get([]byte(key), nil)
 	if err != nil {
-		return ""
+		return "", err
 	}
-	return string(data)
+	return string(data), err
 }
 
 func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {

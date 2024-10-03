@@ -19,9 +19,7 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 	scrollableEntry := container.NewScroll(iputvalue)
 
 	ButtonAddAdd := widget.NewButton("Add", func() {
-
 		logic.AddKeyLogic(iputKey, iputvalue, windowAdd)
-		windowAdd.Close()
 	})
 	cont := container.NewVBox(
 		iputKey,

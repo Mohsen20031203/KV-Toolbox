@@ -45,19 +45,19 @@ func (constant *PebbleDatabase) Add(key, value string) error {
 	return constant.DB.Set([]byte(key), []byte(value), nil)
 }
 
-func (constant *PebbleDatabase) Get(key string) string {
+func (constant *PebbleDatabase) Get(key string) (string, error) {
 	if constant.DB == nil {
-		return ""
+		return "", nil
 	}
 
 	data, closer, err := constant.DB.Get([]byte(key))
 	if err != nil {
-		return ""
+		return "", err
 	}
 
 	defer closer.Close()
 
-	return string(data)
+	return string(data), err
 }
 
 func (c *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
