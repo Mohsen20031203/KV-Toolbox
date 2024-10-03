@@ -54,7 +54,7 @@ func MainWindow(myApp fyne.App) {
 	})
 	buttonAdd.Disable()
 
-	buttonDelet := widget.NewButton("Delet", func() {
+	buttonDelete := widget.NewButton("Delete", func() {
 		deletkeyui.DeleteKeyUi(rightColumnContent)
 	})
 
@@ -91,7 +91,7 @@ func MainWindow(myApp fyne.App) {
 	rawSearchAndAdd := container.NewVBox(
 		layout.NewSpacer(),
 		container.NewGridWithColumns(3, variable.PrevButton, pageLabelposition, variable.NextButton),
-		container.NewGridWithColumns(3, buttonDelet, searchButton, buttonAdd),
+		container.NewGridWithColumns(3, buttonDelete, searchButton, buttonAdd),
 	)
 
 	rightColumnContenttt := container.NewVBox(

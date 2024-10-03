@@ -16,7 +16,7 @@ func SearchKeyUi(rightColumnContent *fyne.Container) {
 
 	valueEntry := widget.NewMultiLineEntry()
 	valueEntry.Resize(fyne.NewSize(500, 500))
-	valueEntry.SetPlaceHolder("Key")
+	valueEntry.SetPlaceHolder("Key for Search")
 
 	buttomSearch := widget.NewButton("Search", func() {
 		variable.NextButton.Disable()

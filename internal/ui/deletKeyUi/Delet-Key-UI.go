@@ -15,9 +15,9 @@ func DeleteKeyUi(rightColumnContent *fyne.Container) {
 
 	valueEntry := widget.NewMultiLineEntry()
 	valueEntry.Resize(fyne.NewSize(500, 500))
-	valueEntry.SetPlaceHolder("Key")
+	valueEntry.SetPlaceHolder("Key for Delete")
 
-	buttomSearch := widget.NewButton("Delet", func() {
+	buttomDelete := widget.NewButton("Delete", func() {
 
 		logic.DeleteKeyLogic(valueEntry, editWindow, rightColumnContent)
 
@@ -27,7 +27,7 @@ func DeleteKeyUi(rightColumnContent *fyne.Container) {
 		widget.NewLabel("Enter the desired key"),
 		valueEntry,
 		layout.NewSpacer(),
-		buttomSearch,
+		buttomDelete,
 	)
 	editWindow.SetContent(editContent)
 	editWindow.Show()

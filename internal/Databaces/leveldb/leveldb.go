@@ -19,7 +19,7 @@ func NewDataBaseLeveldb(address string) dbpak.DBClient {
 	}
 }
 
-func (constant *LeveldbDatabase) Delet(key string) error {
+func (constant *LeveldbDatabase) Delete(key string) error {
 	err := constant.DB.Delete([]byte(key), nil)
 	if err != nil {
 		return err

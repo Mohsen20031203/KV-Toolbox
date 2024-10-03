@@ -266,7 +266,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 				if err != nil {
 					return
 				}
-				err = variable.CurrentDBClient.Delet(key)
+				err = variable.CurrentDBClient.Delete(key)
 				if err != nil {
 					return
 				}
@@ -308,21 +308,14 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 }
 
 func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {
-	var valueSearch string
-	err := variable.CurrentDBClient.Open()
-	if err != nil {
-		fmt.Println("errro in Search Database", err)
-	}
 	defer variable.CurrentDBClient.Close()
-	valueSearch, err = variable.CurrentDBClient.Get(valueEntry.Text)
-	if err != nil {
-		fmt.Println("error : func search logic for get key in database")
-	}
+
+	valueSearch, err := QueryKey(valueEntry)
 	if valueSearch == "" && err != nil {
 		dialog.ShowError(fmt.Errorf("The key - "+valueEntry.Text+" - does not exist in your database"), editWindow)
 		valueEntry.Text = ""
 		valueEntry.Refresh()
-	} else if err == nil {
+	} else {
 		editWindow.Close()
 
 		utils.CheckCondition(rightColumnContent)
@@ -338,22 +331,15 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 }
 
 func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {
-	err := variable.CurrentDBClient.Open()
-	if err != nil {
-		log.Fatal("dont open databce in func DeletKeyLogic for delet key || err :", err)
-	}
 	defer variable.CurrentDBClient.Close()
 
-	valueSearch, err := variable.CurrentDBClient.Get(valueEntry.Text)
-	if err != nil {
-		fmt.Println("error : delet func logic for get key in databace")
-	}
+	valueSearch, err := QueryKey(valueEntry)
 	if valueSearch == "" && err != nil {
 		dialog.ShowInformation("Error", "This key does not exist in the database", editWindow)
-	} else if err == nil {
-		err = variable.CurrentDBClient.Delet(valueEntry.Text)
+	} else {
+		err = variable.CurrentDBClient.Delete(valueEntry.Text)
 		if err != nil {
-			log.Fatal("this err for func DeletKeyLogic part else delet || err : ", err)
+			log.Fatal("this err for func DeletKeyLogic part else delete || err : ", err)
 			return
 		}
 		dialog.ShowInformation("successful", "The operation was successful", editWindow)
@@ -369,22 +355,13 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 		dialog.ShowInformation("Error", "You cannot leave either the key or both fields empty.", windowAdd)
 
 	}
-
-	var err error
-	err = variable.CurrentDBClient.Open()
-	if err != nil {
-		return
-	}
 	defer variable.CurrentDBClient.Close()
 
-	checkNow, err := variable.CurrentDBClient.Get(iputKey.Text)
-	if err != nil {
-		fmt.Println("error : delet func logic for get key in databace")
-	}
-	if checkNow != "" && err == nil {
+	checkNow, err := QueryKey(iputKey)
+	if checkNow != "" || err == nil {
 		dialog.ShowInformation("Error", "This key has already been added to your database", windowAdd)
 
-	} else if err != nil {
+	} else {
 		err = variable.CurrentDBClient.Add(iputKey.Text, iputvalue.Text)
 		if err != nil {
 			log.Fatal("error : this error in func addkeylogic for add key in database")
@@ -396,19 +373,16 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 	}
 }
 
-/*
 func QueryKey(iputKey *widget.Entry) (string, error) {
 	var err error
 	err = variable.CurrentDBClient.Open()
 	if err != nil {
 		return "", err
 	}
-	defer variable.CurrentDBClient.Close()
 
 	checkNow, err := variable.CurrentDBClient.Get(iputKey.Text)
 	if err != nil {
-		fmt.Println("error : delet func logic for get key in databace")
+		fmt.Println("error : delete func logic for get key in databace")
 	}
 	return checkNow, err
 }
-*/

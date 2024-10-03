@@ -18,7 +18,7 @@ func NewDataBasePebble(address string) dbpak.DBClient {
 	}
 }
 
-func (constant *PebbleDatabase) Delet(key string) error {
+func (constant *PebbleDatabase) Delete(key string) error {
 	err := constant.DB.Delete([]byte(key), nil)
 	if err != nil {
 		return err

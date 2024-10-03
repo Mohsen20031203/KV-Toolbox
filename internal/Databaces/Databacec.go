@@ -11,5 +11,5 @@ type DBClient interface {
 	Add(key, value string) error
 	Get(key string) (string, error)
 	Read(start, end *string, count int) (error, []KVData)
-	Delet(key string) error
+	Delete(key string) error
 }
