@@ -21,7 +21,7 @@ import (
 
 func MainWindow(myApp fyne.App) {
 
-	myWindow := myApp.NewWindow("Non-Scrollable List")
+	myWindow := myApp.NewWindow("master")
 
 	iconResource := theme.FyneLogo()
 	myApp.SetIcon(iconResource)
@@ -35,8 +35,9 @@ func MainWindow(myApp fyne.App) {
 	line := canvas.NewLine(color.Black)
 	line.StrokeWidth = 2
 
-	keyRightColunm := widget.NewButton("key", func() {})
-	valueRightColunm := widget.NewButton("value", func() {})
+	keyRightColunm := widget.NewLabelWithStyle("key", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
+	valueRightColunm := widget.NewLabelWithStyle("value", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
+
 	nameButtonProject := widget.NewLabelWithStyle(
 		"",
 		fyne.TextAlignCenter,
@@ -77,11 +78,6 @@ func MainWindow(myApp fyne.App) {
 		}
 	})
 
-	centeredContainer := container.NewHBox(
-		layout.NewSpacer(),
-		nameButtonProject,
-		layout.NewSpacer(),
-	)
 	pageLabelposition := container.NewHBox(
 		layout.NewSpacer(),
 		variable.PageLabel,
@@ -91,13 +87,13 @@ func MainWindow(myApp fyne.App) {
 	rawSearchAndAdd := container.NewVBox(
 		layout.NewSpacer(),
 		container.NewGridWithColumns(3, variable.PrevButton, pageLabelposition, variable.NextButton),
-		container.NewGridWithColumns(3, buttonDelete, searchButton, buttonAdd),
 	)
 
 	rightColumnContenttt := container.NewVBox(
-		spacer,
+		nameButtonProject,
 		line,
-		centeredContainer,
+		spacer,
+		container.NewGridWithColumns(3, buttonDelete, searchButton, buttonAdd),
 		keyAndRight,
 	)
 

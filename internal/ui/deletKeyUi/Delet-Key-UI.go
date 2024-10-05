@@ -10,7 +10,7 @@ import (
 )
 
 func DeleteKeyUi(rightColumnContent *fyne.Container) {
-	editWindow := fyne.CurrentApp().NewWindow("Enter the desired key")
+	editWindow := fyne.CurrentApp().NewWindow("Delete in the database")
 	editWindow.Resize(fyne.NewSize(600, 300))
 
 	valueEntry := widget.NewMultiLineEntry()
