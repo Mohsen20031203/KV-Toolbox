@@ -105,8 +105,23 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	})
 
 	buttonOk := widget.NewButton("Add", func() {
+		if pathEntry.Text == "" {
+			dialog.ShowInformation("Error ", "Please fill in the name field", newWindow)
+			return
+		}
+		datajson, err := variable.CurrentJson.Load()
+		if err != nil {
+			fmt.Errorf("error : error in the load file json in bottom add")
+		}
+		for _, m := range datajson.RecentProjects {
+			if pathEntry.Text == m.Name {
+				dialog.ShowInformation("Error ", "Your database name is duplicate", newWindow)
+				return
+			}
+		}
+
 		var addButton bool
-		err := logic.HandleButtonClick(pathEntry2.Text, title)
+		err = logic.HandleButtonClick(pathEntry2.Text, title)
 		if err == nil {
 
 			err, addButton = variable.CurrentJson.Add(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow, title)
@@ -123,6 +138,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 
+				logic.CreatFileBool = false
 				newWindow.Close()
 			}
 		}

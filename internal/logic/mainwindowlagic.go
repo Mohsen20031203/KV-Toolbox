@@ -10,7 +10,6 @@ import (
 	// "testgui/internal/logic/addProjectwindowlogic"
 
 	dbpak "testgui/internal/Databaces"
-	jsondata "testgui/internal/json/jsonData"
 	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
@@ -26,8 +25,7 @@ var next_prev bool
 func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
 	lastColumnContent := container.NewVBox()
 
-	jsonnew := jsondata.NewDataBase()
-	jsonDataa, err := jsonnew.Load()
+	jsonDataa, err := variable.CurrentJson.Load()
 	if err != nil {
 		println("Error loading JSON data:", err)
 	} else {
