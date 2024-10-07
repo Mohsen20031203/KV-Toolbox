@@ -32,23 +32,20 @@ func CheckCondition(rightColumnContent *fyne.Container) {
 	}
 }
 
-func Checkdatabace(test string, nameDatabace string) {
+func Checkdatabace(test string, nameDatabace string) error {
 	if nameDatabace == "levelDB" {
 
 		variable.CurrentDBClient = leveldbb.NewDataBaseLeveldb(test)
-		err := variable.CurrentDBClient.Open()
-		variable.CurrentDBClient.Close()
-		if err != nil {
-			fmt.Println("database not leveldb")
-		}
 
 	} else if nameDatabace == "Pebble" {
 
 		variable.CurrentDBClient = PebbleDB.NewDataBasePebble(test)
-		err := variable.CurrentDBClient.Open()
-		variable.CurrentDBClient.Close()
-		if err != nil {
-			fmt.Println("database not pebble")
-		}
+
 	}
+	err := variable.CurrentDBClient.Open()
+	if err != nil {
+		return fmt.Errorf("i cant connection in database")
+	}
+	variable.CurrentDBClient.Close()
+	return nil
 }

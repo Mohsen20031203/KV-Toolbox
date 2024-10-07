@@ -8,7 +8,6 @@ import (
 
 	//"testgui/internal/logic/logic"
 
-	jsondata "testgui/internal/json/jsonData"
 	"testgui/internal/logic"
 	"testgui/internal/utils"
 
@@ -47,7 +46,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 
 	testConnectionButton := widget.NewButton("Test Connection", func() {
 
-		err := jsondata.HandleButtonClick(pathEntry2.Text, title)
+		err := logic.HandleButtonClick(pathEntry2.Text, title)
 		if err != nil {
 			dialog.ShowError(err, newWindow)
 		} else {
@@ -57,9 +56,9 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	testConnectionButton.Disable()
 
 	pathEntry2.OnChanged = func(text string) {
-		if text != "" {
+		if text != "" && !logic.CreatFileBool {
 			testConnectionButton.Enable()
-		} else {
+		} else if logic.CreatFileBool {
 			testConnectionButton.Disable()
 		}
 	}
@@ -90,6 +89,12 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 		folderDialog.Show()
 	})
 
+	BoxCreateDatabase := widget.NewCheck("Create Database", func(value bool) {
+
+		logic.CreatFile(value, openButton, testConnectionButton)
+
+	})
+
 	testOpenButton := container.NewVBox(
 		layout.NewSpacer(),
 		container.NewGridWithColumns(2, openButton, testConnectionButton),
@@ -100,7 +105,13 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	})
 
 	buttonOk := widget.NewButton("Add", func() {
-		err, addButton := variable.CurrentJson.Add(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow, title)
+		var addButton bool
+		err := logic.HandleButtonClick(pathEntry2.Text, title)
+		if err == nil {
+
+			err, addButton = variable.CurrentJson.Add(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow, title)
+		}
+
 		if err != nil {
 			dialog.ShowInformation("Error ", "There is something wrong with your file and I can't connect to it", newWindow)
 		} else {
@@ -129,6 +140,8 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 		commentContent,
 		layout.NewSpacer(),
 		line1,
+		layout.NewSpacer(),
+		BoxCreateDatabase,
 		layout.NewSpacer(),
 		pathEntry2,
 		layout.NewSpacer(),

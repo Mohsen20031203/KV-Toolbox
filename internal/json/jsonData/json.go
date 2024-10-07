@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	variable "testgui"
 	jsFile "testgui/internal/json"
-	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
@@ -60,12 +58,7 @@ func (j *ConstantJsonFile) Write(state interface{}) error {
 func (j *ConstantJsonFile) Add(path string, nameProject string, commentProject string, window fyne.Window, nameDatabace string) (error, bool) {
 	var state jsFile.JsonInformation
 
-	err := HandleButtonClick(path, nameDatabace)
-	if err != nil {
-		return err, false
-	}
-
-	err = j.Read(&state)
+	err := j.Read(&state)
 	if err != nil && err.Error() != "unexpected end of JSON input" {
 		return err, false
 	}
@@ -117,16 +110,4 @@ func (j *ConstantJsonFile) Load() (jsFile.JsonInformation, error) {
 	}
 
 	return jsonData, nil
-}
-
-func HandleButtonClick(test string, nameDatabace string) error {
-
-	utils.Checkdatabace(test, nameDatabace)
-	err := variable.CurrentDBClient.Open()
-	if err != nil {
-		return fmt.Errorf("no entries found in the database")
-	}
-	defer variable.CurrentDBClient.Close()
-	return nil
-
 }

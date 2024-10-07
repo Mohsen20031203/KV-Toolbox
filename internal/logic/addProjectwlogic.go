@@ -5,12 +5,16 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strings"
+	variable "testgui"
+	"testgui/internal/utils"
 
 	// "testgui/internal/logic/mainwindowlagic"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
 )
+
+var CreatFileBool bool
 
 type TappableLabel struct {
 	widget.Label
@@ -49,4 +53,34 @@ func NewTappableLabel(text string, tapped func()) *TappableLabel {
 
 func (t *TappableLabel) Tapped(_ *fyne.PointEvent) {
 	t.onTapped()
+}
+
+func CreatFile(value bool, openButton *widget.Button, testConnectionButton *widget.Button) {
+	if value {
+		openButton.Disable()
+		testConnectionButton.Disable()
+		CreatFileBool = value
+	} else {
+		openButton.Enable()
+		testConnectionButton.Enable()
+		CreatFileBool = value
+	}
+}
+
+func HandleButtonClick(test string, nameDatabace string) error {
+
+	err := utils.Checkdatabace(test, nameDatabace)
+	if err != nil {
+		return err
+	}
+	err, date := variable.CurrentDBClient.Read(nil, nil, 1)
+
+	if CreatFileBool {
+		return nil
+	}
+	if len(date) == 0 || err != nil {
+		return fmt.Errorf("Your database does not exist or is empty")
+	}
+	return nil
+
 }
