@@ -327,6 +327,8 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		keyLabel := BuidLableKeyAndValue("key", valueEntry.Text, valueSearch, truncatedKey, rightColumnContent)
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
+		variable.NextButton.Disable()
+		variable.PrevButton.Disable()
 	}
 }
 

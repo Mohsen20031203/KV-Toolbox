@@ -1,7 +1,6 @@
 package searchkeyui
 
 import (
-	variable "testgui"
 	"testgui/internal/logic"
 
 	"fyne.io/fyne/v2"
@@ -19,8 +18,6 @@ func SearchKeyUi(rightColumnContent *fyne.Container) {
 	valueEntry.SetPlaceHolder("Key for Search")
 
 	buttomSearch := widget.NewButton("Search", func() {
-		variable.NextButton.Disable()
-		variable.PrevButton.Disable()
 
 		logic.SearchDatabase(valueEntry, editWindow, rightColumnContent)
 
