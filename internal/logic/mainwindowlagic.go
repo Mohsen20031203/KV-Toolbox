@@ -135,6 +135,7 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 			break
 		}
 		number++
+
 		truncatedKey := utils.TruncateString(item.Key, 20)
 		truncatedValue := utils.TruncateString(item.Value, 50)
 
@@ -257,7 +258,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 				if err != nil {
 					fmt.Println(err)
 				}
-				truncatedKey2 = utils.TruncateString(valueEntry.Text, 50)
+				truncatedKey2 = utils.TruncateString(value, 50)
 
 			} else {
 				valueBefor, err := variable.CurrentDBClient.Get(key)
@@ -269,7 +270,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 					return
 				}
 
-				key = valueEntry.Text
+				key = utils.CleanInput(valueEntry.Text)
 
 				err = variable.CurrentDBClient.Add(key, valueBefor)
 				if err != nil {
@@ -308,21 +309,23 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {
 	defer variable.CurrentDBClient.Close()
 
+	key := utils.CleanInput(valueEntry.Text)
+
 	valueSearch, err := QueryKey(valueEntry)
 	if valueSearch == "" && err != nil {
-		dialog.ShowError(fmt.Errorf("The key - "+valueEntry.Text+" - does not exist in your database"), editWindow)
-		valueEntry.Text = ""
+		dialog.ShowError(fmt.Errorf("The key - "+key+" - does not exist in your database"), editWindow)
+		key = ""
 		valueEntry.Refresh()
 	} else {
 		editWindow.Close()
 
 		utils.CheckCondition(rightColumnContent)
 
-		truncatedKey := utils.TruncateString(valueEntry.Text, 20)
+		truncatedKey := utils.TruncateString(key, 20)
 		truncatedValue := utils.TruncateString(valueSearch, 50)
 
-		valueLabel := BuidLableKeyAndValue("value", valueEntry.Text, valueSearch, truncatedValue, rightColumnContent)
-		keyLabel := BuidLableKeyAndValue("key", valueEntry.Text, valueSearch, truncatedKey, rightColumnContent)
+		valueLabel := BuidLableKeyAndValue("value", key, valueSearch, truncatedValue, rightColumnContent)
+		keyLabel := BuidLableKeyAndValue("key", key, valueSearch, truncatedKey, rightColumnContent)
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
 		variable.NextButton.Disable()
@@ -333,11 +336,13 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {
 	defer variable.CurrentDBClient.Close()
 
+	key := utils.CleanInput(valueEntry.Text)
+
 	valueSearch, err := QueryKey(valueEntry)
 	if valueSearch == "" && err != nil {
 		dialog.ShowInformation("Error", "This key does not exist in the database", editWindow)
 	} else {
-		err = variable.CurrentDBClient.Delete(valueEntry.Text)
+		err = variable.CurrentDBClient.Delete(key)
 		if err != nil {
 			log.Fatal("this err for func DeletKeyLogic part else delete || err : ", err)
 			return
@@ -349,9 +354,13 @@ func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 }
 
 func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.Window) {
-	if iputKey.Text == "" && iputvalue.Text == "" {
+
+	key := utils.CleanInput(iputKey.Text)
+	value := utils.CleanInput(iputvalue.Text)
+
+	if key == "" && value == "" {
 		dialog.ShowInformation("Error", "Please enter both the key and the value", windowAdd)
-	} else if iputvalue.Text != "" && iputKey.Text == "" {
+	} else if value != "" && key == "" {
 		dialog.ShowInformation("Error", "You cannot leave either the key or both fields empty.", windowAdd)
 
 	}
@@ -362,7 +371,7 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 		dialog.ShowInformation("Error", "This key has already been added to your database", windowAdd)
 
 	} else {
-		err = variable.CurrentDBClient.Add(iputKey.Text, iputvalue.Text)
+		err = variable.CurrentDBClient.Add(key, value)
 		if err != nil {
 			log.Fatal("error : this error in func addkeylogic for add key in database")
 		}
@@ -375,12 +384,15 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 
 func QueryKey(iputKey *widget.Entry) (string, error) {
 	var err error
+
+	key := utils.CleanInput(iputKey.Text)
+
 	err = variable.CurrentDBClient.Open()
 	if err != nil {
 		return "", err
 	}
 
-	checkNow, err := variable.CurrentDBClient.Get(iputKey.Text)
+	checkNow, err := variable.CurrentDBClient.Get(key)
 	if err != nil {
 		fmt.Println("error : delete func logic for get key in databace")
 	}

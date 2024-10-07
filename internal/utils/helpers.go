@@ -4,6 +4,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	variable "testgui"
 	"testgui/internal/Databaces/PebbleDB"
 	leveldbb "testgui/internal/Databaces/leveldb"
@@ -48,4 +49,9 @@ func Checkdatabace(test string, nameDatabace string) error {
 	}
 	variable.CurrentDBClient.Close()
 	return nil
+}
+
+func CleanInput(input string) string {
+	cleaned := strings.TrimSpace(input)
+	return cleaned
 }
