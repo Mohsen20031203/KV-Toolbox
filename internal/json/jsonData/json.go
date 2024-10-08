@@ -65,8 +65,7 @@ func (j *ConstantJsonFile) Add(path string, nameProject string, commentProject s
 
 	for _, addres := range state.RecentProjects {
 		if path == addres.FileAddress {
-			m := fmt.Sprintf("This database has already been added to your projects under the name '%s'", addres.Name)
-			dialog.ShowInformation("error", m, window)
+			dialog.ShowInformation("error", fmt.Sprintf("This database has already been added to your projects under the name '%s'", addres.Name), window)
 			return nil, true
 		}
 	}

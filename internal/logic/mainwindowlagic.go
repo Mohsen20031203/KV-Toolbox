@@ -366,11 +366,9 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 	key := utils.CleanInput(iputKey.Text)
 	value := utils.CleanInput(iputvalue.Text)
 
-	if key == "" && value == "" {
-		dialog.ShowInformation("Error", "Please enter both the key and the value", windowAdd)
-	} else if value != "" && key == "" {
-		dialog.ShowInformation("Error", "You cannot leave either the key or both fields empty.", windowAdd)
-
+	if key == "" {
+		dialog.ShowInformation("Error", "You must set a key for your value", windowAdd)
+		return
 	}
 	defer variable.CurrentDBClient.Close()
 
@@ -399,7 +397,6 @@ func QueryKey(iputKey *widget.Entry) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	checkNow, err := variable.CurrentDBClient.Get(key)
 	if err != nil {
 		fmt.Println("error : delete func logic for get key in databace")
