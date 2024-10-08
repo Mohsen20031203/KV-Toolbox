@@ -258,9 +258,17 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 				if err != nil {
 					fmt.Println(err)
 				}
-				truncatedKey2 = utils.TruncateString(value, 50)
+				truncatedKey2 = utils.TruncateString(valueEntry.Text, 50)
 
 			} else {
+
+				value2, err := variable.CurrentDBClient.Get(utils.CleanInput(valueEntry.Text))
+				_ = value2
+				if err == nil {
+					dialog.ShowError(fmt.Errorf("This key exists in your database"), editWindow)
+					return
+				}
+
 				valueBefor, err := variable.CurrentDBClient.Get(key)
 				if err != nil {
 					return

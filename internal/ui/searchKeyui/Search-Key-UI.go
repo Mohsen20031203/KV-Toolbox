@@ -23,9 +23,14 @@ func SearchKeyUi(rightColumnContent *fyne.Container) {
 
 	})
 
-	valueEntry.OnSubmitted = func(s string) {
-		buttomSearch.OnTapped()
-	}
+	/*valueEntry.OnChanged = func(s string) {
+		if len(s) > 0 && s[len(s)-1] == '\n' {
+
+			valueEntry.SetText(s[:len(s)-1])
+
+			buttomSearch.OnTapped()
+		}
+	}*/
 
 	editContent := container.NewVBox(
 		widget.NewLabel("Enter the desired key"),
