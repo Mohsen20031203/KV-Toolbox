@@ -19,6 +19,9 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+var leveldbButton *widget.Button
+var BottomDatabase []*widget.Button
+
 func MainWindow(myApp fyne.App) {
 
 	mainWindow := myApp.NewWindow("master")
@@ -88,7 +91,7 @@ func MainWindow(myApp fyne.App) {
 		layout.NewSpacer(),
 	)
 
-	rawSearchAndAdd := container.NewVBox(
+	rawPrevLabelNext := container.NewVBox(
 		layout.NewSpacer(),
 		container.NewGridWithColumns(3, variable.PrevButton, pageLabelposition, variable.NextButton),
 	)
@@ -105,13 +108,14 @@ func MainWindow(myApp fyne.App) {
 	leftColumnAll := logic.SetupLastColumn(rightColumnAll, nameButtonProject, buttonAdd)
 	spacer.Resize(fyne.NewSize(0, 30))
 
-	leveldbButton := widget.NewButton("levelDB", func() {
-		addProjectwindowui.OpenNewWindow(myApp, "levelDB", leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd)
-	})
+	for _, m := range variable.NameDatabase {
 
-	radisButton := widget.NewButton("Pebble", func() {
-		addProjectwindowui.OpenNewWindow(myApp, "Pebble", leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd)
-	})
+		leveldbButton = widget.NewButton(m, func() {
+			addProjectwindowui.OpenNewWindow(myApp, m, leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd)
+		})
+		BottomDatabase = append(BottomDatabase, leveldbButton)
+	}
+
 	buttonsVisible := false
 
 	toggleButtonsContainer := container.NewVBox()
@@ -122,8 +126,10 @@ func MainWindow(myApp fyne.App) {
 			toggleButtonsContainer.Objects = nil
 		} else {
 
-			toggleButtonsContainer.Add(radisButton)
-			toggleButtonsContainer.Add(leveldbButton)
+			for _, m := range BottomDatabase {
+
+				toggleButtonsContainer.Add(m)
+			}
 		}
 		buttonsVisible = !buttonsVisible
 		toggleButtonsContainer.Refresh()
@@ -138,7 +144,7 @@ func MainWindow(myApp fyne.App) {
 	darkLight := logic.SetupThemeButtons(myApp)
 
 	// all window
-	containerAll := ColumnContent(rightColumnAll, leftColumnAll, topLeftColumn, darkLight, topRightColumn, rawSearchAndAdd)
+	containerAll := ColumnContent(rightColumnAll, leftColumnAll, topLeftColumn, darkLight, topRightColumn, rawPrevLabelNext)
 	mainWindow.CenterOnScreen()
 	mainWindow.SetContent(containerAll)
 	mainWindow.Resize(fyne.NewSize(1200, 800))
