@@ -21,23 +21,27 @@ import (
 
 func MainWindow(myApp fyne.App) {
 
-	myWindow := myApp.NewWindow("master")
+	mainWindow := myApp.NewWindow("master")
 
 	iconResource := theme.FyneLogo()
 	myApp.SetIcon(iconResource)
-	myWindow.SetIcon(iconResource)
+	mainWindow.SetIcon(iconResource)
 
 	spacer := widget.NewLabel("")
 
 	// right column
-	rightColumnContent := container.NewVBox()
+	rightColumnAll := container.NewVBox()
 
 	line := canvas.NewLine(color.Black)
 	line.StrokeWidth = 2
 
+	// key top window for colunm keys
 	keyRightColunm := widget.NewLabelWithStyle("key", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
+
+	// value top window for colunm values
 	valueRightColunm := widget.NewLabelWithStyle("value", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
 
+	// name bottom project in colunm left
 	nameButtonProject := widget.NewLabelWithStyle(
 		"",
 		fyne.TextAlignCenter,
@@ -46,17 +50,17 @@ func MainWindow(myApp fyne.App) {
 
 	searchButton := widget.NewButton("Search", func() {
 
-		searchkeyui.SearchKeyUi(rightColumnContent)
+		searchkeyui.SearchKeyUi(rightColumnAll)
 
 	})
 
 	buttonAdd := widget.NewButton("Add", func() {
-		addkeyui.OpenWindowAddButton(myApp, rightColumnContent)
+		addkeyui.OpenWindowAddButton(myApp, rightColumnAll)
 	})
 	buttonAdd.Disable()
 
 	buttonDelete := widget.NewButton("Delete", func() {
-		deletkeyui.DeleteKeyUi(rightColumnContent)
+		deletkeyui.DeleteKeyUi(rightColumnAll)
 	})
 
 	keyAndRight := container.NewGridWithColumns(2, keyRightColunm, valueRightColunm)
@@ -66,14 +70,14 @@ func MainWindow(myApp fyne.App) {
 	variable.NextButton = widget.NewButton("next", func() {
 		variable.CurrentPage++
 		variable.PrevButton.Enable()
-		logic.UpdatePage(rightColumnContent)
+		logic.UpdatePage(rightColumnAll)
 	})
 	variable.NextButton.Disable()
 
 	variable.PrevButton = widget.NewButton("prev", func() {
 		if variable.CurrentPage > 0 {
 			variable.CurrentPage--
-			logic.UpdatePage(rightColumnContent)
+			logic.UpdatePage(rightColumnAll)
 			variable.NextButton.Enable()
 		}
 	})
@@ -89,7 +93,7 @@ func MainWindow(myApp fyne.App) {
 		container.NewGridWithColumns(3, variable.PrevButton, pageLabelposition, variable.NextButton),
 	)
 
-	rightColumnContenttt := container.NewVBox(
+	topRightColumn := container.NewVBox(
 		nameButtonProject,
 		line,
 		spacer,
@@ -98,15 +102,15 @@ func MainWindow(myApp fyne.App) {
 	)
 
 	// left column
-	lastColumnContent := logic.SetupLastColumn(rightColumnContent, nameButtonProject, buttonAdd)
+	leftColumnAll := logic.SetupLastColumn(rightColumnAll, nameButtonProject, buttonAdd)
 	spacer.Resize(fyne.NewSize(0, 30))
 
 	leveldbButton := widget.NewButton("levelDB", func() {
-		addProjectwindowui.OpenNewWindow(myApp, "levelDB", lastColumnContent, rightColumnContent, nameButtonProject, buttonAdd)
+		addProjectwindowui.OpenNewWindow(myApp, "levelDB", leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd)
 	})
 
 	radisButton := widget.NewButton("Pebble", func() {
-		addProjectwindowui.OpenNewWindow(myApp, "Pebble", lastColumnContent, rightColumnContent, nameButtonProject, buttonAdd)
+		addProjectwindowui.OpenNewWindow(myApp, "Pebble", leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd)
 	})
 	buttonsVisible := false
 
@@ -125,7 +129,7 @@ func MainWindow(myApp fyne.App) {
 		toggleButtonsContainer.Refresh()
 	})
 
-	lastColumnContentt := container.NewVBox(
+	topLeftColumn := container.NewVBox(
 		pluss,
 		toggleButtonsContainer,
 		spacer,
@@ -134,30 +138,33 @@ func MainWindow(myApp fyne.App) {
 	darkLight := logic.SetupThemeButtons(myApp)
 
 	// all window
-	containerAll := ColumnContent(rightColumnContent, lastColumnContent, lastColumnContentt, darkLight, rightColumnContenttt, rawSearchAndAdd)
-	myWindow.CenterOnScreen()
-	myWindow.SetContent(containerAll)
-	myWindow.Resize(fyne.NewSize(1200, 800))
-	myWindow.ShowAndRun()
+	containerAll := ColumnContent(rightColumnAll, leftColumnAll, topLeftColumn, darkLight, topRightColumn, rawSearchAndAdd)
+	mainWindow.CenterOnScreen()
+	mainWindow.SetContent(containerAll)
+	mainWindow.Resize(fyne.NewSize(1200, 800))
+	mainWindow.ShowAndRun()
 }
 
-func LeftColumn(lastColumnContent *fyne.Container, lastColumnContentt *fyne.Container, darkLight *fyne.Container) *fyne.Container {
-	lastColumnScrollable := container.NewScroll(lastColumnContent)
+func LeftColumn(leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, darkLight *fyne.Container) *fyne.Container {
+	lastColumnScrollable := container.NewScroll(leftColumnAll)
 
-	mainContent := container.NewBorder(lastColumnContentt, darkLight, nil, nil, lastColumnScrollable)
+	mainContent := container.NewBorder(topLeftColumn, darkLight, nil, nil, lastColumnScrollable)
 	return mainContent
 }
 
-func RightColumn(rightColumnContent *fyne.Container, rightColumnContenttt *fyne.Container, rawSearchAndAdd *fyne.Container) fyne.CanvasObject {
-	rightColumnScrollable := container.NewVScroll(rightColumnContent)
-	mainContent := container.NewBorder(rightColumnContenttt, rawSearchAndAdd, nil, nil, rightColumnScrollable)
+func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container, rawSearchAndAdd *fyne.Container) fyne.CanvasObject {
+	rightColumnScrollable := container.NewVScroll(rightColumnAll)
+	mainContent := container.NewBorder(topRightColumn, rawSearchAndAdd, nil, nil, rightColumnScrollable)
 
 	return mainContent
 }
 
-func ColumnContent(rightColumnContent *fyne.Container, lastColumnContent *fyne.Container, lastColumnContentt *fyne.Container, darkLight *fyne.Container, rightColumnContenttt *fyne.Container, rawSearchAndAdd *fyne.Container) fyne.CanvasObject {
-	mainContent := LeftColumn(lastColumnContent, lastColumnContentt, darkLight)
-	rightColumnScrollable := RightColumn(rightColumnContent, rightColumnContenttt, rawSearchAndAdd)
+func ColumnContent(rightColumnAll *fyne.Container, leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, darkLight *fyne.Container, topRightColumn *fyne.Container, rawSearchAndAdd *fyne.Container) fyne.CanvasObject {
+
+	mainContent := LeftColumn(leftColumnAll, topLeftColumn, darkLight)
+
+	rightColumnScrollable := RightColumn(rightColumnAll, topRightColumn, rawSearchAndAdd)
+
 	columns := container.NewHSplit(mainContent, rightColumnScrollable)
 	columns.SetOffset(0.25)
 
