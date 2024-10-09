@@ -44,6 +44,9 @@ func MainWindow(myApp fyne.App) {
 	// value top window for colunm values
 	valueRightColunm := widget.NewLabelWithStyle("value", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
 
+	// column key and value
+	keyAndRight := container.NewGridWithColumns(2, keyRightColunm, valueRightColunm)
+
 	// name bottom project in colunm left
 	nameButtonProject := widget.NewLabelWithStyle(
 		"",
@@ -65,8 +68,6 @@ func MainWindow(myApp fyne.App) {
 	buttonDelete := widget.NewButton("Delete", func() {
 		deletkeyui.DeleteKeyUi(rightColumnAll)
 	})
-
-	keyAndRight := container.NewGridWithColumns(2, keyRightColunm, valueRightColunm)
 
 	variable.PageLabel = widget.NewLabel(fmt.Sprintf("Page %d", variable.CurrentPage+1))
 
@@ -91,7 +92,7 @@ func MainWindow(myApp fyne.App) {
 		layout.NewSpacer(),
 	)
 
-	rawPrevLabelNext := container.NewVBox(
+	rawPrev_Label_Next := container.NewVBox(
 		layout.NewSpacer(),
 		container.NewGridWithColumns(3, variable.PrevButton, pageLabelposition, variable.NextButton),
 	)
@@ -144,7 +145,7 @@ func MainWindow(myApp fyne.App) {
 	darkLight := logic.SetupThemeButtons(myApp)
 
 	// all window
-	containerAll := ColumnContent(rightColumnAll, leftColumnAll, topLeftColumn, darkLight, topRightColumn, rawPrevLabelNext)
+	containerAll := ColumnContent(rightColumnAll, leftColumnAll, topLeftColumn, darkLight, topRightColumn, rawPrev_Label_Next)
 	mainWindow.CenterOnScreen()
 	mainWindow.SetContent(containerAll)
 	mainWindow.Resize(fyne.NewSize(1200, 800))

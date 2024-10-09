@@ -20,7 +20,7 @@ var PageLabel *widget.Label
 
 var (
 	NameDatabase = []string{
-		"leveldb",
+		"levelDB",
 		"pebble",
 	}
 )

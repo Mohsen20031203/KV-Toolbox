@@ -366,10 +366,6 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 	key := utils.CleanInput(iputKey.Text)
 	value := utils.CleanInput(iputvalue.Text)
 
-	if key == "" {
-		dialog.ShowInformation("Error", "You must set a key for your value", windowAdd)
-		return
-	}
 	defer variable.CurrentDBClient.Close()
 
 	checkNow, err := QueryKey(iputKey)

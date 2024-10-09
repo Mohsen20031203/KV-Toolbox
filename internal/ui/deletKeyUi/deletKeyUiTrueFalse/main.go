@@ -1,0 +1,5 @@
+package deletkeyuitruefalse
+
+func DeleteKeyUiTrueFalse() {
+
+}

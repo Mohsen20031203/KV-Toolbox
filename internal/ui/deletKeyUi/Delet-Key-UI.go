@@ -2,6 +2,7 @@ package deletkeyui
 
 import (
 	"testgui/internal/logic"
+	deletkeyuitruefalse "testgui/internal/ui/deletKeyUi/deletKeyUiTrueFalse"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -19,6 +20,7 @@ func DeleteKeyUi(rightColumnContent *fyne.Container) {
 
 	buttomDelete := widget.NewButton("Delete", func() {
 
+		deletkeyuitruefalse.DeleteKeyUiTrueFalse()
 		logic.DeleteKeyLogic(valueEntry, editWindow, rightColumnContent)
 
 	})
