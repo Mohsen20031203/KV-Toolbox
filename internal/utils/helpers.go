@@ -4,6 +4,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	variable "testgui"
 	"testgui/internal/Databaces/PebbleDB"
@@ -43,12 +44,19 @@ func Checkdatabace(test string, nameDatabace string) error {
 		variable.CurrentDBClient = PebbleDB.NewDataBasePebble(test)
 
 	}
-	err := variable.CurrentDBClient.Open()
-	if err != nil {
-		return fmt.Errorf("i cant connection in database")
+	if _, err := os.Stat(test); os.IsNotExist(err) && !variable.CreatDatabase {
+
+		return fmt.Errorf("dont found file")
+	} else {
+
+		err := variable.CurrentDBClient.Open()
+		if err != nil {
+			return fmt.Errorf("i cant connection in database")
+		}
+		variable.CurrentDBClient.Close()
+		return nil
 	}
-	variable.CurrentDBClient.Close()
-	return nil
+
 }
 
 func CleanInput(input string) string {

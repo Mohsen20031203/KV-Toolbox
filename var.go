@@ -25,6 +25,8 @@ var (
 	}
 )
 
+var CreatDatabase bool
+
 /*var (
 	SearchName     = "Search"
 	AddName        = "Add"

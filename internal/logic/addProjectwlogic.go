@@ -60,10 +60,12 @@ func CreatFile(value bool, openButton *widget.Button, testConnectionButton *widg
 		openButton.Disable()
 		testConnectionButton.Disable()
 		CreatFileBool = value
+		variable.CreatDatabase = value
 	} else {
 		openButton.Enable()
 		testConnectionButton.Enable()
 		CreatFileBool = value
+		variable.CreatDatabase = value
 	}
 }
 
@@ -74,11 +76,12 @@ func HandleButtonClick(test string, nameDatabace string) error {
 		return err
 	}
 	err, date := variable.CurrentDBClient.Read(nil, nil, 1)
+	nun := HasManifestFile(test)
 
 	if CreatFileBool {
 		return nil
 	}
-	if len(date) == 0 || err != nil {
+	if (len(date) == 0 || err != nil) && !nun {
 		return fmt.Errorf("Your database does not exist or is empty")
 	}
 	return nil
