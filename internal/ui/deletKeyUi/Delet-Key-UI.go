@@ -1,11 +1,12 @@
 package deletkeyui
 
 import (
+	"fmt"
 	"testgui/internal/logic"
-	deletkeyuitruefalse "testgui/internal/ui/deletKeyUi/deletKeyUiTrueFalse"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
@@ -20,8 +21,16 @@ func DeleteKeyUi(rightColumnContent *fyne.Container) {
 
 	buttomDelete := widget.NewButton("Delete", func() {
 
-		deletkeyuitruefalse.DeleteKeyUiTrueFalse()
-		logic.DeleteKeyLogic(valueEntry, editWindow, rightColumnContent)
+		message := fmt.Sprintf("Are you sure you want to delete the key: _ %s _?", valueEntry.Text)
+
+		dialog.ShowConfirm("Confirm Delete", message,
+			func(response bool) {
+				if response {
+					logic.DeleteKeyLogic(valueEntry, editWindow, rightColumnContent)
+				} else {
+
+				}
+			}, editWindow)
 
 	})
 
