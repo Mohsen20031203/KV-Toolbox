@@ -1,8 +1,8 @@
 package logic
 
 import (
-	"fmt"
 	"io/ioutil"
+	"log"
 	"path/filepath"
 	"strings"
 	variable "testgui"
@@ -24,7 +24,7 @@ type TappableLabel struct {
 func HasManifestFile(folderPath string) bool {
 	files, err := ioutil.ReadDir(folderPath)
 	if err != nil {
-		fmt.Println("Error reading folder:", err)
+		log.Fatal("Error reading folder:", err)
 		return false
 	}
 	var count int64
@@ -82,7 +82,7 @@ func HandleButtonClick(test string, nameDatabace string) error {
 		return nil
 	}
 	if (len(date) == 0 || err != nil) && !nun {
-		return fmt.Errorf("Your database does not exist or is empty")
+		return err
 	}
 	return nil
 

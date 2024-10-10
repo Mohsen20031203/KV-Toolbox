@@ -1,7 +1,7 @@
 package PebbleDB
 
 import (
-	"fmt"
+	"log"
 	dbpak "testgui/internal/Databaces"
 
 	"github.com/cockroachdb/pebble"
@@ -33,15 +33,10 @@ func (constant *PebbleDatabase) Open() error {
 }
 
 func (constant *PebbleDatabase) Close() {
-	if constant.DB != nil {
-		constant.DB.Close()
-	}
+	constant.DB.Close()
 }
 
 func (constant *PebbleDatabase) Add(key, value string) error {
-	if constant.DB == nil {
-		return fmt.Errorf("database not opened")
-	}
 	return constant.DB.Set([]byte(key), []byte(value), nil)
 }
 
@@ -65,7 +60,7 @@ func (c *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 
 	err := c.Open()
 	if err != nil {
-		fmt.Println("err in function Read in databace Pebble")
+		log.Fatal(err)
 	}
 	defer c.Close()
 	iterOptions := &pebble.IterOptions{}

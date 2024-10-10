@@ -3,6 +3,7 @@ package addProjectwindowui
 import (
 	"fmt"
 	"image/color"
+	"log"
 	"path/filepath"
 	variable "testgui"
 
@@ -111,7 +112,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 		}
 		datajson, err := variable.CurrentJson.Load()
 		if err != nil {
-			fmt.Errorf("error : error in the load file json in bottom add")
+			log.Fatal(err)
 		}
 		for _, m := range datajson.RecentProjects {
 			if pathEntry.Text == m.Name {
@@ -128,7 +129,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 		}
 
 		if err != nil {
-			dialog.ShowInformation("Error ", "There is something wrong with your file and I can't connect to it", newWindow)
+			dialog.ShowInformation("Error ", string(err.Error()), newWindow)
 		} else {
 			if !addButton {
 

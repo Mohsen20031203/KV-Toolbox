@@ -265,7 +265,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 				value2, err := variable.CurrentDBClient.Get(utils.CleanInput(valueEntry.Text))
 				_ = value2
 				if err == nil {
-					dialog.ShowError(fmt.Errorf("This key exists in your database"), editWindow)
+					dialog.ShowError(err, editWindow)
 					return
 				}
 
@@ -321,7 +321,7 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 
 	valueSearch, err := QueryKey(valueEntry)
 	if valueSearch == "" && err != nil {
-		dialog.ShowError(fmt.Errorf("The key - "+key+" - does not exist in your database"), editWindow)
+		dialog.ShowError(err, editWindow)
 		key = ""
 		valueEntry.Refresh()
 	} else {

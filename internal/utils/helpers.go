@@ -3,7 +3,6 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"strings"
 	variable "testgui"
@@ -46,17 +45,16 @@ func Checkdatabace(test string, nameDatabace string) error {
 	}
 	if _, err := os.Stat(test); os.IsNotExist(err) && !variable.CreatDatabase {
 
-		return fmt.Errorf("dont found file")
+		return err
 	} else {
 
 		err := variable.CurrentDBClient.Open()
 		if err != nil {
-			return fmt.Errorf("i cant connection in database")
+			return err
 		}
 		variable.CurrentDBClient.Close()
 		return nil
 	}
-
 }
 
 func CleanInput(input string) string {

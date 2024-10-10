@@ -34,7 +34,7 @@ func (j *ConstantJsonFile) Read(state *jsFile.JsonInformation) error {
 
 	byteValue, err := ioutil.ReadAll(file)
 	if err != nil {
-		return fmt.Errorf("failed to read file: %v", err)
+		return err
 	}
 
 	return json.Unmarshal(byteValue, &state)

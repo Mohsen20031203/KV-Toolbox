@@ -1,7 +1,7 @@
 package leveldbb
 
 import (
-	"fmt"
+	"log"
 	dbpak "testgui/internal/Databaces"
 
 	"github.com/syndtr/goleveldb/leveldb"
@@ -34,15 +34,10 @@ func (constant *LeveldbDatabase) Open() error {
 }
 
 func (constant *LeveldbDatabase) Close() {
-	if constant.DB != nil {
-		constant.DB.Close()
-	}
+	constant.DB.Close()
 }
 
 func (constant *LeveldbDatabase) Add(key, value string) error {
-	if constant.DB == nil {
-		return fmt.Errorf("database not opened")
-	}
 	return constant.DB.Put([]byte(key), []byte(value), nil)
 }
 
@@ -62,7 +57,7 @@ func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KV
 
 	err := c.Open()
 	if err != nil {
-		fmt.Print("error : Open leveldb in func Read")
+		log.Fatal(err)
 	}
 	defer c.Close()
 	readRange := &util.Range{}
