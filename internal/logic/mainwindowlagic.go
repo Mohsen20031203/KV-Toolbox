@@ -53,11 +53,13 @@ func SetupThemeButtons(app fyne.App) *fyne.Container {
 	return darkLight
 }
 
-var lastStart *string
-var lastEnd *string
-var lastPage int
-var currentData []dbpak.KVData
-var lastcurrentData []dbpak.KVData
+var (
+	lastStart       *string
+	lastEnd         *string
+	lastPage        int
+	currentData     []dbpak.KVData
+	lastcurrentData []dbpak.KVData
+)
 
 func UpdatePage(rightColumnContent *fyne.Container) {
 
