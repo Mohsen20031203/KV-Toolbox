@@ -20,8 +20,6 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var next_prev bool
-
 func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
 	lastColumnContent := container.NewVBox()
 
@@ -59,6 +57,7 @@ var (
 	lastPage        int
 	currentData     []dbpak.KVData
 	lastcurrentData []dbpak.KVData
+	next_prev       bool
 )
 
 func UpdatePage(rightColumnContent *fyne.Container) {
