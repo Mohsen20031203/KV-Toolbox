@@ -7,7 +7,6 @@ import (
 	iterleveldb "testgui/internal/Databaces/itertor/leveldb"
 
 	"github.com/syndtr/goleveldb/leveldb"
-	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/util"
 )
 
@@ -116,9 +115,9 @@ func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KV
 	return nil, Item
 }
 
-func (l *LeveldbDatabase) Iterator(slice *util.Range, ro *opt.ReadOptions) itertor.IterDB {
-	Iter2 := l.DB.NewIterator(slice, ro)
-	return &iterleveldb.Model{
+func (l *LeveldbDatabase) Iterator() itertor.IterDB {
+	Iter2 := l.DB.NewIterator(nil, nil)
+	return &iterleveldb.LeveldbModel{
 		Iter: Iter2,
 	}
 }

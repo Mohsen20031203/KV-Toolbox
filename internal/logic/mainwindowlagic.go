@@ -322,7 +322,7 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	if err != nil {
 		return
 	}
-	Iterator := variable.CurrentDBClient.Iterator(nil, nil)
+	Iterator := variable.CurrentDBClient.Iterator()
 
 	defer variable.CurrentDBClient.Close()
 

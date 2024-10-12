@@ -4,31 +4,31 @@ import (
 	"github.com/syndtr/goleveldb/leveldb/iterator"
 )
 
-type Model struct {
+type LeveldbModel struct {
 	Iter iterator.Iterator
 }
 
-func (m *Model) Next() bool {
-	result := m.Iter.Next()
+func (l *LeveldbModel) Next() bool {
+	result := l.Iter.Next()
 	return result
 }
 
-func (m *Model) Key() string {
-	text := m.Iter.Key()
+func (l *LeveldbModel) Key() string {
+	text := l.Iter.Key()
 	return string(text)
 }
 
-func (m *Model) First() bool {
-	result := m.Iter.First()
+func (l *LeveldbModel) First() bool {
+	result := l.Iter.First()
 	return result
 }
 
-func (m *Model) Value() string {
-	result := m.Iter.Value()
+func (l *LeveldbModel) Value() string {
+	result := l.Iter.Value()
 	return string(result)
 }
 
-func (m *Model) Prev() bool {
-	result := m.Iter.Prev()
+func (l *LeveldbModel) Prev() bool {
+	result := l.Iter.Prev()
 	return result
 }

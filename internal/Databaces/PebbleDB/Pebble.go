@@ -4,10 +4,9 @@ import (
 	"log"
 	dbpak "testgui/internal/Databaces"
 	"testgui/internal/Databaces/itertor"
+	iterPebble "testgui/internal/Databaces/itertor/pebble"
 
 	"github.com/cockroachdb/pebble"
-	"github.com/syndtr/goleveldb/leveldb/opt"
-	"github.com/syndtr/goleveldb/leveldb/util"
 )
 
 type PebbleDatabase struct {
@@ -129,7 +128,12 @@ func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 	return nil, Item
 }
 
-func (p *PebbleDatabase) Iterator(slice *util.Range, ro *opt.ReadOptions) itertor.IterDB {
-
-	return nil
+func (p *PebbleDatabase) Iterator() itertor.IterDB {
+	Iter2, err := p.DB.NewIter(nil)
+	if err != nil {
+		log.Fatal("err in iter pebble")
+	}
+	return &iterPebble.PebbleIter{
+		Iter: Iter2,
+	}
 }
