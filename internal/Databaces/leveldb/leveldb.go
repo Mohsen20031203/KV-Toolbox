@@ -19,33 +19,33 @@ func NewDataBaseLeveldb(address string) dbpak.DBClient {
 	}
 }
 
-func (constant *LeveldbDatabase) Delete(key string) error {
-	err := constant.DB.Delete([]byte(key), nil)
+func (l *LeveldbDatabase) Delete(key string) error {
+	err := l.DB.Delete([]byte(key), nil)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (constant *LeveldbDatabase) Open() error {
+func (l *LeveldbDatabase) Open() error {
 	var err error
-	constant.DB, err = leveldb.OpenFile(constant.Address, nil)
+	l.DB, err = leveldb.OpenFile(l.Address, nil)
 	return err
 }
 
-func (constant *LeveldbDatabase) Close() {
-	constant.DB.Close()
+func (l *LeveldbDatabase) Close() {
+	l.DB.Close()
 }
 
-func (constant *LeveldbDatabase) Add(key, value string) error {
-	return constant.DB.Put([]byte(key), []byte(value), nil)
+func (l *LeveldbDatabase) Add(key, value string) error {
+	return l.DB.Put([]byte(key), []byte(value), nil)
 }
 
-func (constant *LeveldbDatabase) Get(key string) (string, error) {
-	if constant.DB == nil {
+func (l *LeveldbDatabase) Get(key string) (string, error) {
+	if l.DB == nil {
 		return "", nil
 	}
-	data, err := constant.DB.Get([]byte(key), nil)
+	data, err := l.DB.Get([]byte(key), nil)
 	if err != nil {
 		return "", err
 	}

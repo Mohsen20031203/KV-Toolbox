@@ -54,7 +54,7 @@ func SetupThemeButtons(app fyne.App) *fyne.Container {
 var (
 	lastStart       *string
 	lastEnd         *string
-	lastPage        int
+	lastPage        uint8
 	currentData     []dbpak.KVData
 	lastcurrentData []dbpak.KVData
 	next_prev       bool
@@ -66,7 +66,7 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 
 	var data = make([]dbpak.KVData, 0)
 	var err error
-	if lastPage <= variable.CurrentPage {
+	if lastPage <= *variable.CurrentPage {
 		//next page
 
 		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
@@ -108,7 +108,7 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		return
 	}
 
-	lastPage = variable.CurrentPage
+	lastPage = *variable.CurrentPage
 	if next_prev {
 		lastStart = &data[0].Key
 		if len(data) == variable.ItemsPerPage+1 {
@@ -147,7 +147,7 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		rightColumnContent.Add(buttonRow)
 	}
 
-	variable.PageLabel.SetText(fmt.Sprintf("Page %d", variable.CurrentPage+1))
+	variable.PageLabel.SetText(fmt.Sprintf("Page %d", *variable.CurrentPage+1))
 
 	rightColumnContent.Refresh()
 }
@@ -157,7 +157,7 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 		utils.Checkdatabace(path, nameDatabace)
 		variable.PrevButton.Disable()
 		lastPage = 0
-		variable.CurrentPage = 0
+		*variable.CurrentPage = 0
 		variable.NextButton.Enable()
 		lastEnd = nil
 		lastStart = nil
@@ -325,21 +325,22 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		dialog.ShowError(err, editWindow)
 		key = ""
 		valueEntry.Refresh()
-	} else {
-		editWindow.Close()
-
-		utils.CheckCondition(rightColumnContent)
-
-		truncatedKey := utils.TruncateString(key, 20)
-		truncatedValue := utils.TruncateString(valueSearch, 50)
-
-		valueLabel := BuidLableKeyAndValue("value", key, valueSearch, truncatedValue, rightColumnContent)
-		keyLabel := BuidLableKeyAndValue("key", key, valueSearch, truncatedKey, rightColumnContent)
-		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
-		rightColumnContent.Add(buttonRow)
-		variable.NextButton.Disable()
-		variable.PrevButton.Disable()
+		return
 	}
+	editWindow.Close()
+
+	utils.CheckCondition(rightColumnContent)
+
+	truncatedKey := utils.TruncateString(key, 20)
+	truncatedValue := utils.TruncateString(valueSearch, 50)
+
+	valueLabel := BuidLableKeyAndValue("value", key, valueSearch, truncatedValue, rightColumnContent)
+	keyLabel := BuidLableKeyAndValue("key", key, valueSearch, truncatedKey, rightColumnContent)
+	buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
+	rightColumnContent.Add(buttonRow)
+	variable.NextButton.Disable()
+	variable.PrevButton.Disable()
+
 }
 
 func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {

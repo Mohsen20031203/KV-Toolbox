@@ -27,7 +27,7 @@ func HasManifestFile(folderPath string) bool {
 		log.Fatal("Error reading folder:", err)
 		return false
 	}
-	var count int64
+	var count uint8
 	for _, file := range files {
 		if strings.HasPrefix(file.Name(), "MANIFEST-") || filepath.Ext(file.Name()) == ".log" {
 			count++
