@@ -3,8 +3,11 @@ package leveldbb
 import (
 	"log"
 	dbpak "testgui/internal/Databaces"
+	"testgui/internal/Databaces/itertor"
+	iterleveldb "testgui/internal/Databaces/itertor/leveldb"
 
 	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/util"
 )
 
@@ -111,4 +114,11 @@ func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KV
 	}
 
 	return nil, Item
+}
+
+func (l *LeveldbDatabase) Iterator(slice *util.Range, ro *opt.ReadOptions) itertor.IterDB {
+	Iter2 := l.DB.NewIterator(slice, ro)
+	return &iterleveldb.Model{
+		Iter: Iter2,
+	}
 }

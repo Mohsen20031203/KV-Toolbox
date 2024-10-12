@@ -3,8 +3,11 @@ package PebbleDB
 import (
 	"log"
 	dbpak "testgui/internal/Databaces"
+	"testgui/internal/Databaces/itertor"
 
 	"github.com/cockroachdb/pebble"
+	"github.com/syndtr/goleveldb/leveldb/opt"
+	"github.com/syndtr/goleveldb/leveldb/util"
 )
 
 type PebbleDatabase struct {
@@ -18,34 +21,34 @@ func NewDataBasePebble(address string) dbpak.DBClient {
 	}
 }
 
-func (constant *PebbleDatabase) Delete(key string) error {
-	err := constant.DB.Delete([]byte(key), nil)
+func (p *PebbleDatabase) Delete(key string) error {
+	err := p.DB.Delete([]byte(key), nil)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (constant *PebbleDatabase) Open() error {
+func (p *PebbleDatabase) Open() error {
 	var err error
-	constant.DB, err = pebble.Open(constant.Address, &pebble.Options{})
+	p.DB, err = pebble.Open(p.Address, &pebble.Options{})
 	return err
 }
 
-func (constant *PebbleDatabase) Close() {
-	constant.DB.Close()
+func (p *PebbleDatabase) Close() {
+	p.DB.Close()
 }
 
-func (constant *PebbleDatabase) Add(key, value string) error {
-	return constant.DB.Set([]byte(key), []byte(value), nil)
+func (p *PebbleDatabase) Add(key, value string) error {
+	return p.DB.Set([]byte(key), []byte(value), nil)
 }
 
-func (constant *PebbleDatabase) Get(key string) (string, error) {
-	if constant.DB == nil {
+func (p *PebbleDatabase) Get(key string) (string, error) {
+	if p.DB == nil {
 		return "", nil
 	}
 
-	data, closer, err := constant.DB.Get([]byte(key))
+	data, closer, err := p.DB.Get([]byte(key))
 	if err != nil {
 		return "", err
 	}
@@ -55,14 +58,14 @@ func (constant *PebbleDatabase) Get(key string) (string, error) {
 	return string(data), err
 }
 
-func (c *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
+func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
 	var Item []dbpak.KVData
 
-	err := c.Open()
+	err := p.Open()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer c.Close()
+	defer p.Close()
 	iterOptions := &pebble.IterOptions{}
 	if start != nil {
 		iterOptions.LowerBound = []byte(*start)
@@ -72,7 +75,7 @@ func (c *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 		iterOptions.UpperBound = []byte(*end)
 	}
 
-	iter, err := c.DB.NewIter(iterOptions)
+	iter, err := p.DB.NewIter(iterOptions)
 	if err != nil {
 		return err, Item
 	}
@@ -124,4 +127,9 @@ func (c *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 	}
 
 	return nil, Item
+}
+
+func (p *PebbleDatabase) Iterator(slice *util.Range, ro *opt.ReadOptions) itertor.IterDB {
+
+	return nil
 }

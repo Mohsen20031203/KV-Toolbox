@@ -69,18 +69,18 @@ func MainWindow(myApp fyne.App) {
 		deletkeyui.DeleteKeyUi(rightColumnAll)
 	})
 
-	variable.PageLabel = widget.NewLabel(fmt.Sprintf("Page %d", *variable.CurrentPage+1))
+	variable.PageLabel = widget.NewLabel(fmt.Sprintf("Page %d", variable.CurrentPage+1))
 
 	variable.NextButton = widget.NewButton("next", func() {
-		*variable.CurrentPage++
+		variable.CurrentPage++
 		variable.PrevButton.Enable()
 		logic.UpdatePage(rightColumnAll)
 	})
 	variable.NextButton.Disable()
 
 	variable.PrevButton = widget.NewButton("prev", func() {
-		if *variable.CurrentPage > 0 {
-			*variable.CurrentPage--
+		if variable.CurrentPage > 0 {
+			variable.CurrentPage--
 			logic.UpdatePage(rightColumnAll)
 			variable.NextButton.Enable()
 		}
