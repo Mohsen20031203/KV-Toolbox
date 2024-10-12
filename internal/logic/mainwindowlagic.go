@@ -326,11 +326,12 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 
 	defer variable.CurrentDBClient.Close()
 
+	key := utils.CleanInput(valueEntry.Text)
 	Iterator.First()
 	n := 0
 	for Iterator.Next() {
 
-		if strings.Contains(string(Iterator.Key()), valueEntry.Text) {
+		if strings.Contains(string(Iterator.Key()), key) {
 			if n == 0 {
 				n++
 				utils.CheckCondition(rightColumnContent)

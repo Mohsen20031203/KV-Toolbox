@@ -32,3 +32,8 @@ func (m *PebbleIter) Prev() bool {
 	result := m.Iter.Prev()
 	return result
 }
+
+func (m *PebbleIter) Close() bool {
+	result := m.Close()
+	return result
+}

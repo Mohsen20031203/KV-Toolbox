@@ -32,3 +32,7 @@ func (l *LeveldbModel) Prev() bool {
 	result := l.Iter.Prev()
 	return result
 }
+
+func (l *LeveldbModel) Close() bool {
+	return true
+}

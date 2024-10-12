@@ -6,4 +6,5 @@ type IterDB interface {
 	First() bool
 	Value() string
 	Prev() bool
+	Close() bool
 }
