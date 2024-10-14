@@ -43,6 +43,9 @@ func (b *badgerDatabase) Get(key string) (string, error) {
 			return err
 		}
 		val, err := item.ValueCopy(nil)
+		if err != nil {
+			return err
+		}
 		valORG = string(val)
 		return nil
 	})
