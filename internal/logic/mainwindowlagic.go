@@ -322,9 +322,13 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	if err != nil {
 		return
 	}
-	Iterator := variable.CurrentDBClient.Iterator()
+	Iterator := variable.CurrentDBClient.Iterator(nil, nil)
 
 	defer variable.CurrentDBClient.Close()
+
+	if !Iterator.Close() {
+		return
+	}
 
 	key := utils.CleanInput(valueEntry.Text)
 	Iterator.First()
@@ -350,7 +354,6 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	editWindow.Close()
 	variable.NextButton.Disable()
 	variable.PrevButton.Disable()
-
 }
 
 func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {

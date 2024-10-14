@@ -10,8 +10,8 @@ import (
 )
 
 type PebbleDatabase struct {
-	Address string
 	DB      *pebble.DB
+	Address string
 }
 
 func NewDataBasePebble(address string) dbpak.DBClient {
@@ -128,8 +128,13 @@ func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 	return nil, Item
 }
 
-func (p *PebbleDatabase) Iterator() itertor.IterDB {
-	Iter2, err := p.DB.NewIter(nil)
+func (p *PebbleDatabase) Iterator(start, end *string) itertor.IterDB {
+
+	iterOptions := &pebble.IterOptions{}
+	iterOptions.LowerBound = []byte(*start)
+	iterOptions.UpperBound = []byte(*end)
+
+	Iter2, err := p.DB.NewIter(iterOptions)
 	if err != nil {
 		log.Fatal("err in iter pebble")
 	}

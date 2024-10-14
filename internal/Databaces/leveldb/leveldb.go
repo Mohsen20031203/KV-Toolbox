@@ -11,8 +11,8 @@ import (
 )
 
 type LeveldbDatabase struct {
-	Address string
 	DB      *leveldb.DB
+	Address string
 }
 
 func NewDataBaseLeveldb(address string) dbpak.DBClient {
@@ -115,8 +115,11 @@ func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KV
 	return nil, Item
 }
 
-func (l *LeveldbDatabase) Iterator() itertor.IterDB {
-	Iter2 := l.DB.NewIterator(nil, nil)
+func (l *LeveldbDatabase) Iterator(start, end *string) itertor.IterDB {
+	readRange := &util.Range{}
+	readRange.Start = []byte(*start)
+	readRange.Limit = []byte(*end)
+	Iter2 := l.DB.NewIterator(readRange, nil)
 	return &iterleveldb.LeveldbModel{
 		Iter: Iter2,
 	}

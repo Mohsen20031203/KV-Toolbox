@@ -16,5 +16,5 @@ type DBClient interface {
 	Get(key string) (string, error)
 	Read(start, end *string, count int) (error, []KVData)
 	Delete(key string) error
-	Iterator() itertor.IterDB
+	Iterator(start, end *string) itertor.IterDB
 }
