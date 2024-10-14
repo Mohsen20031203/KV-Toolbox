@@ -60,11 +60,6 @@ func (p *PebbleDatabase) Get(key string) (string, error) {
 func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
 	var Item []dbpak.KVData
 
-	err := p.Open()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer p.Close()
 	iterOptions := &pebble.IterOptions{}
 	if start != nil {
 		iterOptions.LowerBound = []byte(*start)
@@ -131,8 +126,13 @@ func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 func (p *PebbleDatabase) Iterator(start, end *string) itertor.IterDB {
 
 	iterOptions := &pebble.IterOptions{}
-	iterOptions.LowerBound = []byte(*start)
-	iterOptions.UpperBound = []byte(*end)
+
+	if start != nil {
+		iterOptions.LowerBound = []byte(*start)
+	}
+	if end != nil {
+		iterOptions.UpperBound = []byte(*end)
+	}
 
 	Iter2, err := p.DB.NewIter(iterOptions)
 	if err != nil {

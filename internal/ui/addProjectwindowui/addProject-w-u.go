@@ -57,9 +57,9 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	testConnectionButton.Disable()
 
 	pathEntry2.OnChanged = func(text string) {
-		if text != "" && !logic.CreatFileBool {
+		if text != "" && !variable.CreatDatabase {
 			testConnectionButton.Enable()
-		} else if logic.CreatFileBool {
+		} else if variable.CreatDatabase {
 			testConnectionButton.Disable()
 		}
 	}
@@ -139,7 +139,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 
-				logic.CreatFileBool = false
+				variable.CreatDatabase = false
 				newWindow.Close()
 			}
 		}

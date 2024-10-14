@@ -46,15 +46,9 @@ func Checkdatabace(test string, nameDatabace string) error {
 	if _, err := os.Stat(test); os.IsNotExist(err) && !variable.CreatDatabase {
 
 		return err
-	} else {
-
-		err := variable.CurrentDBClient.Open()
-		if err != nil {
-			return err
-		}
-		variable.CurrentDBClient.Close()
-		return nil
 	}
+
+	return nil
 }
 
 func CleanInput(input string) string {

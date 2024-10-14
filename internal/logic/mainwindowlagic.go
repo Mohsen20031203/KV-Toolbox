@@ -67,6 +67,11 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 
 	var data = make([]dbpak.KVData, 0)
 	var err error
+	err = variable.CurrentDBClient.Open()
+	if err != nil {
+		return
+	}
+	defer variable.CurrentDBClient.Close()
 	if lastPage <= variable.CurrentPage {
 		//next page
 

@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"path/filepath"
@@ -13,8 +14,6 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
 )
-
-var CreatFileBool bool
 
 type TappableLabel struct {
 	widget.Label
@@ -59,12 +58,10 @@ func CreatFile(value bool, openButton *widget.Button, testConnectionButton *widg
 	if value {
 		openButton.Disable()
 		testConnectionButton.Disable()
-		CreatFileBool = value
 		variable.CreatDatabase = value
 	} else {
 		openButton.Enable()
 		testConnectionButton.Enable()
-		CreatFileBool = value
 		variable.CreatDatabase = value
 	}
 }
@@ -75,15 +72,20 @@ func HandleButtonClick(test string, nameDatabace string) error {
 	if err != nil {
 		return err
 	}
-	err, date := variable.CurrentDBClient.Read(nil, nil, 1)
-	nun := HasManifestFile(test)
 
-	if CreatFileBool {
-		return nil
+	if !variable.CreatDatabase {
+
+		nun := HasManifestFile(test)
+		if !nun {
+			return fmt.Errorf("error for no found files database")
+		}
 	}
-	if (len(date) == 0 || err != nil) && !nun {
+	err = variable.CurrentDBClient.Open()
+	if err != nil {
 		return err
 	}
+	defer variable.CurrentDBClient.Close()
+
 	return nil
 
 }

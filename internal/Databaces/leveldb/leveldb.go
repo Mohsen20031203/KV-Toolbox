@@ -1,7 +1,6 @@
 package leveldbb
 
 import (
-	"log"
 	dbpak "testgui/internal/Databaces"
 	"testgui/internal/Databaces/itertor"
 	iterleveldb "testgui/internal/Databaces/itertor/leveldb"
@@ -57,11 +56,6 @@ func (l *LeveldbDatabase) Get(key string) (string, error) {
 func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
 	var Item []dbpak.KVData
 
-	err := c.Open()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer c.Close()
 	readRange := &util.Range{}
 	if start != nil {
 		readRange.Start = []byte(*start)
@@ -117,8 +111,14 @@ func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KV
 
 func (l *LeveldbDatabase) Iterator(start, end *string) itertor.IterDB {
 	readRange := &util.Range{}
-	readRange.Start = []byte(*start)
-	readRange.Limit = []byte(*end)
+
+	if start != nil {
+		readRange.Start = []byte(*start)
+	}
+	if end != nil {
+		readRange.Limit = []byte(*end)
+	}
+
 	Iter2 := l.DB.NewIterator(readRange, nil)
 	return &iterleveldb.LeveldbModel{
 		Iter: Iter2,
