@@ -141,8 +141,10 @@ func (c *badgerDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 
 func (b *badgerDatabase) Iterator(start, end *string) itertor.IterDB {
 	var it *badger.Iterator
+	var opts badger.IteratorOptions
+
 	err := b.db.View(func(txn *badger.Txn) error {
-		it = txn.NewIterator(badger.DefaultIteratorOptions)
+		it = txn.NewIterator(opts)
 
 		return nil
 	})
@@ -151,5 +153,6 @@ func (b *badgerDatabase) Iterator(start, end *string) itertor.IterDB {
 	}
 	return &iterbadger.BadgerModel{
 		Iter: it,
+		Opts: &opts,
 	}
 }

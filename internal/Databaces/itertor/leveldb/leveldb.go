@@ -36,3 +36,8 @@ func (l *LeveldbModel) Prev() bool {
 func (l *LeveldbModel) Close() bool {
 	return true
 }
+
+func (l *LeveldbModel) Seek(key string) bool {
+	result := l.Iter.Seek([]byte(key))
+	return result
+}

@@ -37,3 +37,8 @@ func (m *PebbleIter) Close() bool {
 	result := m.Close()
 	return result
 }
+
+func (m *PebbleIter) Seek(key string) bool {
+	result := m.Iter.SeekGE([]byte(key))
+	return result
+}

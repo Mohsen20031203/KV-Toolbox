@@ -118,7 +118,6 @@ func (l *LeveldbDatabase) Iterator(start, end *string) itertor.IterDB {
 	if end != nil {
 		readRange.Limit = []byte(*end)
 	}
-
 	Iter2 := l.DB.NewIterator(readRange, nil)
 	return &iterleveldb.LeveldbModel{
 		Iter: Iter2,

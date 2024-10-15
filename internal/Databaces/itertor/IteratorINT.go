@@ -7,4 +7,5 @@ type IterDB interface {
 	Value() string
 	Prev() bool
 	Close() bool
+	Seek(key string) bool
 }
