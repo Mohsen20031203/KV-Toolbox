@@ -17,7 +17,6 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -78,7 +77,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 
 			variable.FolderPath = filepath.Dir(filePath)
 
-			if logic.HasManifestFile(variable.FolderPath) {
+			if variable.NameData.FilterFile(variable.FolderPath) {
 				pathEntry2.SetText(variable.FolderPath)
 				testConnectionButton.Enable()
 			} else {
@@ -86,7 +85,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 			}
 
 		}, newWindow)
-		folderDialog.SetFilter(storage.NewExtensionFileFilter([]string{".log"}))
+		variable.NameData.FilterFormat(folderDialog)
 		folderDialog.Show()
 	})
 

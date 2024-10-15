@@ -8,4 +8,5 @@ type IterDB interface {
 	Prev() bool
 	Close() bool
 	Seek(key string) bool
+	Valid() bool
 }

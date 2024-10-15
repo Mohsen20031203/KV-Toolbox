@@ -2,6 +2,7 @@ package variable
 
 import (
 	dbpak "testgui/internal/Databaces"
+	"testgui/internal/filterdatabase"
 	jsFile "testgui/internal/json"
 
 	"fyne.io/fyne/v2/widget"
@@ -13,6 +14,7 @@ var (
 	ItemsPerPage    = 20
 	FolderPath      string
 	CurrentJson     jsFile.JsonFile
+	NameData        filterdatabase.FilterData
 )
 
 var NextButton, PrevButton *widget.Button
@@ -22,6 +24,7 @@ var (
 	NameDatabase = []string{
 		"levelDB",
 		"Pebble",
+		"Badger",
 	}
 )
 

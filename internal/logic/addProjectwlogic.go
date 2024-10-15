@@ -75,7 +75,7 @@ func HandleButtonClick(test string, nameDatabace string) error {
 
 	if !variable.CreatDatabase {
 
-		nun := HasManifestFile(test)
+		nun := variable.NameData.FilterFile(test)
 		if !nun {
 			return fmt.Errorf("error for no found files database")
 		}

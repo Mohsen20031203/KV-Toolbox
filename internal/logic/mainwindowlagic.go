@@ -269,13 +269,6 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 
 			} else {
 
-				value2, err := variable.CurrentDBClient.Get(utils.CleanInput(valueEntry.Text))
-				_ = value2
-				if err == nil {
-					dialog.ShowError(err, editWindow)
-					return
-				}
-
 				valueBefor, err := variable.CurrentDBClient.Get(key)
 				if err != nil {
 					return
@@ -321,30 +314,34 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 	return lableKeyAndValue
 }
 
-func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {
+func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) (bool, error) {
 
 	err := variable.CurrentDBClient.Open()
 	if err != nil {
-		return
+		return false, err
 	}
 	Iterator := variable.CurrentDBClient.Iterator(nil, nil)
-
-	defer variable.CurrentDBClient.Close()
-
-	if !Iterator.Close() {
-		return
+	if Iterator == nil {
+		log.Fatal("Iterator is nil")
+		return false, err
 	}
 
+	defer variable.CurrentDBClient.Close()
+	defer Iterator.Close()
+
 	key := utils.CleanInput(valueEntry.Text)
-	Iterator.First()
-	n := 0
-	for Iterator.Next() {
+	searchFound := false
+
+	if !Iterator.First() {
+		return false, fmt.Errorf("iterator is empty")
+	}
+
+	for Iterator.Valid() {
 
 		if strings.Contains(string(Iterator.Key()), key) {
-			if n == 0 {
-				n++
+			if !searchFound {
 				utils.CheckCondition(rightColumnContent)
-
+				searchFound = true
 			}
 
 			truncatedKey := utils.TruncateString(Iterator.Key(), 20)
@@ -355,10 +352,17 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 			buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 			rightColumnContent.Add(buttonRow)
 		}
+		Iterator.Next()
 	}
+
+	if !searchFound {
+		return true, nil
+	}
+
 	editWindow.Close()
 	variable.NextButton.Disable()
 	variable.PrevButton.Disable()
+	return false, nil
 }
 
 func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {
