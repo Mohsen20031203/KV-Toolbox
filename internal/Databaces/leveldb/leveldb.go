@@ -1,6 +1,10 @@
 package leveldbb
 
 import (
+	"io/ioutil"
+	"log"
+	"path/filepath"
+	"strings"
 	dbpak "testgui/internal/Databaces"
 	"testgui/internal/Databaces/itertor"
 	iterleveldb "testgui/internal/Databaces/itertor/leveldb"
@@ -122,4 +126,23 @@ func (l *LeveldbDatabase) Iterator(start, end *string) itertor.IterDB {
 	return &iterleveldb.LeveldbModel{
 		Iter: Iter2,
 	}
+}
+
+func (l *LeveldbDatabase) FilterFile() bool {
+	files, err := ioutil.ReadDir(l.Address)
+	if err != nil {
+		log.Fatal("Error reading folder:", err)
+		return false
+	}
+	var count uint8
+	for _, file := range files {
+		if strings.HasPrefix(file.Name(), "MANIFEST-") || filepath.Ext(file.Name()) == ".log" {
+			count++
+		}
+
+		if count == 2 {
+			return true
+		}
+	}
+	return false
 }

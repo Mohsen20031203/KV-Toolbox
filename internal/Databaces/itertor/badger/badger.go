@@ -47,3 +47,7 @@ func (l *BadgerModel) Seek(key string) bool {
 	l.Iter.Seek([]byte(key))
 	return true
 }
+
+func (l *BadgerModel) Valid() bool {
+	return l.Iter.Valid()
+}

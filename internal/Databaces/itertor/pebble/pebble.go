@@ -42,3 +42,7 @@ func (m *PebbleIter) Seek(key string) bool {
 	result := m.Iter.SeekGE([]byte(key))
 	return result
 }
+
+func (m *PebbleIter) Valid() bool {
+	return m.Iter.Valid()
+}

@@ -330,20 +330,18 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	defer Iterator.Close()
 
 	key := utils.CleanInput(valueEntry.Text)
-	n := 0
-	m := 0
-	Iterator.First()
+	searchFound := false
 
-	for Iterator.Next() {
-		if m == 0 {
-			Iterator.First()
-			m++
-		}
+	if !Iterator.First() {
+		return false, fmt.Errorf("iterator is empty")
+	}
+
+	for Iterator.Valid() {
+
 		if strings.Contains(string(Iterator.Key()), key) {
-			if n == 0 {
-				n++
+			if !searchFound {
 				utils.CheckCondition(rightColumnContent)
-
+				searchFound = true
 			}
 
 			truncatedKey := utils.TruncateString(Iterator.Key(), 20)
@@ -354,14 +352,17 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 			buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 			rightColumnContent.Add(buttonRow)
 		}
+		Iterator.Next()
 	}
-	if n == 0 {
-		return true, err
+
+	if !searchFound {
+		return true, nil
 	}
+
 	editWindow.Close()
 	variable.NextButton.Disable()
 	variable.PrevButton.Disable()
-	return false, err
+	return false, nil
 }
 
 func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {
