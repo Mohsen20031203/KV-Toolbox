@@ -14,10 +14,8 @@ type NameDatabaseBadger struct {
 	name string
 }
 
-func NewFileterBadger(database string) filterdatabase.FilterData {
-	return &NameDatabaseBadger{
-		name: database,
-	}
+func NewFileterBadger() filterdatabase.FilterData {
+	return &NameDatabaseBadger{}
 }
 
 func (l *NameDatabaseBadger) FilterFile(path string) bool {

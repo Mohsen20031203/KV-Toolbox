@@ -11,14 +11,10 @@ import (
 	"fyne.io/fyne/v2/storage"
 )
 
-type NameDatabasePebble struct {
-	name string
-}
+type NameDatabasePebble struct{}
 
-func NewFileterLeveldb(database string) filterdatabase.FilterData {
-	return &NameDatabasePebble{
-		name: database,
-	}
+func NewFileterLeveldb() filterdatabase.FilterData {
+	return &NameDatabasePebble{}
 }
 
 func (l *NameDatabasePebble) FilterFile(path string) bool {

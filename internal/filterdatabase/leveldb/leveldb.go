@@ -15,10 +15,8 @@ type NameDatabaseLeveldb struct {
 	name string
 }
 
-func NewFileterLeveldb(database string) filterdatabase.FilterData {
-	return &NameDatabaseLeveldb{
-		name: database,
-	}
+func NewFileterLeveldb() filterdatabase.FilterData {
+	return &NameDatabaseLeveldb{}
 }
 
 func (l *NameDatabaseLeveldb) FilterFile(path string) bool {

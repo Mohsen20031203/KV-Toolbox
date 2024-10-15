@@ -35,15 +35,13 @@ func CheckCondition(rightColumnContent *fyne.Container) {
 }
 
 func Checkdatabace(test string, nameDatabace string) error {
-	if nameDatabace == "levelDB" {
 
+	switch nameDatabace {
+	case "levelDB":
 		variable.CurrentDBClient = leveldbb.NewDataBaseLeveldb(test)
-
-	} else if nameDatabace == "Pebble" {
-
+	case "Pebble":
 		variable.CurrentDBClient = PebbleDB.NewDataBasePebble(test)
-
-	} else if nameDatabace == "Badger" {
+	case "Badger":
 		variable.CurrentDBClient = badgerDB.NewDataBaseBadger(test)
 
 	}

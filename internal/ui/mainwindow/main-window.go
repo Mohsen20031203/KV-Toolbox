@@ -117,14 +117,13 @@ func MainWindow(myApp fyne.App) {
 		leveldbButton = widget.NewButton(m, func() {
 			addProjectwindowui.OpenNewWindow(myApp, m, leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd)
 
-			if m == "levelDB" {
-
-				variable.NameData = FilterLeveldb.NewFileterLeveldb(m)
-			} else if m == "Pebble" {
-				variable.NameData = Filterpebbledb.NewFileterLeveldb(m)
-
-			} else if m == "Badger" {
-				variable.NameData = Filterbadger.NewFileterBadger(m)
+			switch m {
+			case "levelDB":
+				variable.NameData = FilterLeveldb.NewFileterLeveldb()
+			case "Pebble":
+				variable.NameData = Filterpebbledb.NewFileterLeveldb()
+			case "Badger":
+				variable.NameData = Filterbadger.NewFileterBadger()
 			}
 		})
 		BottomDatabase = append(BottomDatabase, leveldbButton)
