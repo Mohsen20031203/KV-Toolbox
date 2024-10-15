@@ -3,11 +3,10 @@ package iterbadger
 import "github.com/dgraph-io/badger/v4"
 
 type BadgerModel struct {
-	Iter badger.Iterator
+	Iter *badger.Iterator
 }
 
 func (l *BadgerModel) Next() bool {
-
 	return true
 }
 
