@@ -9,7 +9,7 @@ type BadgerModel struct {
 
 func (l *BadgerModel) Next() bool {
 	l.Iter.Next()
-	return true
+	return l.Iter.Valid()
 }
 
 func (l *BadgerModel) Key() string {
@@ -20,7 +20,7 @@ func (l *BadgerModel) Key() string {
 
 func (l *BadgerModel) First() bool {
 	l.Iter.Rewind()
-	return true
+	return l.Iter.Valid()
 }
 
 func (l *BadgerModel) Value() string {

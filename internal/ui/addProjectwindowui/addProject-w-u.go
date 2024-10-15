@@ -17,7 +17,6 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -78,15 +77,10 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 
 			variable.FolderPath = filepath.Dir(filePath)
 
-			if logic.HasManifestFile(variable.FolderPath) {
-				pathEntry2.SetText(variable.FolderPath)
-				testConnectionButton.Enable()
-			} else {
-				dialog.ShowInformation("Invalid Folder", "The selected folder does not contain a valid LevelDB manifest file.", newWindow)
-			}
+			pathEntry2.SetText(variable.FolderPath)
+			testConnectionButton.Enable()
 
 		}, newWindow)
-		folderDialog.SetFilter(storage.NewExtensionFileFilter([]string{".log"}))
 		folderDialog.Show()
 	})
 
@@ -122,7 +116,6 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 		}
 
 		var addButton bool
-		err = logic.HandleButtonClick(pathEntry2.Text, title)
 		if err == nil {
 
 			err, addButton = variable.CurrentJson.Add(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow, title)

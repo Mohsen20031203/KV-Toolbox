@@ -22,6 +22,7 @@ var (
 	NameDatabase = []string{
 		"levelDB",
 		"Pebble",
+		"Badger",
 	}
 )
 

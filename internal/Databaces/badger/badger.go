@@ -13,7 +13,7 @@ type badgerDatabase struct {
 	Address string
 }
 
-func NewDataBaseLeveldb(address string) dbpak.DBClient {
+func NewDataBaseBadger(address string) dbpak.DBClient {
 	return &badgerDatabase{
 		Address: address,
 	}
@@ -21,7 +21,7 @@ func NewDataBaseLeveldb(address string) dbpak.DBClient {
 
 func (b *badgerDatabase) Open() error {
 	var err error
-	b.db, err = badger.Open(badger.DefaultOptions("test"))
+	b.db, err = badger.Open(badger.DefaultOptions(b.Address))
 	return err
 }
 
@@ -37,7 +37,7 @@ func (b *badgerDatabase) Close() {
 
 func (b *badgerDatabase) Get(key string) (string, error) {
 	var valORG string
-	b.db.Update(func(txn *badger.Txn) error {
+	err := b.db.Update(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(key))
 		if err != nil {
 			return err
@@ -49,7 +49,7 @@ func (b *badgerDatabase) Get(key string) (string, error) {
 		valORG = string(val)
 		return nil
 	})
-	return valORG, nil
+	return valORG, err
 }
 
 func (b *badgerDatabase) Delete(key string) error {
@@ -111,6 +111,7 @@ func (c *badgerDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 				iter.Seek([]byte(*start))
 				iter.Next()
 			} else {
+
 				iter.Rewind()
 			}
 
@@ -145,6 +146,7 @@ func (b *badgerDatabase) Iterator(start, end *string) itertor.IterDB {
 
 	err := b.db.View(func(txn *badger.Txn) error {
 		it = txn.NewIterator(opts)
+		defer it.Close()
 
 		return nil
 	})

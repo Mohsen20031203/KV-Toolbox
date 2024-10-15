@@ -7,6 +7,7 @@ import (
 	"strings"
 	variable "testgui"
 	"testgui/internal/Databaces/PebbleDB"
+	badgerDB "testgui/internal/Databaces/badger"
 	leveldbb "testgui/internal/Databaces/leveldb"
 
 	"fyne.io/fyne/v2"
@@ -41,6 +42,9 @@ func Checkdatabace(test string, nameDatabace string) error {
 	} else if nameDatabace == "Pebble" {
 
 		variable.CurrentDBClient = PebbleDB.NewDataBasePebble(test)
+
+	} else if nameDatabace == "Badger" {
+		variable.CurrentDBClient = badgerDB.NewDataBaseBadger(test)
 
 	}
 	if _, err := os.Stat(test); os.IsNotExist(err) && !variable.CreatDatabase {
