@@ -140,7 +140,7 @@ func (l *NameDatabasePebble) FormCreate(a fyne.App, title string, lastColumnCont
 		}
 		datajson, err := variable.CurrentJson.Load()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("error ", err)
 		}
 		for _, m := range datajson.RecentProjects {
 			if pathEntry.Text == m.Name {
