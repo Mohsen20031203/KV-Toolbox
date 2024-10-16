@@ -162,32 +162,23 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	projectButton := widget.NewButton(inputText, func() {
 		utils.Checkdatabace(path, nameDatabace)
 		variable.PrevButton.Disable()
+		variable.NextButton.Enable()
+		buttonAdd.Enable()
+		variable.FolderPath = path
 		lastPage = 0
 		variable.CurrentPage = 0
-		variable.NextButton.Enable()
 		lastEnd = nil
 		lastStart = nil
 		variable.PageLabel.Text = "Page 1"
-		variable.FolderPath = path
-		HandleProjectSelection(path, rightColumnContentORG, buttonAdd)
-		if nameButtonProject.Text == "" {
-			nameButtonProject.Text = inputText + " - " + nameDatabace
-		} else {
-			nameButtonProject.Text = ""
-			nameButtonProject.Text = inputText + " - " + nameDatabace
-		}
+		UpdatePage(rightColumnContentORG)
+
+		nameButtonProject.Text = ""
+		nameButtonProject.Text = inputText + " - " + nameDatabace
+
 		nameButtonProject.Refresh()
 		variable.PageLabel.Refresh()
 
 	})
-
-	if nameButtonProject.Text == "" {
-		nameButtonProject.Text = inputText + " - " + nameDatabace
-	} else {
-		nameButtonProject.Text = ""
-		nameButtonProject.Text = inputText + " - " + nameDatabace
-	}
-	nameButtonProject.Refresh()
 
 	buttonContainer := container.NewHBox()
 
@@ -214,16 +205,6 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 
 	buttonContainer = container.NewBorder(nil, nil, nil, closeButton, projectButton)
 	return buttonContainer
-}
-
-func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, buttonAdd *widget.Button) {
-
-	buttonAdd.Enable()
-	utils.CheckCondition(rightColumnContent)
-
-	//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
-
-	UpdatePage(rightColumnContent)
 }
 
 func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, nameLable string, rightColumnContent *fyne.Container) *TappableLabel {
@@ -268,13 +249,6 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 				truncatedKey2 = utils.TruncateString(valueEntry.Text, 50)
 
 			} else {
-
-				value2, err := variable.CurrentDBClient.Get(utils.CleanInput(valueEntry.Text))
-				_ = value2
-				if err == nil {
-					dialog.ShowError(err, editWindow)
-					return
-				}
 
 				valueBefor, err := variable.CurrentDBClient.Get(key)
 				if err != nil {
@@ -321,30 +295,34 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 	return lableKeyAndValue
 }
 
-func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {
+func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) (bool, error) {
 
 	err := variable.CurrentDBClient.Open()
 	if err != nil {
-		return
+		return false, err
 	}
 	Iterator := variable.CurrentDBClient.Iterator(nil, nil)
-
-	defer variable.CurrentDBClient.Close()
-
-	if !Iterator.Close() {
-		return
+	if Iterator == nil {
+		log.Fatal("Iterator is nil")
+		return false, err
 	}
 
+	defer variable.CurrentDBClient.Close()
+	defer Iterator.Close()
+
 	key := utils.CleanInput(valueEntry.Text)
-	Iterator.First()
-	n := 0
-	for Iterator.Next() {
+	searchFound := false
+
+	if !Iterator.First() {
+		return false, fmt.Errorf("iterator is empty")
+	}
+
+	for Iterator.Valid() {
 
 		if strings.Contains(string(Iterator.Key()), key) {
-			if n == 0 {
-				n++
+			if !searchFound {
 				utils.CheckCondition(rightColumnContent)
-
+				searchFound = true
 			}
 
 			truncatedKey := utils.TruncateString(Iterator.Key(), 20)
@@ -355,10 +333,17 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 			buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 			rightColumnContent.Add(buttonRow)
 		}
+		Iterator.Next()
 	}
+
+	if !searchFound {
+		return false, nil
+	}
+
 	editWindow.Close()
 	variable.NextButton.Disable()
 	variable.PrevButton.Disable()
+	return true, nil
 }
 
 func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {

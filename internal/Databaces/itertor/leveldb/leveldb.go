@@ -41,3 +41,7 @@ func (l *LeveldbModel) Seek(key string) bool {
 	result := l.Iter.Seek([]byte(key))
 	return result
 }
+
+func (l *LeveldbModel) Valid() bool {
+	return l.Iter.Valid()
+}
