@@ -25,6 +25,7 @@ var (
 		"levelDB",
 		"Pebble",
 		"Badger",
+		"Redis",
 	}
 )
 
