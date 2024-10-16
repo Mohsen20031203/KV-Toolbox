@@ -3,6 +3,7 @@ package redisdb
 import (
 	dbpak "testgui/internal/Databaces"
 	"testgui/internal/Databaces/itertor"
+	iterRedis "testgui/internal/Databaces/itertor/Redis"
 )
 
 type RedisDatabase struct {
@@ -44,7 +45,7 @@ func (r *RedisDatabase) Get(key string) (string, error) {
 }
 
 func (r *RedisDatabase) Iterator(start, end *string) itertor.IterDB {
-	return nil
+	return &iterRedis.RedisIter{}
 }
 
 func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
