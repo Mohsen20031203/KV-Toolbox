@@ -162,32 +162,23 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	projectButton := widget.NewButton(inputText, func() {
 		utils.Checkdatabace(path, nameDatabace)
 		variable.PrevButton.Disable()
+		variable.NextButton.Enable()
+		buttonAdd.Enable()
+		variable.FolderPath = path
 		lastPage = 0
 		variable.CurrentPage = 0
-		variable.NextButton.Enable()
 		lastEnd = nil
 		lastStart = nil
 		variable.PageLabel.Text = "Page 1"
-		variable.FolderPath = path
-		HandleProjectSelection(path, rightColumnContentORG, buttonAdd)
-		if nameButtonProject.Text == "" {
-			nameButtonProject.Text = inputText + " - " + nameDatabace
-		} else {
-			nameButtonProject.Text = ""
-			nameButtonProject.Text = inputText + " - " + nameDatabace
-		}
+		UpdatePage(rightColumnContentORG)
+
+		nameButtonProject.Text = ""
+		nameButtonProject.Text = inputText + " - " + nameDatabace
+
 		nameButtonProject.Refresh()
 		variable.PageLabel.Refresh()
 
 	})
-
-	if nameButtonProject.Text == "" {
-		nameButtonProject.Text = inputText + " - " + nameDatabace
-	} else {
-		nameButtonProject.Text = ""
-		nameButtonProject.Text = inputText + " - " + nameDatabace
-	}
-	nameButtonProject.Refresh()
 
 	buttonContainer := container.NewHBox()
 
@@ -214,16 +205,6 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 
 	buttonContainer = container.NewBorder(nil, nil, nil, closeButton, projectButton)
 	return buttonContainer
-}
-
-func HandleProjectSelection(dbPath string, rightColumnContent *fyne.Container, buttonAdd *widget.Button) {
-
-	buttonAdd.Enable()
-	utils.CheckCondition(rightColumnContent)
-
-	//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
-
-	UpdatePage(rightColumnContent)
 }
 
 func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, nameLable string, rightColumnContent *fyne.Container) *TappableLabel {
