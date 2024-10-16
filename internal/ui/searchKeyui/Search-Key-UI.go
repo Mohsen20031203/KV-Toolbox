@@ -5,6 +5,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
@@ -19,7 +20,10 @@ func SearchKeyUi(rightColumnContent *fyne.Container) {
 
 	buttomSearch := widget.NewButton("Search", func() {
 
-		logic.SearchDatabase(valueEntry, editWindow, rightColumnContent)
+		result, _ := logic.SearchDatabase(valueEntry, editWindow, rightColumnContent)
+		if !result {
+			dialog.ShowInformation("Error", "Such a key is not available in the database", editWindow)
+		}
 
 	})
 

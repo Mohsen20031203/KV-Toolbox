@@ -5,6 +5,9 @@ import (
 	"image/color"
 	variable "testgui"
 
+	Filterbadger "testgui/internal/filterdatabase/badger"
+	FilterLeveldb "testgui/internal/filterdatabase/leveldb"
+	Filterpebbledb "testgui/internal/filterdatabase/pebble"
 	"testgui/internal/logic"
 	addkeyui "testgui/internal/ui/addKeyui"
 	"testgui/internal/ui/addProjectwindowui"
@@ -113,6 +116,15 @@ func MainWindow(myApp fyne.App) {
 
 		leveldbButton = widget.NewButton(m, func() {
 			addProjectwindowui.OpenNewWindow(myApp, m, leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd)
+
+			switch m {
+			case "levelDB":
+				variable.NameData = FilterLeveldb.NewFileterLeveldb()
+			case "Pebble":
+				variable.NameData = Filterpebbledb.NewFileterLeveldb()
+			case "Badger":
+				variable.NameData = Filterbadger.NewFileterBadger()
+			}
 		})
 		BottomDatabase = append(BottomDatabase, leveldbButton)
 	}
