@@ -3,7 +3,6 @@ package addProjectwindowui
 import (
 	"fmt"
 	"image/color"
-	"log"
 	"path/filepath"
 	variable "testgui"
 
@@ -111,7 +110,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 		}
 		datajson, err := variable.CurrentJson.Load()
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
 		for _, m := range datajson.RecentProjects {
 			if pathEntry.Text == m.Name {
