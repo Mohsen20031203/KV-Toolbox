@@ -10,7 +10,6 @@ import (
 	Filterpebbledb "testgui/internal/filterdatabase/pebble"
 	"testgui/internal/logic"
 	addkeyui "testgui/internal/ui/addKeyui"
-	"testgui/internal/ui/addProjectwindowui"
 	deletkeyui "testgui/internal/ui/deletKeyUi"
 	searchkeyui "testgui/internal/ui/searchKeyui"
 
@@ -115,7 +114,6 @@ func MainWindow(myApp fyne.App) {
 	for _, m := range variable.NameDatabase {
 
 		leveldbButton = widget.NewButton(m, func() {
-			addProjectwindowui.OpenNewWindow(myApp, m, leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd)
 
 			switch m {
 			case "levelDB":
@@ -125,6 +123,7 @@ func MainWindow(myApp fyne.App) {
 			case "Badger":
 				variable.NameData = Filterbadger.NewFileterBadger()
 			}
+			variable.NameData.FormCreate(myApp, m, leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd)
 		})
 		BottomDatabase = append(BottomDatabase, leveldbButton)
 	}
