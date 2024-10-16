@@ -356,13 +356,13 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	}
 
 	if !searchFound {
-		return true, nil
+		return false, nil
 	}
 
 	editWindow.Close()
 	variable.NextButton.Disable()
 	variable.PrevButton.Disable()
-	return false, nil
+	return true, nil
 }
 
 func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {

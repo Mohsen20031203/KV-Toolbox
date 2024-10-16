@@ -21,7 +21,7 @@ func SearchKeyUi(rightColumnContent *fyne.Container) {
 	buttomSearch := widget.NewButton("Search", func() {
 
 		result, _ := logic.SearchDatabase(valueEntry, editWindow, rightColumnContent)
-		if result {
+		if !result {
 			dialog.ShowInformation("Error", "Such a key is not available in the database", editWindow)
 		}
 
