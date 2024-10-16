@@ -37,7 +37,7 @@ func (b *badgerDatabase) Close() {
 
 func (b *badgerDatabase) Get(key string) (string, error) {
 	var valORG string
-	err := b.db.Update(func(txn *badger.Txn) error {
+	err := b.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(key))
 		if err != nil {
 			return err
