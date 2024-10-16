@@ -122,6 +122,8 @@ func MainWindow(myApp fyne.App) {
 				variable.NameData = Filterpebbledb.NewFileterLeveldb()
 			case "Badger":
 				variable.NameData = Filterbadger.NewFileterBadger()
+			case "Redis":
+
 			}
 			variable.NameData.FormCreate(myApp, m, leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd)
 		})
