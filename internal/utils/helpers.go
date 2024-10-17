@@ -7,6 +7,7 @@ import (
 	"strings"
 	variable "testgui"
 	"testgui/internal/Databaces/PebbleDB"
+	Redisdb "testgui/internal/Databaces/Redis"
 	badgerDB "testgui/internal/Databaces/badger"
 	leveldbb "testgui/internal/Databaces/leveldb"
 
@@ -43,8 +44,10 @@ func Checkdatabace(test string, nameDatabace string) error {
 		variable.CurrentDBClient = PebbleDB.NewDataBasePebble(test)
 	case "Badger":
 		variable.CurrentDBClient = badgerDB.NewDataBaseBadger(test)
-
+	case "Redis":
+		variable.CurrentDBClient = Redisdb.NewDataBaseRedis("127.0.0.1", 6379, "", "")
 	}
+	return nil
 	if _, err := os.Stat(test); os.IsNotExist(err) && !variable.CreatDatabase {
 
 		return err

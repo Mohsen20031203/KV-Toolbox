@@ -8,6 +8,7 @@ import (
 	Filterbadger "testgui/internal/filterdatabase/badger"
 	FilterLeveldb "testgui/internal/filterdatabase/leveldb"
 	Filterpebbledb "testgui/internal/filterdatabase/pebble"
+	Filterredis "testgui/internal/filterdatabase/redis"
 	"testgui/internal/logic"
 	addkeyui "testgui/internal/ui/addKeyui"
 	deletkeyui "testgui/internal/ui/deletKeyUi"
@@ -123,6 +124,8 @@ func MainWindow(myApp fyne.App) {
 			case "Badger":
 				variable.NameData = Filterbadger.NewFileterBadger()
 			case "Redis":
+				variable.NameData = Filterredis.NewFileterRedis()
+			default:
 
 			}
 			variable.NameData.FormCreate(myApp, m, leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd)

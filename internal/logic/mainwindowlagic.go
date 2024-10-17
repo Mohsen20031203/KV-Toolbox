@@ -333,7 +333,9 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 			buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 			rightColumnContent.Add(buttonRow)
 		}
-		Iterator.Next()
+		if !Iterator.Next() {
+			break
+		}
 	}
 
 	if !searchFound {
