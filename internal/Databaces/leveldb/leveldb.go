@@ -20,8 +20,8 @@ func NewDataBaseLeveldb(address string) dbpak.DBClient {
 	}
 }
 
-func (l *LeveldbDatabase) Delete(key string) error {
-	err := l.DB.Delete([]byte(key), nil)
+func (l *LeveldbDatabase) Delete(key []byte) error {
+	err := l.DB.Delete(key, nil)
 	if err != nil {
 		return err
 	}
@@ -38,30 +38,30 @@ func (l *LeveldbDatabase) Close() {
 	l.DB.Close()
 }
 
-func (l *LeveldbDatabase) Add(key, value string) error {
-	return l.DB.Put([]byte(key), []byte(value), nil)
+func (l *LeveldbDatabase) Add(key, value []byte) error {
+	return l.DB.Put(key, value, nil)
 }
 
-func (l *LeveldbDatabase) Get(key string) (string, error) {
+func (l *LeveldbDatabase) Get(key []byte) ([]byte, error) {
 	if l.DB == nil {
-		return "", nil
+		return []byte(""), nil
 	}
-	data, err := l.DB.Get([]byte(key), nil)
+	data, err := l.DB.Get(key, nil)
 	if err != nil {
-		return "", err
+		return []byte(""), err
 	}
-	return string(data), err
+	return data, err
 }
 
-func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
+func (c *LeveldbDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVData) {
 	var Item []dbpak.KVData
 
 	readRange := &util.Range{}
 	if start != nil {
-		readRange.Start = []byte(*start)
+		readRange.Start = *start
 	}
 	if end != nil {
-		readRange.Limit = []byte(*end)
+		readRange.Limit = *end
 	}
 	iter := c.DB.NewIterator(readRange, nil)
 	defer iter.Release()
@@ -69,8 +69,8 @@ func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KV
 	if end != nil && start == nil {
 		iter.Last()
 
-		key := string(iter.Key())
-		value := string(iter.Value())
+		key := iter.Key()
+		value := iter.Value()
 		Item = append(Item, dbpak.KVData{Key: key, Value: value})
 		cnt++
 
@@ -79,8 +79,8 @@ func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KV
 			if cnt > count {
 				break
 			}
-			key := string(iter.Key())
-			value := string(iter.Value())
+			key := iter.Key()
+			value := iter.Value()
 			Item = append(Item, dbpak.KVData{Key: key, Value: value})
 		}
 		//reverse items
@@ -100,8 +100,8 @@ func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KV
 			if cnt > count {
 				break
 			}
-			key := string(iter.Key())
-			value := string(iter.Value())
+			key := iter.Key()
+			value := iter.Value()
 			Item = append(Item, dbpak.KVData{Key: key, Value: value})
 		}
 	}
@@ -109,14 +109,14 @@ func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KV
 	return nil, Item
 }
 
-func (l *LeveldbDatabase) Iterator(start, end *string) itertor.IterDB {
+func (l *LeveldbDatabase) Iterator(start, end *[]byte) itertor.IterDB {
 	readRange := &util.Range{}
 
 	if start != nil {
-		readRange.Start = []byte(*start)
+		readRange.Start = *start
 	}
 	if end != nil {
-		readRange.Limit = []byte(*end)
+		readRange.Limit = *end
 	}
 	Iter2 := l.DB.NewIterator(readRange, nil)
 	return &iterleveldb.LeveldbModel{

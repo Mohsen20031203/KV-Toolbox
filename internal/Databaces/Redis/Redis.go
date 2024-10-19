@@ -15,12 +15,12 @@ type RedisDatabase struct {
 	client   *redis.Client
 	ctx      context.Context
 	Host     string
-	Port     int
+	Port     string
 	Username string
 	Password string
 }
 
-func NewDataBaseRedis(host string, port int, username string, password string) dbpak.DBClient {
+func NewDataBaseRedis(host string, port string, username string, password string) dbpak.DBClient {
 
 	return &RedisDatabase{
 		Host:     host,
@@ -31,7 +31,7 @@ func NewDataBaseRedis(host string, port int, username string, password string) d
 }
 
 func (r *RedisDatabase) Open() error {
-	addr := fmt.Sprintf("%s:%d", r.Host, r.Port)
+	addr := fmt.Sprintf("%s:%s", r.Host, r.Port)
 
 	r.client = redis.NewClient(&redis.Options{
 		Addr:     addr,
@@ -44,21 +44,22 @@ func (r *RedisDatabase) Open() error {
 	return err
 }
 
-func (r *RedisDatabase) Add(key string, value string) error {
-	return r.client.Set(r.ctx, key, value, 0).Err()
+func (r *RedisDatabase) Add(key, value []byte) error {
+	return r.client.Set(r.ctx, string(key), value, 0).Err()
 }
 
 func (r *RedisDatabase) Close() {}
 
-func (r *RedisDatabase) Delete(key string) error {
-	return r.client.Del(r.ctx, key).Err()
+func (r *RedisDatabase) Delete(key []byte) error {
+	return r.client.Del(r.ctx, string(key)).Err()
 }
 
-func (r *RedisDatabase) Get(key string) (string, error) {
-	return r.client.Get(r.ctx, key).Result()
+func (r *RedisDatabase) Get(key []byte) ([]byte, error) {
+	result, err := r.client.Get(r.ctx, string(key)).Result()
+	return []byte(result), err
 }
 
-func (r *RedisDatabase) Iterator(start, end *string) itertor.IterDB {
+func (r *RedisDatabase) Iterator(start, end *[]byte) itertor.IterDB {
 
 	return &iterRedis.RedisIter{
 		Ctxx:       r.ctx,
@@ -67,14 +68,13 @@ func (r *RedisDatabase) Iterator(start, end *string) itertor.IterDB {
 	}
 }
 
-func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
+func (r *RedisDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVData) {
 	var Item []dbpak.KVData
 	var cursor uint64
 	cnt := 0
 
-	// حالت پیمایش معکوس (reverse)
 	if end != nil && start == nil {
-		// پیمایش از انتها به ابتدا (با فرض این که از یک Sorted Set استفاده کنید)
+
 		keys, err := r.client.ZRevRange(r.ctx, "your_sorted_set_key", 0, int64(count-1)).Result()
 		if err != nil {
 			log.Fatalf("خطا در دریافت کلیدها: %v", err)
@@ -85,20 +85,19 @@ func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVDa
 			if err != nil {
 				log.Fatalf("خطا در دریافت مقدار: %v", err)
 			}
-			Item = append(Item, dbpak.KVData{Key: key, Value: value})
+			Item = append(Item, dbpak.KVData{Key: []byte(key), Value: []byte(value)})
 			cnt++
 			if cnt >= count {
 				break
 			}
 		}
 
-		// معکوس کردن آرایه
 		for i := 0; i < len(Item)/2; i++ {
 			j := len(Item) - i - 1
 			Item[i], Item[j] = Item[j], Item[i]
 		}
 	} else {
-		// پیمایش عادی با SCAN
+
 		for {
 			keys, newCursor, err := r.client.Scan(r.ctx, cursor, "*", int64(count)).Result()
 			if err != nil {
@@ -111,7 +110,7 @@ func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVDa
 				if err != nil {
 					log.Fatalf("خطا در دریافت مقدار: %v", err)
 				}
-				Item = append(Item, dbpak.KVData{Key: key, Value: value})
+				Item = append(Item, dbpak.KVData{Key: []byte(key), Value: []byte(value)})
 				cnt++
 				if cnt >= count {
 					break

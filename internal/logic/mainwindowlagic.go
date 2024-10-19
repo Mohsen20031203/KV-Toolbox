@@ -53,8 +53,8 @@ func SetupThemeButtons(app fyne.App) *fyne.Container {
 }
 
 var (
-	lastStart       *string
-	lastEnd         *string
+	lastStart       *[]byte
+	lastEnd         *[]byte
 	lastPage        uint8
 	currentData     []dbpak.KVData
 	lastcurrentData []dbpak.KVData
@@ -143,11 +143,11 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		}
 		number++
 
-		truncatedKey := utils.TruncateString(item.Key, 20)
-		truncatedValue := utils.TruncateString(item.Value, 50)
+		truncatedKey := utils.TruncateString(string(item.Key), 20)
+		truncatedValue := utils.TruncateString(string(item.Value), 50)
 
-		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, rightColumnContent)
-		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, rightColumnContent)
+		valueLabel := BuidLableKeyAndValue("value", string(item.Key), string(item.Value), truncatedValue, rightColumnContent)
+		keyLabel := BuidLableKeyAndValue("key", string(item.Key), string(item.Value), truncatedKey, rightColumnContent)
 
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
@@ -242,7 +242,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			defer variable.CurrentDBClient.Close()
 
 			if eidtKeyAbdValue == "value" {
-				err := variable.CurrentDBClient.Add(key, valueEntry.Text)
+				err := variable.CurrentDBClient.Add([]byte(key), []byte(valueEntry.Text))
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -250,18 +250,18 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 
 			} else {
 
-				valueBefor, err := variable.CurrentDBClient.Get(key)
+				valueBefor, err := variable.CurrentDBClient.Get([]byte(key))
 				if err != nil {
 					return
 				}
-				err = variable.CurrentDBClient.Delete(key)
+				err = variable.CurrentDBClient.Delete([]byte(key))
 				if err != nil {
 					return
 				}
 
 				key = utils.CleanInput(valueEntry.Text)
 
-				err = variable.CurrentDBClient.Add(key, valueBefor)
+				err = variable.CurrentDBClient.Add([]byte(key), valueBefor)
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -354,10 +354,10 @@ func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	key := utils.CleanInput(valueEntry.Text)
 
 	valueSearch, err := QueryKey(valueEntry)
-	if valueSearch == "" && err != nil {
+	if valueSearch == nil && err != nil {
 		dialog.ShowInformation("Error", "This key does not exist in the database", editWindow)
 	} else {
-		err = variable.CurrentDBClient.Delete(key)
+		err = variable.CurrentDBClient.Delete([]byte(key))
 		if err != nil {
 			log.Fatal("this err for func DeletKeyLogic part else delete || err : ", err)
 			return
@@ -376,11 +376,11 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 	defer variable.CurrentDBClient.Close()
 
 	checkNow, err := QueryKey(iputKey)
-	if checkNow != "" || err == nil {
+	if checkNow != nil || err == nil {
 		dialog.ShowInformation("Error", "This key has already been added to your database", windowAdd)
 
 	} else {
-		err = variable.CurrentDBClient.Add(key, value)
+		err = variable.CurrentDBClient.Add([]byte(key), []byte(value))
 		if err != nil {
 			log.Fatal("error : this error in func addkeylogic for add key in database")
 		}
@@ -391,16 +391,16 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 	}
 }
 
-func QueryKey(iputKey *widget.Entry) (string, error) {
+func QueryKey(iputKey *widget.Entry) ([]byte, error) {
 	var err error
 
 	key := utils.CleanInput(iputKey.Text)
 
 	err = variable.CurrentDBClient.Open()
 	if err != nil {
-		return "", err
+		return []byte(""), err
 	}
-	checkNow, err := variable.CurrentDBClient.Get(key)
+	checkNow, err := variable.CurrentDBClient.Get([]byte(key))
 	if err != nil {
 		fmt.Println("error : delete func logic for get key in databace")
 	}

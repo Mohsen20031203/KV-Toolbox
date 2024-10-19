@@ -78,7 +78,8 @@ func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnConte
 		}
 
 		var addButton bool
-		err = logic.HandleButtonClick("", title)
+		path := fmt.Sprintf("%s|-|%s|-|%s|-|%s", pathEntry.Text, pathEntryport.Text, pathEntryUsername.Text, pathEntryPassword.Text)
+		err = logic.HandleButtonClick(path, title)
 		if err == nil {
 
 			err, addButton = variable.CurrentJson.Add("", pathEntry.Text, pathEntryport.Text, newWindow, title)
@@ -91,7 +92,8 @@ func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnConte
 
 				utils.CheckCondition(rightColumnContentORG)
 
-				buttonContainer := logic.ProjectButton(pathEntry.Text, lastColumnContent, "", rightColumnContentORG, nameButtonProject, buttonAdd, title)
+				path := fmt.Sprintf("%s|-|%s|-|%s|-|%s", pathEntry.Text, pathEntryport.Text, pathEntryUsername.Text, pathEntryPassword.Text)
+				buttonContainer := logic.ProjectButton(path, lastColumnContent, "", rightColumnContentORG, nameButtonProject, buttonAdd, title)
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 
