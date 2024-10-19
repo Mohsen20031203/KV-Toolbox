@@ -5,16 +5,16 @@ import (
 )
 
 type KVData struct {
-	Key   []byte
-	Value []byte
+	Key   string
+	Value string
 }
 
 type DBClient interface {
 	Open() error
 	Close()
-	Add(key, value []byte) error
-	Get(key []byte) ([]byte, error)
-	Read(start, end *[]byte, count int) (error, []KVData)
-	Delete(key []byte) error
-	Iterator(start, end *[]byte) itertor.IterDB
+	Add(key, value string) error
+	Get(key string) (string, error)
+	Read(start, end *string, count int) (error, []KVData)
+	Delete(key string) error
+	Iterator(start, end *string) itertor.IterDB
 }

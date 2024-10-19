@@ -12,3 +12,4 @@ MANIFEST-*
 *.json
 test
 cmd/myapp/__debug_bin
+text.txt

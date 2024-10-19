@@ -25,9 +25,9 @@ func (b *badgerDatabase) Open() error {
 	return err
 }
 
-func (b *badgerDatabase) Add(key, value []byte) error {
+func (b *badgerDatabase) Add(key, value string) error {
 	return b.db.Update(func(txn *badger.Txn) error {
-		return txn.Set(key, value)
+		return txn.Set([]byte(key), []byte(value))
 	})
 }
 
@@ -35,10 +35,10 @@ func (b *badgerDatabase) Close() {
 	b.db.Close()
 }
 
-func (b *badgerDatabase) Get(key []byte) ([]byte, error) {
+func (b *badgerDatabase) Get(key string) (string, error) {
 	var valORG []byte
 	err := b.db.View(func(txn *badger.Txn) error {
-		item, err := txn.Get(key)
+		item, err := txn.Get([]byte(key))
 		if err != nil {
 			return err
 		}
@@ -49,12 +49,12 @@ func (b *badgerDatabase) Get(key []byte) ([]byte, error) {
 		valORG = val
 		return nil
 	})
-	return valORG, err
+	return string(valORG), err
 }
 
-func (b *badgerDatabase) Delete(key []byte) error {
+func (b *badgerDatabase) Delete(key string) error {
 	b.db.Update(func(txn *badger.Txn) error {
-		err := txn.Delete(key)
+		err := txn.Delete([]byte(key))
 		if err != nil {
 			return err
 		}
@@ -63,7 +63,7 @@ func (b *badgerDatabase) Delete(key []byte) error {
 	return nil
 }
 
-func (c *badgerDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVData) {
+func (c *badgerDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
 	var items []dbpak.KVData
 	var opts badger.IteratorOptions
 	opts.PrefetchSize = count
@@ -79,7 +79,7 @@ func (c *badgerDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVD
 		cnt := 0
 
 		if end != nil && start == nil {
-			iter.Seek(*end)
+			iter.Seek([]byte(*end))
 			iter.Next()
 			item := iter.Item()
 			key := item.Key()
@@ -96,7 +96,7 @@ func (c *badgerDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVD
 					return err
 				}
 
-				items = append(items, dbpak.KVData{Key: key, Value: valCopy})
+				items = append(items, dbpak.KVData{Key: string(key), Value: string(valCopy)})
 			}
 
 			for i := 0; i < len(items)/2; i++ {
@@ -108,7 +108,7 @@ func (c *badgerDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVD
 		} else {
 
 			if start != nil {
-				iter.Seek(*start)
+				iter.Seek([]byte(*start))
 				iter.Next()
 			} else {
 
@@ -128,7 +128,7 @@ func (c *badgerDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVD
 					return err
 				}
 
-				items = append(items, dbpak.KVData{Key: key, Value: valCopy})
+				items = append(items, dbpak.KVData{Key: string(key), Value: string(valCopy)})
 			}
 		}
 		return nil
@@ -140,7 +140,7 @@ func (c *badgerDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVD
 	return nil, items
 }
 
-func (b *badgerDatabase) Iterator(start, end *[]byte) itertor.IterDB {
+func (b *badgerDatabase) Iterator(start, end *string) itertor.IterDB {
 	var it *badger.Iterator
 	var opts badger.IteratorOptions
 

@@ -44,22 +44,21 @@ func (r *RedisDatabase) Open() error {
 	return err
 }
 
-func (r *RedisDatabase) Add(key, value []byte) error {
-	return r.client.Set(r.ctx, string(key), value, 0).Err()
+func (r *RedisDatabase) Add(key, value string) error {
+	return r.client.Set(r.ctx, key, value, 0).Err()
 }
 
 func (r *RedisDatabase) Close() {}
 
-func (r *RedisDatabase) Delete(key []byte) error {
-	return r.client.Del(r.ctx, string(key)).Err()
+func (r *RedisDatabase) Delete(key string) error {
+	return r.client.Del(r.ctx, key).Err()
 }
 
-func (r *RedisDatabase) Get(key []byte) ([]byte, error) {
-	result, err := r.client.Get(r.ctx, string(key)).Result()
-	return []byte(result), err
+func (r *RedisDatabase) Get(key string) (string, error) {
+	return r.client.Get(r.ctx, string(key)).Result()
 }
 
-func (r *RedisDatabase) Iterator(start, end *[]byte) itertor.IterDB {
+func (r *RedisDatabase) Iterator(start, end *string) itertor.IterDB {
 
 	return &iterRedis.RedisIter{
 		Ctxx:       r.ctx,
@@ -68,7 +67,7 @@ func (r *RedisDatabase) Iterator(start, end *[]byte) itertor.IterDB {
 	}
 }
 
-func (r *RedisDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVData) {
+func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
 	var Item []dbpak.KVData
 	var cursor uint64
 	cnt := 0
@@ -85,7 +84,7 @@ func (r *RedisDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVDa
 			if err != nil {
 				log.Fatalf("خطا در دریافت مقدار: %v", err)
 			}
-			Item = append(Item, dbpak.KVData{Key: []byte(key), Value: []byte(value)})
+			Item = append(Item, dbpak.KVData{Key: key, Value: value})
 			cnt++
 			if cnt >= count {
 				break
@@ -110,7 +109,7 @@ func (r *RedisDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVDa
 				if err != nil {
 					log.Fatalf("خطا در دریافت مقدار: %v", err)
 				}
-				Item = append(Item, dbpak.KVData{Key: []byte(key), Value: []byte(value)})
+				Item = append(Item, dbpak.KVData{Key: key, Value: value})
 				cnt++
 				if cnt >= count {
 					break

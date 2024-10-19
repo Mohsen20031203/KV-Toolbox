@@ -53,8 +53,8 @@ func SetupThemeButtons(app fyne.App) *fyne.Container {
 }
 
 var (
-	lastStart       *[]byte
-	lastEnd         *[]byte
+	lastStart       *string
+	lastEnd         *string
 	lastPage        uint8
 	currentData     []dbpak.KVData
 	lastcurrentData []dbpak.KVData
@@ -242,7 +242,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			defer variable.CurrentDBClient.Close()
 
 			if eidtKeyAbdValue == "value" {
-				err := variable.CurrentDBClient.Add([]byte(key), []byte(valueEntry.Text))
+				err := variable.CurrentDBClient.Add(key, valueEntry.Text)
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -250,18 +250,18 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 
 			} else {
 
-				valueBefor, err := variable.CurrentDBClient.Get([]byte(key))
+				valueBefor, err := variable.CurrentDBClient.Get(key)
 				if err != nil {
 					return
 				}
-				err = variable.CurrentDBClient.Delete([]byte(key))
+				err = variable.CurrentDBClient.Delete(key)
 				if err != nil {
 					return
 				}
 
 				key = utils.CleanInput(valueEntry.Text)
 
-				err = variable.CurrentDBClient.Add([]byte(key), valueBefor)
+				err = variable.CurrentDBClient.Add(key, valueBefor)
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -357,7 +357,7 @@ func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	if valueSearch == nil && err != nil {
 		dialog.ShowInformation("Error", "This key does not exist in the database", editWindow)
 	} else {
-		err = variable.CurrentDBClient.Delete([]byte(key))
+		err = variable.CurrentDBClient.Delete(key)
 		if err != nil {
 			log.Fatal("this err for func DeletKeyLogic part else delete || err : ", err)
 			return
@@ -380,7 +380,7 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 		dialog.ShowInformation("Error", "This key has already been added to your database", windowAdd)
 
 	} else {
-		err = variable.CurrentDBClient.Add([]byte(key), []byte(value))
+		err = variable.CurrentDBClient.Add(key, value)
 		if err != nil {
 			log.Fatal("error : this error in func addkeylogic for add key in database")
 		}
@@ -398,11 +398,11 @@ func QueryKey(iputKey *widget.Entry) ([]byte, error) {
 
 	err = variable.CurrentDBClient.Open()
 	if err != nil {
-		return []byte(""), err
+		return nil, err
 	}
-	checkNow, err := variable.CurrentDBClient.Get([]byte(key))
+	checkNow, err := variable.CurrentDBClient.Get(key)
 	if err != nil {
 		fmt.Println("error : delete func logic for get key in databace")
 	}
-	return checkNow, err
+	return []byte(checkNow), err
 }
