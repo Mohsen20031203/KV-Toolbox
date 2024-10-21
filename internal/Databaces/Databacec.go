@@ -1,9 +1,5 @@
 package dbpak
 
-import (
-	"testgui/internal/Databaces/itertor"
-)
-
 type KVData struct {
 	Key   string
 	Value string
@@ -16,5 +12,5 @@ type DBClient interface {
 	Get(key string) (string, error)
 	Read(start, end *string, count int) (error, []KVData)
 	Delete(key string) error
-	Iterator(start, end *string) itertor.IterDB
+	Search(value string) (error, []string)
 }

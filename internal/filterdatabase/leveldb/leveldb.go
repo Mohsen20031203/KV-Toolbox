@@ -136,6 +136,14 @@ func (l *NameDatabaseLeveldb) FormCreate(a fyne.App, title string, lastColumnCon
 	})
 
 	buttonOk := widget.NewButton("Add", func() {
+		data := map[string]string{
+			"Name":     pathEntry.Text,
+			"Comment":  pathEntryComment.Text,
+			"Addres":   pathEntry2.Text,
+			"Database": title,
+			"Username": "",
+			"Password": "",
+		}
 		if pathEntry.Text == "" {
 			dialog.ShowInformation("Error ", "Please fill in the name field", newWindow)
 			return
@@ -155,7 +163,7 @@ func (l *NameDatabaseLeveldb) FormCreate(a fyne.App, title string, lastColumnCon
 		err = logic.HandleButtonClick(pathEntry2.Text, title)
 		if err == nil {
 
-			err, addButton = variable.CurrentJson.Add(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow, title)
+			err, addButton = variable.CurrentJson.Add(data, newWindow, title)
 		}
 
 		if err != nil {

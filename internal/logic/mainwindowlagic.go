@@ -29,7 +29,9 @@ func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *w
 		println("Error loading JSON data:", err)
 	} else {
 		for _, project := range jsonDataa.RecentProjects {
-			buttonContainer := ProjectButton(project.Name, lastColumnContent, project.FileAddress, rightColumnContentORG, nameButtonProject, buttonAdd, project.Databace)
+			path := fmt.Sprintf("%s|-|%s|-|%s", project.FileAddress, project.Username, project.Password)
+
+			buttonContainer := ProjectButton(project.Name, lastColumnContent, path, rightColumnContentORG, nameButtonProject, buttonAdd, project.Databace)
 			lastColumnContent.Add(buttonContainer)
 		}
 	}
@@ -160,11 +162,13 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 
 func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string) *fyne.Container {
 	projectButton := widget.NewButton(inputText, func() {
+		parts := strings.Split(path, "|-|")
+
 		utils.Checkdatabace(path, nameDatabace)
 		variable.PrevButton.Disable()
 		variable.NextButton.Enable()
 		buttonAdd.Enable()
-		variable.FolderPath = path
+		variable.FolderPath = parts[0]
 		lastPage = 0
 		variable.CurrentPage = 0
 		lastEnd = nil
@@ -301,45 +305,32 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	if err != nil {
 		return false, err
 	}
-	Iterator := variable.CurrentDBClient.Iterator(nil, nil)
-	if Iterator == nil {
-		log.Fatal("Iterator is nil")
+
+	key := utils.CleanInput(valueEntry.Text)
+	err, data := variable.CurrentDBClient.Search(key)
+	if err != nil {
 		return false, err
 	}
 
 	defer variable.CurrentDBClient.Close()
-	defer Iterator.Close()
 
-	key := utils.CleanInput(valueEntry.Text)
-	searchFound := false
-
-	if !Iterator.First() {
-		return false, fmt.Errorf("iterator is empty")
+	if len(data) == 0 {
+		return false, err
 	}
+	utils.CheckCondition(rightColumnContent)
+	for _, item := range data {
 
-	for Iterator.Valid() {
-
-		if strings.Contains(string(Iterator.Key()), key) {
-			if !searchFound {
-				utils.CheckCondition(rightColumnContent)
-				searchFound = true
-			}
-
-			truncatedKey := utils.TruncateString(Iterator.Key(), 20)
-			truncatedValue := utils.TruncateString(Iterator.Value(), 50)
-
-			valueLabel := BuidLableKeyAndValue("value", Iterator.Key(), Iterator.Value(), truncatedValue, rightColumnContent)
-			keyLabel := BuidLableKeyAndValue("key", Iterator.Key(), Iterator.Value(), truncatedKey, rightColumnContent)
-			buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
-			rightColumnContent.Add(buttonRow)
+		value, err := variable.CurrentDBClient.Get(item)
+		if err != nil {
+			return false, err
 		}
-		if !Iterator.Next() {
-			break
-		}
-	}
+		truncatedKey := utils.TruncateString(item, 20)
+		truncatedValue := utils.TruncateString(value, 50)
 
-	if !searchFound {
-		return false, nil
+		valueLabel := BuidLableKeyAndValue("value", item, value, truncatedValue, rightColumnContent)
+		keyLabel := BuidLableKeyAndValue("key", item, value, truncatedKey, rightColumnContent)
+		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
+		rightColumnContent.Add(buttonRow)
 	}
 
 	editWindow.Close()

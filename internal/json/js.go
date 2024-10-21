@@ -15,12 +15,14 @@ type Project struct {
 	Comment     string `json:"comment"`
 	FileAddress string `json:"fileAddress"`
 	Databace    string `json:"databace"`
+	Username    string `json:"username"`
+	Password    string `json:"password"`
 }
 
 type JsonFile interface {
 	Open() (*os.File, error)
 	Read(state *JsonInformation) error
-	Add(path string, name string, comment string, window fyne.Window, nameDatabace string) (error, bool)
+	Add(dataINF map[string]string, window fyne.Window, nameDatabace string) (error, bool)
 	Remove(projectName string) error
 	Load() (JsonInformation, error)
 	Write(state interface{}) error

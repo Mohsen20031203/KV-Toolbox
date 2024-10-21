@@ -1,10 +1,11 @@
 package PebbleDB
 
 import (
-	"log"
+	"fmt"
+	"strings"
 	dbpak "testgui/internal/Databaces"
-	"testgui/internal/Databaces/itertor"
-	iterPebble "testgui/internal/Databaces/itertor/pebble"
+	jsFile "testgui/internal/json"
+	jsondata "testgui/internal/json/jsonData"
 
 	"github.com/cockroachdb/pebble"
 )
@@ -125,22 +126,35 @@ func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 	return nil, Item
 }
 
-func (p *PebbleDatabase) Iterator(start, end *string) itertor.IterDB {
+func (l *PebbleDatabase) Search(valueEntry string) (error, []string) {
+	var data []string
 
-	iterOptions := &pebble.IterOptions{}
-
-	if start != nil {
-		iterOptions.LowerBound = []byte(*start)
-	}
-	if end != nil {
-		iterOptions.UpperBound = []byte(*start)
-	}
-
-	Iter2, err := p.DB.NewIter(iterOptions)
+	Iterator, err := l.DB.NewIter(nil)
 	if err != nil {
-		log.Fatal("err in iter pebble")
+		return err, data
 	}
-	return &iterPebble.PebbleIter{
-		Iter: Iter2,
+
+	defer l.Close()
+
+	if !Iterator.First() {
+		return fmt.Errorf("iterator is empty"), data
 	}
+
+	for Iterator.Valid() {
+
+		if strings.Contains(string(Iterator.Key()), valueEntry) {
+
+			data = append(data, string(Iterator.Key()))
+
+		}
+		if !Iterator.Next() {
+			break
+		}
+	}
+
+	return nil, data
+}
+
+func (l *PebbleDatabase) Jsondatabase() jsFile.JsonFile {
+	return &jsondata.ConstantJsonFile{}
 }

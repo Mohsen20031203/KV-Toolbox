@@ -1,9 +1,10 @@
 package badgerDB
 
 import (
+	"strings"
 	dbpak "testgui/internal/Databaces"
-	"testgui/internal/Databaces/itertor"
-	iterbadger "testgui/internal/Databaces/itertor/badger"
+	jsFile "testgui/internal/json"
+	jsondata "testgui/internal/json/jsonData"
 
 	"github.com/dgraph-io/badger/v4"
 )
@@ -140,21 +141,33 @@ func (c *badgerDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 	return nil, items
 }
 
-func (b *badgerDatabase) Iterator(start, end *string) itertor.IterDB {
-	var it *badger.Iterator
+func (l *badgerDatabase) Search(valueEntry string) (error, []string) {
+	var data []string
 	var opts badger.IteratorOptions
 
-	err := b.db.View(func(txn *badger.Txn) error {
-		it = txn.NewIterator(opts)
-		defer it.Close()
+	err := l.db.View(func(txn *badger.Txn) error {
+		Iterator := txn.NewIterator(opts)
 
+		Iterator.Rewind()
+
+		for Iterator.Valid() {
+
+			if strings.Contains(string(Iterator.Item().Key()), valueEntry) {
+
+				data = append(data, string(Iterator.Item().Key()))
+
+			}
+			Iterator.Next()
+		}
 		return nil
 	})
 	if err != nil {
-		return nil
+		return err, data
 	}
-	return &iterbadger.BadgerModel{
-		Iter: it,
-		Opts: &opts,
-	}
+	return nil, data
+
+}
+
+func (l *badgerDatabase) Jsondatabase() jsFile.JsonFile {
+	return &jsondata.ConstantJsonFile{}
 }

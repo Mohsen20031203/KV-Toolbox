@@ -2,11 +2,9 @@ package Redisdb
 
 import (
 	"context"
-	"fmt"
 	"log"
+	"strings"
 	dbpak "testgui/internal/Databaces"
-	"testgui/internal/Databaces/itertor"
-	iterRedis "testgui/internal/Databaces/itertor/Redis"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -14,27 +12,24 @@ import (
 type RedisDatabase struct {
 	client   *redis.Client
 	ctx      context.Context
-	Host     string
-	Port     string
+	Addres   string
 	Username string
 	Password string
 }
 
-func NewDataBaseRedis(host string, port string, username string, password string) dbpak.DBClient {
+func NewDataBaseRedis(addres string, username string, password string) dbpak.DBClient {
 
 	return &RedisDatabase{
-		Host:     host,
-		Port:     port,
+		Addres:   addres,
 		Username: username,
 		Password: password,
 	}
 }
 
 func (r *RedisDatabase) Open() error {
-	addr := fmt.Sprintf("%s:%s", r.Host, r.Port)
 
 	r.client = redis.NewClient(&redis.Options{
-		Addr:     addr,
+		Addr:     r.Addres,
 		Username: r.Username,
 		Password: r.Password,
 	})
@@ -58,15 +53,6 @@ func (r *RedisDatabase) Get(key string) (string, error) {
 	return r.client.Get(r.ctx, string(key)).Result()
 }
 
-func (r *RedisDatabase) Iterator(start, end *string) itertor.IterDB {
-
-	return &iterRedis.RedisIter{
-		Ctxx:       r.ctx,
-		ClientIter: r.client,
-		Cursor:     0,
-	}
-}
-
 func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
 	var Item []dbpak.KVData
 	var cursor uint64
@@ -76,7 +62,7 @@ func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVDa
 
 		keys, err := r.client.ZRevRange(r.ctx, "your_sorted_set_key", 0, int64(count-1)).Result()
 		if err != nil {
-			log.Fatalf("خطا در دریافت کلیدها: %v", err)
+			log.Fatalf("er %v", err)
 		}
 
 		for _, key := range keys {
@@ -124,4 +110,31 @@ func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVDa
 	}
 
 	return nil, Item
+}
+
+func (l *RedisDatabase) Search(valueEntry string) (error, []string) {
+	var data []string
+	var cursorOP uint64
+	for {
+
+		keys, cursor, err := l.client.Scan(l.ctx, cursorOP, valueEntry, 10).Result()
+		if err != nil {
+			return err, data
+		}
+
+		for _, item := range keys {
+
+			if strings.Contains(item, valueEntry) {
+
+				data = append(data, item)
+
+			}
+		}
+		cursorOP = cursor
+		if cursorOP == 0 {
+			break
+		}
+	}
+
+	return nil, data
 }

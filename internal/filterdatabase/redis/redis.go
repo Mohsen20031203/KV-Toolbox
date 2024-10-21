@@ -38,15 +38,20 @@ func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnConte
 	}
 	line1 := createSeparator()
 
-	lableHost := widget.NewLabel("Host :")
-	pathEntry := widget.NewEntry()
-	pathEntry.PlaceHolder = "Host"
-	nameContent := container.NewBorder(nil, nil, lableHost, nil, pathEntry)
+	lableName := widget.NewLabel("Name :")
+	pathEntryName := widget.NewEntry()
+	pathEntryName.PlaceHolder = "Name"
+	nameContent := container.NewBorder(nil, nil, lableName, nil, pathEntryName)
 
-	lablePort := widget.NewLabel("Port :")
-	pathEntryport := widget.NewEntry()
-	pathEntryport.PlaceHolder = "Port"
-	pornContent := container.NewBorder(nil, nil, lablePort, nil, pathEntryport)
+	lableComment := widget.NewLabel("Comment :")
+	pathEntryComment := widget.NewEntry()
+	pathEntryComment.PlaceHolder = "Comment"
+	commentContent := container.NewBorder(nil, nil, lableComment, nil, pathEntryComment)
+
+	lableHost := widget.NewLabel("Addres :")
+	pathEntry := widget.NewEntry()
+	pathEntry.PlaceHolder = "Addres"
+	HostContent := container.NewBorder(nil, nil, lableHost, nil, pathEntry)
 
 	lableUsername := widget.NewLabel("Username :")
 	pathEntryUsername := widget.NewEntry()
@@ -66,6 +71,14 @@ func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnConte
 	})
 
 	buttonOk := widget.NewButton("Add", func() {
+		data := map[string]string{
+			"Name":     pathEntryName.Text,
+			"Comment":  pathEntryComment.Text,
+			"Addres":   pathEntry.Text,
+			"Database": title,
+			"Username": pathEntryUsername.Text,
+			"Password": pathEntryPassword.Text,
+		}
 		datajson, err := variable.CurrentJson.Load()
 		if err != nil {
 			fmt.Println("error ", err)
@@ -77,12 +90,13 @@ func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnConte
 			}
 		}
 
+		path := fmt.Sprintf("%s|-|%s|-|%s", data["Addres"], data["Username"], data["Password"])
+
 		var addButton bool
-		path := fmt.Sprintf("%s|-|%s|-|%s|-|%s", pathEntry.Text, pathEntryport.Text, pathEntryUsername.Text, pathEntryPassword.Text)
 		err = logic.HandleButtonClick(path, title)
 		if err == nil {
 
-			err, addButton = variable.CurrentJson.Add("", pathEntry.Text, pathEntryport.Text, newWindow, title)
+			err, addButton = variable.CurrentJson.Add(data, newWindow, title)
 		}
 
 		if err != nil {
@@ -92,8 +106,7 @@ func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnConte
 
 				utils.CheckCondition(rightColumnContentORG)
 
-				path := fmt.Sprintf("%s|-|%s|-|%s|-|%s", pathEntry.Text, pathEntryport.Text, pathEntryUsername.Text, pathEntryPassword.Text)
-				buttonContainer := logic.ProjectButton(path, lastColumnContent, "", rightColumnContentORG, nameButtonProject, buttonAdd, title)
+				buttonContainer := logic.ProjectButton(data["Name"], lastColumnContent, path, rightColumnContentORG, nameButtonProject, buttonAdd, title)
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 
@@ -112,7 +125,9 @@ func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnConte
 		layout.NewSpacer(),
 		nameContent,
 		layout.NewSpacer(),
-		pornContent,
+		commentContent,
+		layout.NewSpacer(),
+		HostContent,
 		layout.NewSpacer(),
 		usernameContent,
 		layout.NewSpacer(),

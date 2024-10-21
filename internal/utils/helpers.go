@@ -36,23 +36,26 @@ func CheckCondition(rightColumnContent *fyne.Container) {
 }
 
 func Checkdatabace(test string, nameDatabace string) error {
+	parts := strings.Split(test, "|-|")
 
 	switch nameDatabace {
 	case "levelDB":
-		variable.CurrentDBClient = leveldbb.NewDataBaseLeveldb(test)
+		variable.CurrentDBClient = leveldbb.NewDataBaseLeveldb(parts[0])
 	case "Pebble":
-		variable.CurrentDBClient = PebbleDB.NewDataBasePebble(test)
+		variable.CurrentDBClient = PebbleDB.NewDataBasePebble(parts[0])
 	case "Badger":
-		variable.CurrentDBClient = badgerDB.NewDataBaseBadger(test)
+		variable.CurrentDBClient = badgerDB.NewDataBaseBadger(parts[0])
 	case "Redis":
-		parts := strings.Split(test, "|-|")
 
-		variable.CurrentDBClient = Redisdb.NewDataBaseRedis(parts[0], parts[1], parts[2], parts[3])
+		variable.CurrentDBClient = Redisdb.NewDataBaseRedis(parts[0], parts[1], parts[2])
 	}
-	return nil
-	if _, err := os.Stat(test); os.IsNotExist(err) && !variable.CreatDatabase {
 
-		return err
+	if nameDatabace != "Redis" {
+
+		if _, err := os.Stat(test); os.IsNotExist(err) && !variable.CreatDatabase {
+
+			return err
+		}
 	}
 
 	return nil

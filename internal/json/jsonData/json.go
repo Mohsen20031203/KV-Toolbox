@@ -20,9 +20,8 @@ func NewDataBase() jsFile.JsonFile {
 		nameFile: "data.json",
 	}
 }
-
 func (j *ConstantJsonFile) Open() (*os.File, error) {
-	return os.OpenFile(j.nameFile, os.O_RDWR|os.O_CREATE, 0644)
+	return os.OpenFile("data.json", os.O_RDWR|os.O_CREATE, 0644)
 }
 
 func (j *ConstantJsonFile) Read(state *jsFile.JsonInformation) error {
@@ -55,7 +54,7 @@ func (j *ConstantJsonFile) Write(state interface{}) error {
 	return encoder.Encode(&state)
 }
 
-func (j *ConstantJsonFile) Add(path string, nameProject string, commentProject string, window fyne.Window, nameDatabace string) (error, bool) {
+func (j *ConstantJsonFile) Add(data map[string]string, window fyne.Window, nameDatabace string) (error, bool) {
 	var state jsFile.JsonInformation
 
 	err := j.Read(&state)
@@ -64,17 +63,19 @@ func (j *ConstantJsonFile) Add(path string, nameProject string, commentProject s
 	}
 
 	for _, addres := range state.RecentProjects {
-		if path == addres.FileAddress {
+		if data["Addres"] == addres.FileAddress && data["Username"] == addres.Username {
 			dialog.ShowInformation("error", fmt.Sprintf("This database has already been added to your projects under the name '%s'", addres.Name), window)
 			return nil, true
 		}
 	}
 
 	newActivity := jsFile.Project{
-		Name:        nameProject,
-		Comment:     commentProject,
-		FileAddress: path,
-		Databace:    nameDatabace,
+		Name:        data["Name"],
+		Comment:     data["Comment"],
+		FileAddress: data["Addres"],
+		Databace:    data["Database"],
+		Username:    data["Username"],
+		Password:    data["Password"],
 	}
 
 	state.RecentProjects = append(state.RecentProjects, newActivity)

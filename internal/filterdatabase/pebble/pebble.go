@@ -73,6 +73,14 @@ func (l *NameDatabasePebble) FormCreate(a fyne.App, title string, lastColumnCont
 	pathEntry2 := widget.NewEntry()
 	pathEntry2.SetPlaceHolder("No folder selected")
 
+	data := map[string]string{
+		"Name":     pathEntry.Text,
+		"Comment":  pathEntryComment.Text,
+		"Addres":   pathEntry2.Text,
+		"Username": "",
+		"Password": "",
+	}
+
 	testConnectionButton := widget.NewButton("Test Connection", func() {
 
 		err := logic.HandleButtonClick(pathEntry2.Text, title)
@@ -153,7 +161,7 @@ func (l *NameDatabasePebble) FormCreate(a fyne.App, title string, lastColumnCont
 		err = logic.HandleButtonClick(pathEntry2.Text, title)
 		if err == nil {
 
-			err, addButton = variable.CurrentJson.Add(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow, title)
+			err, addButton = variable.CurrentJson.Add(data, newWindow, title)
 		}
 
 		if err != nil {

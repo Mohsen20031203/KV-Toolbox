@@ -1,9 +1,12 @@
 package leveldbb
 
 import (
+	"fmt"
+	"log"
+	"strings"
 	dbpak "testgui/internal/Databaces"
-	"testgui/internal/Databaces/itertor"
-	iterleveldb "testgui/internal/Databaces/itertor/leveldb"
+	jsFile "testgui/internal/json"
+	jsondata "testgui/internal/json/jsonData"
 
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/util"
@@ -109,17 +112,36 @@ func (c *LeveldbDatabase) Read(start, end *string, count int) (error, []dbpak.KV
 	return nil, Item
 }
 
-func (l *LeveldbDatabase) Iterator(start, end *string) itertor.IterDB {
-	readRange := &util.Range{}
+func (l *LeveldbDatabase) Search(valueEntry string) (error, []string) {
+	var data []string
 
-	if start != nil {
-		readRange.Start = []byte(*start)
+	Iterator := l.DB.NewIterator(nil, nil)
+	if Iterator == nil {
+		log.Fatal("Iterator is nil")
+		return nil, data
 	}
-	if end != nil {
-		readRange.Limit = []byte(*end)
+
+	defer l.Close()
+
+	if !Iterator.First() {
+		return fmt.Errorf("iterator is empty"), data
 	}
-	Iter2 := l.DB.NewIterator(readRange, nil)
-	return &iterleveldb.LeveldbModel{
-		Iter: Iter2,
+
+	for Iterator.Valid() {
+
+		if strings.Contains(string(Iterator.Key()), valueEntry) {
+
+			data = append(data, string(Iterator.Key()))
+
+		}
+		if !Iterator.Next() {
+			break
+		}
 	}
+
+	return nil, data
+}
+
+func (l *LeveldbDatabase) Jsondatabase() jsFile.JsonFile {
+	return &jsondata.ConstantJsonFile{}
 }
