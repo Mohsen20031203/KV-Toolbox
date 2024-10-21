@@ -161,7 +161,7 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 }
 
 func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string) *fyne.Container {
-	projectButton := widget.NewButton(inputText, func() {
+	projectButton := widget.NewButton(inputText+" - "+nameDatabace, func() {
 		parts := strings.Split(path, "|-|")
 
 		utils.Checkdatabace(path, nameDatabace)
