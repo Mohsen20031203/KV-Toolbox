@@ -3,7 +3,10 @@ package sharedfunc
 import (
 	"fmt"
 	"image/color"
+	"io/ioutil"
+	"log"
 	"path/filepath"
+	"strings"
 	variable "testgui"
 	"testgui/internal/logic"
 	"testgui/internal/utils"
@@ -173,4 +176,23 @@ func FormPasteDatabase(a fyne.App, title string, lastColumnContent *fyne.Contain
 	newWindow.CenterOnScreen()
 	newWindow.SetContent(rightColumnContent)
 	newWindow.Show()
+}
+
+func FormatFilesDatabase(path string) bool {
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		log.Fatal("Error reading folder:", err)
+		return false
+	}
+	var count uint8
+	for _, file := range files {
+		if strings.HasPrefix(file.Name(), "MANIFEST-") || filepath.Ext(file.Name()) == ".log" {
+			count++
+		}
+
+		if count == 2 {
+			return true
+		}
+	}
+	return false
 }
