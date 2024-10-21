@@ -106,7 +106,7 @@ func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnConte
 
 				utils.CheckCondition(rightColumnContentORG)
 
-				buttonContainer := logic.ProjectButton(data["Name"], lastColumnContent, path, rightColumnContentORG, nameButtonProject, buttonAdd, title)
+				buttonContainer := logic.ProjectButton(pathEntryName.Text, lastColumnContent, path, rightColumnContentORG, nameButtonProject, buttonAdd, title)
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 
