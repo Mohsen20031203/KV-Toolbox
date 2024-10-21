@@ -17,6 +17,8 @@ type RedisDatabase struct {
 	Password string
 }
 
+var cursor uint64
+
 func NewDataBaseRedis(addres string, username string, password string) dbpak.DBClient {
 
 	return &RedisDatabase{
@@ -55,7 +57,6 @@ func (r *RedisDatabase) Get(key string) (string, error) {
 
 func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
 	var Item []dbpak.KVData
-	var cursor uint64
 	cnt := 0
 
 	if end != nil && start == nil {
@@ -68,7 +69,7 @@ func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVDa
 		for _, key := range keys {
 			value, err := r.client.Get(r.ctx, key).Result()
 			if err != nil {
-				log.Fatalf("خطا در دریافت مقدار: %v", err)
+				log.Fatalf(" error %v", err)
 			}
 			Item = append(Item, dbpak.KVData{Key: key, Value: value})
 			cnt++
@@ -86,26 +87,20 @@ func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVDa
 		for {
 			keys, newCursor, err := r.client.Scan(r.ctx, cursor, "*", int64(count)).Result()
 			if err != nil {
-				log.Fatalf("خطا در SCAN: %v", err)
+				log.Fatalf("error %v", err)
 				return err, nil
 			}
 
 			for _, key := range keys {
 				value, err := r.client.Get(r.ctx, key).Result()
 				if err != nil {
-					log.Fatalf("خطا در دریافت مقدار: %v", err)
+					log.Fatalf("error %v", err)
 				}
 				Item = append(Item, dbpak.KVData{Key: key, Value: value})
-				cnt++
-				if cnt >= count {
-					break
-				}
 			}
 
 			cursor = newCursor
-			if cursor == 0 || cnt >= count {
-				break
-			}
+			break
 		}
 	}
 
@@ -115,19 +110,14 @@ func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVDa
 func (l *RedisDatabase) Search(valueEntry string) (error, []string) {
 	var data []string
 	var cursorOP uint64
-	m := fmt.Sprintf("*%s*", valueEntry)
 	for {
 
-		keys, cursor, err := l.client.Scan(l.ctx, cursorOP, m, 10).Result()
+		keys, cursor, err := l.client.Scan(l.ctx, cursorOP, fmt.Sprintf("*%s*", valueEntry), 10).Result()
 		if err != nil {
 			return err, data
 		}
+		data = append(data, keys...)
 
-		for _, item := range keys {
-
-			data = append(data, item)
-
-		}
 		cursorOP = cursor
 		if cursorOP == 0 {
 			break

@@ -55,17 +55,11 @@ func SetupThemeButtons(app fyne.App) *fyne.Container {
 }
 
 var (
-	lastStart       *string
-	lastEnd         *string
-	lastPage        uint8
-	currentData     []dbpak.KVData
-	lastcurrentData []dbpak.KVData
-	next_prev       bool
+	lastStart *string
+	lastEnd   *string
 )
 
 func UpdatePage(rightColumnContent *fyne.Container) {
-
-	utils.CheckCondition(rightColumnContent)
 
 	var data = make([]dbpak.KVData, 0)
 	var err error
@@ -74,76 +68,20 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		return
 	}
 	defer variable.CurrentDBClient.Close()
-	if lastPage <= variable.CurrentPage {
-		//next page
+	//next page
 
-		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
-		err, data = variable.CurrentDBClient.Read(lastEnd, nil, variable.ItemsPerPage+1)
-		if err != nil {
-			fmt.Println(err)
-		}
-		if len(data) > variable.ItemsPerPage {
-			variable.NextButton.Enable()
-			next_prev = true
-		} else {
-			variable.NextButton.Disable()
-		}
-	} else {
-		//last page
-		if len(currentData) == 0 {
-			return
-		}
-
-		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
-		err, data = variable.CurrentDBClient.Read(nil, lastStart, variable.ItemsPerPage+1)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		if len(data) > variable.ItemsPerPage {
-			variable.PrevButton.Enable()
-			next_prev = false
-		} else {
-			variable.PrevButton.Disable()
-		}
-	}
-
-	lastcurrentData = make([]dbpak.KVData, len(currentData))
-	copy(lastcurrentData, currentData)
-	currentData = make([]dbpak.KVData, len(data))
-	copy(currentData, data)
+	//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
+	err, data = variable.CurrentDBClient.Read(lastEnd, nil, variable.ItemsPerPage+1)
 	if len(data) == 0 {
 		return
 	}
-
-	lastPage = variable.CurrentPage
-	if next_prev {
-		lastStart = &data[0].Key
-		if len(data) == variable.ItemsPerPage+1 {
-
-			lastEnd = &data[len(data)-2].Key
-		} else {
-			lastEnd = &data[len(data)-1].Key
-
-		}
-
-	} else {
-		lastEnd = &data[len(data)-1].Key
-		if len(data) >= variable.ItemsPerPage+1 {
-			lastStart = &data[1].Key
-			data = data[1:]
-		} else {
-			lastStart = &data[0].Key
-		}
+	if err != nil {
+		fmt.Println(err)
 	}
 
-	number := 0
-
+	lastStart = &data[0].Key
+	lastEnd = &data[len(data)-1].Key
 	for _, item := range data {
-		if number == variable.ItemsPerPage {
-			break
-		}
-		number++
 
 		truncatedKey := utils.TruncateString(string(item.Key), 20)
 		truncatedValue := utils.TruncateString(string(item.Value), 50)
@@ -155,32 +93,26 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		rightColumnContent.Add(buttonRow)
 	}
 
-	variable.PageLabel.SetText(fmt.Sprintf("Page %d", variable.CurrentPage+1))
-
+	data = data[:0]
 	rightColumnContent.Refresh()
 }
 
 func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string) *fyne.Container {
 	projectButton := widget.NewButton(inputText+" - "+nameDatabace, func() {
 		parts := strings.Split(path, "|-|")
-
+		variable.ItemsAdded = false
 		utils.Checkdatabace(path, nameDatabace)
-		variable.PrevButton.Disable()
-		variable.NextButton.Enable()
 		buttonAdd.Enable()
 		variable.FolderPath = parts[0]
-		lastPage = 0
-		variable.CurrentPage = 0
 		lastEnd = nil
 		lastStart = nil
-		variable.PageLabel.Text = "Page 1"
+		utils.CheckCondition(rightColumnContentORG)
 		UpdatePage(rightColumnContentORG)
 
 		nameButtonProject.Text = ""
 		nameButtonProject.Text = inputText + " - " + nameDatabace
 
 		nameButtonProject.Refresh()
-		variable.PageLabel.Refresh()
 
 	})
 
@@ -334,8 +266,6 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	}
 
 	editWindow.Close()
-	variable.NextButton.Disable()
-	variable.PrevButton.Disable()
 	return true, nil
 }
 
