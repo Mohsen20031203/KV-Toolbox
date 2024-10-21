@@ -345,7 +345,7 @@ func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	key := utils.CleanInput(valueEntry.Text)
 
 	valueSearch, err := QueryKey(valueEntry)
-	if valueSearch == nil && err != nil {
+	if valueSearch == "" && err != nil {
 		dialog.ShowInformation("Error", "This key does not exist in the database", editWindow)
 	} else {
 		err = variable.CurrentDBClient.Delete(key)
@@ -367,7 +367,7 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 	defer variable.CurrentDBClient.Close()
 
 	checkNow, err := QueryKey(iputKey)
-	if checkNow != nil || err == nil {
+	if checkNow != "" || err == nil {
 		dialog.ShowInformation("Error", "This key has already been added to your database", windowAdd)
 
 	} else {
@@ -382,18 +382,18 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 	}
 }
 
-func QueryKey(iputKey *widget.Entry) ([]byte, error) {
+func QueryKey(iputKey *widget.Entry) (string, error) {
 	var err error
 
 	key := utils.CleanInput(iputKey.Text)
 
 	err = variable.CurrentDBClient.Open()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	checkNow, err := variable.CurrentDBClient.Get(key)
 	if err != nil {
 		fmt.Println("error : delete func logic for get key in databace")
 	}
-	return []byte(checkNow), err
+	return checkNow, err
 }

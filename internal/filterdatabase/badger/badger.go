@@ -74,13 +74,6 @@ func (l *NameDatabaseBadger) FormCreate(a fyne.App, title string, lastColumnCont
 	pathEntry2 := widget.NewEntry()
 	pathEntry2.SetPlaceHolder("No folder selected")
 
-	data := map[string]string{
-		"Name":     pathEntry.Text,
-		"Comment":  pathEntryComment.Text,
-		"Addres":   pathEntry2.Text,
-		"Username": "",
-		"Password": ""}
-
 	testConnectionButton := widget.NewButton("Test Connection", func() {
 
 		err := logic.HandleButtonClick(pathEntry2.Text, title)
@@ -142,6 +135,13 @@ func (l *NameDatabaseBadger) FormCreate(a fyne.App, title string, lastColumnCont
 	})
 
 	buttonOk := widget.NewButton("Add", func() {
+		data := map[string]string{
+			"Name":     pathEntry.Text,
+			"Comment":  pathEntryComment.Text,
+			"Addres":   pathEntry2.Text,
+			"Username": "",
+			"Password": "",
+		}
 		if pathEntry.Text == "" {
 			dialog.ShowInformation("Error ", "Please fill in the name field", newWindow)
 			return

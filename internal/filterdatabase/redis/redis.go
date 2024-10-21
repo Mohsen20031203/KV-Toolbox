@@ -84,7 +84,7 @@ func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnConte
 			fmt.Println("error ", err)
 		}
 		for _, m := range datajson.RecentProjects {
-			if pathEntry.Text == m.Name {
+			if pathEntryName.Text == m.Name {
 				dialog.ShowInformation("Error ", "Your database name is duplicate", newWindow)
 				return
 			}
