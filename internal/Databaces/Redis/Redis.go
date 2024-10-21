@@ -2,8 +2,8 @@ package Redisdb
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"strings"
 	dbpak "testgui/internal/Databaces"
 
 	"github.com/redis/go-redis/v9"
@@ -115,20 +115,18 @@ func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVDa
 func (l *RedisDatabase) Search(valueEntry string) (error, []string) {
 	var data []string
 	var cursorOP uint64
+	m := fmt.Sprintf("*%s*", valueEntry)
 	for {
 
-		keys, cursor, err := l.client.Scan(l.ctx, cursorOP, valueEntry, 10).Result()
+		keys, cursor, err := l.client.Scan(l.ctx, cursorOP, m, 10).Result()
 		if err != nil {
 			return err, data
 		}
 
 		for _, item := range keys {
 
-			if strings.Contains(item, valueEntry) {
+			data = append(data, item)
 
-				data = append(data, item)
-
-			}
 		}
 		cursorOP = cursor
 		if cursorOP == 0 {
