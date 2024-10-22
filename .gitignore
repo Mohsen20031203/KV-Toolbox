@@ -11,3 +11,5 @@ test
 __debug_bin*
 text.txt
 .DS_Store
+cmd/.DS_Store
+services
