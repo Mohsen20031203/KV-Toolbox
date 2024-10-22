@@ -84,24 +84,22 @@ func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVDa
 		}
 	} else {
 
-		for {
-			keys, newCursor, err := r.client.Scan(r.ctx, cursor, "*", int64(count)).Result()
+		keys, newCursor, err := r.client.Scan(r.ctx, cursor, "*", int64(count)).Result()
+		if err != nil {
+			log.Fatalf("error %v", err)
+			return err, nil
+		}
+
+		for _, key := range keys {
+			value, err := r.client.Get(r.ctx, key).Result()
 			if err != nil {
 				log.Fatalf("error %v", err)
-				return err, nil
 			}
-
-			for _, key := range keys {
-				value, err := r.client.Get(r.ctx, key).Result()
-				if err != nil {
-					log.Fatalf("error %v", err)
-				}
-				Item = append(Item, dbpak.KVData{Key: key, Value: value})
-			}
-
-			cursor = newCursor
-			break
+			Item = append(Item, dbpak.KVData{Key: key, Value: value})
 		}
+
+		cursor = newCursor
+
 	}
 
 	return nil, Item

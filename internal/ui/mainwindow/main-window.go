@@ -148,23 +148,50 @@ func LeftColumn(leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, da
 
 func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container) fyne.CanvasObject {
 	rightColumnScrollable := container.NewVScroll(rightColumnAll)
+
+	var previousOffsetY float32
+	var up bool
 	rightColumnScrollable.OnScrolled = func(p fyne.Position) {
+		variable.ItemsAdded = false
 		maxScroll := rightColumnAll.MinSize().Height - rightColumnScrollable.Size().Height
 
-		if rightColumnScrollable.Offset.Y >= maxScroll {
-			variable.ItemsAdded = false
+		if rightColumnScrollable.Offset.Y > previousOffsetY {
 
-			time.AfterFunc(100*time.Millisecond, func() {
-				if !variable.ItemsAdded {
-					logic.UpdatePage(rightColumnAll)
-					rightColumnScrollable.Offset.Y = maxScroll
-					rightColumnScrollable.Refresh()
-
-					variable.ItemsAdded = true
+			if rightColumnScrollable.Offset.Y >= maxScroll {
+				if len(rightColumnAll.Objects) >= variable.ItemsPerPage*3 {
+					rightColumnAll.Objects = rightColumnAll.Objects[variable.ItemsPerPage:]
+					up = true
 				}
-			})
+				time.AfterFunc(100*time.Millisecond, func() {
+					if !variable.ItemsAdded {
+						variable.CurrentPage++
+						logic.UpdatePage(rightColumnAll)
+						rightColumnScrollable.Offset.Y = maxScroll / 2
+						variable.ItemsAdded = true
+						rightColumnScrollable.Refresh()
+						return
+					}
+				})
+			}
+		} else {
+			return
 		}
+		/*
+			else if rightColumnScrollable.Offset.Y < previousOffsetY {
+
+				if up && rightColumnScrollable.Offset.Y == 0 {
+					variable.CurrentPage--
+					rightColumnAll.Objects = rightColumnAll.Objects[:variable.ItemsPerPage*2]
+					logic.UpdatePage(rightColumnAll)
+					fmt.Println("Scrolled up")
+				}
+			}
+		*/
+		_ = up
+
+		previousOffsetY = rightColumnScrollable.Offset.Y
 	}
+
 	mainContent := container.NewBorder(topRightColumn, nil, nil, nil, rightColumnScrollable)
 
 	return mainContent

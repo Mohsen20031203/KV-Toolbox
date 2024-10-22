@@ -21,6 +21,8 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+var lastPage int
+
 func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
 	lastColumnContent := container.NewVBox()
 
@@ -68,19 +70,32 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		return
 	}
 	defer variable.CurrentDBClient.Close()
-	//next page
 
-	//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
-	err, data = variable.CurrentDBClient.Read(lastEnd, nil, variable.ItemsPerPage+1)
+	if lastPage <= variable.CurrentPage {
+		//next page
+
+		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
+		err, data = variable.CurrentDBClient.Read(lastEnd, nil, variable.ItemsPerPage+1)
+		if err != nil {
+			fmt.Println(err)
+		}
+	} else {
+
+		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
+		err, data = variable.CurrentDBClient.Read(nil, lastStart, variable.ItemsPerPage+1)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+	}
 	if len(data) == 0 {
 		return
-	}
-	if err != nil {
-		fmt.Println(err)
 	}
 
 	lastStart = &data[0].Key
 	lastEnd = &data[len(data)-1].Key
+
+	var arrayContainer []fyne.CanvasObject
 	for _, item := range data {
 
 		truncatedKey := utils.TruncateString(string(item.Key), 20)
@@ -90,11 +105,21 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		keyLabel := BuidLableKeyAndValue("key", string(item.Key), string(item.Value), truncatedKey, rightColumnContent)
 
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
-		rightColumnContent.Add(buttonRow)
+		arrayContainer = append(arrayContainer, buttonRow)
+	}
+	if lastPage > variable.CurrentPage {
+
+		rightColumnContent.Objects = append(arrayContainer, rightColumnContent.Objects...)
+	} else {
+
+		rightColumnContent.Objects = append(rightColumnContent.Objects, arrayContainer...)
+
 	}
 
 	data = data[:0]
 	rightColumnContent.Refresh()
+	lastPage = variable.CurrentPage
+
 }
 
 func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string) *fyne.Container {

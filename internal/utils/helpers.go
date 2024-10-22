@@ -29,8 +29,7 @@ func IsValidJSON(data string) bool {
 
 func CheckCondition(rightColumnContent *fyne.Container) {
 	if len(rightColumnContent.Objects) > 0 {
-		newObjects := []fyne.CanvasObject{}
-		rightColumnContent.Objects = newObjects
+		rightColumnContent.Objects = []fyne.CanvasObject{}
 		rightColumnContent.Refresh()
 	}
 }
