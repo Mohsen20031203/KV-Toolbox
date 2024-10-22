@@ -149,13 +149,12 @@ func LeftColumn(leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, da
 func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container) fyne.CanvasObject {
 	rightColumnScrollable := container.NewVScroll(rightColumnAll)
 
-	var previousOffsetY float32
 	var up bool
 	rightColumnScrollable.OnScrolled = func(p fyne.Position) {
 		variable.ItemsAdded = false
 		maxScroll := rightColumnAll.MinSize().Height - rightColumnScrollable.Size().Height
 
-		if rightColumnScrollable.Offset.Y > previousOffsetY {
+		if rightColumnScrollable.Offset.Y > variable.PreviousOffsetY {
 
 			if rightColumnScrollable.Offset.Y >= maxScroll {
 				if len(rightColumnAll.Objects) >= variable.ItemsPerPage*3 {
@@ -169,13 +168,13 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container)
 						rightColumnScrollable.Offset.Y = maxScroll / 2
 						variable.ItemsAdded = true
 						rightColumnScrollable.Refresh()
-						return
 					}
 				})
 			}
 		} else {
 			return
 		}
+		variable.PreviousOffsetY = rightColumnScrollable.Offset.Y
 		/*
 			else if rightColumnScrollable.Offset.Y < previousOffsetY {
 
@@ -189,7 +188,6 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container)
 		*/
 		_ = up
 
-		previousOffsetY = rightColumnScrollable.Offset.Y
 	}
 
 	mainContent := container.NewBorder(topRightColumn, nil, nil, nil, rightColumnScrollable)

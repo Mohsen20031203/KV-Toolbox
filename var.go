@@ -14,6 +14,7 @@ var (
 	CurrentJson     jsFile.JsonFile
 	NameData        filterdatabase.FilterData
 	ItemsAdded      bool
+	PreviousOffsetY float32
 )
 
 var (

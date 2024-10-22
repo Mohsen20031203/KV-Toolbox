@@ -130,6 +130,7 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 		buttonAdd.Enable()
 		variable.FolderPath = parts[0]
 		lastEnd = nil
+		variable.PreviousOffsetY = 0
 		lastStart = nil
 		utils.CheckCondition(rightColumnContentORG)
 		UpdatePage(rightColumnContentORG)
