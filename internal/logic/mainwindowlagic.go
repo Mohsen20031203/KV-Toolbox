@@ -59,6 +59,8 @@ func SetupThemeButtons(app fyne.App) *fyne.Container {
 var (
 	lastStart *string
 	lastEnd   *string
+	count     int
+	Orgdata   []dbpak.KVData
 )
 
 func UpdatePage(rightColumnContent *fyne.Container) {
@@ -79,6 +81,13 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		if err != nil {
 			fmt.Println(err)
 		}
+
+		if count > 2 {
+			Orgdata = Orgdata[(variable.ItemsPerPage + 1):]
+		}
+
+		Orgdata = append(Orgdata, data...)
+		count++
 	} else {
 
 		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
@@ -86,14 +95,16 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		if err != nil {
 			fmt.Println(err)
 		}
+		Orgdata = Orgdata[:(variable.ItemsPerPage+1)*2]
+		Orgdata = append(data, Orgdata...)
 
 	}
 	if len(data) == 0 {
 		return
 	}
 
-	lastStart = &data[0].Key
-	lastEnd = &data[len(data)-1].Key
+	lastStart = &Orgdata[0].Key
+	lastEnd = &Orgdata[len(Orgdata)-1].Key
 
 	var arrayContainer []fyne.CanvasObject
 	for _, item := range data {
@@ -130,6 +141,8 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 		buttonAdd.Enable()
 		variable.FolderPath = parts[0]
 		lastEnd = nil
+		variable.CurrentPage = 1
+		lastPage = 0
 		variable.PreviousOffsetY = 0
 		lastStart = nil
 		utils.CheckCondition(rightColumnContentORG)

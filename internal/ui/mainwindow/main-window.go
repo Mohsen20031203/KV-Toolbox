@@ -149,16 +149,34 @@ func LeftColumn(leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, da
 func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container) fyne.CanvasObject {
 	rightColumnScrollable := container.NewVScroll(rightColumnAll)
 
-	var up bool
+	up := false
+
 	rightColumnScrollable.OnScrolled = func(p fyne.Position) {
 		variable.ItemsAdded = false
 		maxScroll := rightColumnAll.MinSize().Height - rightColumnScrollable.Size().Height
 
-		if rightColumnScrollable.Offset.Y > variable.PreviousOffsetY {
+		if rightColumnScrollable.Offset.Y < variable.PreviousOffsetY {
+
+			if up && rightColumnScrollable.Offset.Y == 0 {
+				variable.CurrentPage--
+				if variable.CurrentPage < 3 {
+					up = false
+					variable.PreviousOffsetY = rightColumnScrollable.Offset.Y
+					variable.CurrentPage = 3
+					return
+				}
+				rightColumnAll.Objects = rightColumnAll.Objects[:(variable.ItemsPerPage+1)*2]
+				logic.UpdatePage(rightColumnAll)
+				rightColumnScrollable.Offset.Y = maxScroll / 2
+				rightColumnScrollable.Refresh()
+
+			}
+		}
+		if rightColumnScrollable.Offset.Y >= variable.PreviousOffsetY {
 
 			if rightColumnScrollable.Offset.Y >= maxScroll {
-				if len(rightColumnAll.Objects) >= variable.ItemsPerPage*3 {
-					rightColumnAll.Objects = rightColumnAll.Objects[variable.ItemsPerPage:]
+				if len(rightColumnAll.Objects) >= (variable.ItemsPerPage+1)*3 {
+					rightColumnAll.Objects = rightColumnAll.Objects[(variable.ItemsPerPage + 1):]
 					up = true
 				}
 				time.AfterFunc(100*time.Millisecond, func() {
@@ -167,26 +185,14 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container)
 						logic.UpdatePage(rightColumnAll)
 						rightColumnScrollable.Offset.Y = maxScroll / 2
 						variable.ItemsAdded = true
-						rightColumnScrollable.Refresh()
 					}
 				})
 			}
 		} else {
 			return
 		}
-		variable.PreviousOffsetY = rightColumnScrollable.Offset.Y
-		/*
-			else if rightColumnScrollable.Offset.Y < previousOffsetY {
 
-				if up && rightColumnScrollable.Offset.Y == 0 {
-					variable.CurrentPage--
-					rightColumnAll.Objects = rightColumnAll.Objects[:variable.ItemsPerPage*2]
-					logic.UpdatePage(rightColumnAll)
-					fmt.Println("Scrolled up")
-				}
-			}
-		*/
-		_ = up
+		variable.PreviousOffsetY = rightColumnScrollable.Offset.Y
 
 	}
 
