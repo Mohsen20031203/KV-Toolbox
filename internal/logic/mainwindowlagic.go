@@ -21,8 +21,6 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var lastPage int
-
 func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
 	lastColumnContent := container.NewVBox()
 
@@ -61,6 +59,7 @@ var (
 	lastEnd   *string
 	count     int
 	Orgdata   []dbpak.KVData
+	lastPage  int
 )
 
 func UpdatePage(rightColumnContent *fyne.Container) {
@@ -130,7 +129,6 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 	data = data[:0]
 	rightColumnContent.Refresh()
 	lastPage = variable.CurrentPage
-
 }
 
 func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string) *fyne.Container {

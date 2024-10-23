@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strings"
 	dbpak "testgui/internal/Databaces"
-	jsFile "testgui/internal/json"
-	jsondata "testgui/internal/json/jsonData"
 
 	"github.com/cockroachdb/pebble"
 )
@@ -153,8 +151,4 @@ func (l *PebbleDatabase) Search(valueEntry string) (error, []string) {
 	}
 
 	return nil, data
-}
-
-func (l *PebbleDatabase) Jsondatabase() jsFile.JsonFile {
-	return &jsondata.ConstantJsonFile{}
 }

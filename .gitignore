@@ -9,7 +9,7 @@ MANIFEST-*
 *.json
 test
 __debug_bin*
-text.txt
+*.txt
 .DS_Store
 cmd/.DS_Store
 services

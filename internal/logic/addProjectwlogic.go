@@ -67,7 +67,6 @@ func CreatFile(value bool, openButton *widget.Button, testConnectionButton *widg
 }
 
 func HandleButtonClick(test string, nameDatabace string) error {
-
 	err := utils.Checkdatabace(test, nameDatabace)
 	if err != nil {
 		return err
@@ -87,5 +86,4 @@ func HandleButtonClick(test string, nameDatabace string) error {
 	defer variable.CurrentDBClient.Close()
 
 	return nil
-
 }

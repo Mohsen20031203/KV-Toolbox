@@ -3,8 +3,6 @@ package badgerDB
 import (
 	"strings"
 	dbpak "testgui/internal/Databaces"
-	jsFile "testgui/internal/json"
-	jsondata "testgui/internal/json/jsonData"
 
 	"github.com/dgraph-io/badger/v4"
 )
@@ -165,9 +163,4 @@ func (l *badgerDatabase) Search(valueEntry string) (error, []string) {
 		return err, data
 	}
 	return nil, data
-
-}
-
-func (l *badgerDatabase) Jsondatabase() jsFile.JsonFile {
-	return &jsondata.ConstantJsonFile{}
 }

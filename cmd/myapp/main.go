@@ -1,7 +1,6 @@
 package main
 
 import (
-	_ "net/http/pprof"
 	variable "testgui"
 	jsondata "testgui/internal/json/jsonData"
 	"testgui/internal/ui/mainwindow"

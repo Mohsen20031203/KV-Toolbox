@@ -18,6 +18,7 @@ type RedisDatabase struct {
 }
 
 var cursor uint64
+var Rediscursor []uint64
 
 func NewDataBaseRedis(addres string, username string, password string) dbpak.DBClient {
 
@@ -61,9 +62,10 @@ func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVDa
 
 	if end != nil && start == nil {
 
-		keys, err := r.client.ZRevRange(r.ctx, "your_sorted_set_key", 0, int64(count-1)).Result()
+		keys, _, err := r.client.Scan(r.ctx, Rediscursor[0], "*", int64(count)).Result()
 		if err != nil {
-			log.Fatalf("er %v", err)
+			log.Fatalf("error %v", err)
+			return err, nil
 		}
 
 		for _, key := range keys {
@@ -99,7 +101,7 @@ func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVDa
 		}
 
 		cursor = newCursor
-
+		Rediscursor = append(Rediscursor, cursor)
 	}
 
 	return nil, Item

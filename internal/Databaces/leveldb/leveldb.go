@@ -5,8 +5,6 @@ import (
 	"log"
 	"strings"
 	dbpak "testgui/internal/Databaces"
-	jsFile "testgui/internal/json"
-	jsondata "testgui/internal/json/jsonData"
 
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/util"
@@ -140,8 +138,4 @@ func (l *LeveldbDatabase) Search(valueEntry string) (error, []string) {
 	}
 
 	return nil, data
-}
-
-func (l *LeveldbDatabase) Jsondatabase() jsFile.JsonFile {
-	return &jsondata.ConstantJsonFile{}
 }

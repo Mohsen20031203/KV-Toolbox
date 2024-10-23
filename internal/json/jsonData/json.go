@@ -20,6 +20,7 @@ func NewDataBase() jsFile.JsonFile {
 		nameFile: "data.json",
 	}
 }
+
 func (j *ConstantJsonFile) Open() (*os.File, error) {
 	return os.OpenFile("data.json", os.O_RDWR|os.O_CREATE, 0644)
 }
