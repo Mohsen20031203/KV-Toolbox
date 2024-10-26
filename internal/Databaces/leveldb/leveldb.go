@@ -119,8 +119,6 @@ func (l *LeveldbDatabase) Search(valueEntry string) (error, []string) {
 		return nil, data
 	}
 
-	defer l.Close()
-
 	if !Iterator.First() {
 		return fmt.Errorf("iterator is empty"), data
 	}

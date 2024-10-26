@@ -19,6 +19,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/gabriel-vasile/mimetype"
 )
 
 func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
@@ -111,6 +112,11 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		truncatedKey := utils.TruncateString(string(item.Key), 20)
 		truncatedValue := utils.TruncateString(string(item.Value), 50)
 
+		typeValue := mimetype.Detect([]byte(item.Value))
+		if typeValue.Extension() != ".txt" {
+
+			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
+		}
 		valueLabel := BuidLableKeyAndValue("value", string(item.Key), string(item.Value), truncatedValue, rightColumnContent)
 		keyLabel := BuidLableKeyAndValue("key", string(item.Key), string(item.Value), truncatedKey, rightColumnContent)
 
@@ -195,12 +201,9 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 				json.Unmarshal([]byte(value), &formattedJSON)
 				jsonString, _ := json.MarshalIndent(formattedJSON, "", "  ")
 				valueEntry.SetText(string(jsonString))
-			} else {
-				valueEntry.SetText(value)
 			}
-		} else {
-			valueEntry.SetText(key)
 		}
+		valueEntry.SetText(key)
 		scrollableEntry := container.NewScroll(valueEntry)
 		mainContainer := container.NewBorder(nil, nil, nil, nil, scrollableEntry)
 
@@ -296,6 +299,10 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		truncatedKey := utils.TruncateString(item, 20)
 		truncatedValue := utils.TruncateString(value, 50)
 
+		typeValue := mimetype.Detect([]byte(value))
+		if typeValue.Extension() != ".txt" {
+			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
+		}
 		valueLabel := BuidLableKeyAndValue("value", item, value, truncatedValue, rightColumnContent)
 		keyLabel := BuidLableKeyAndValue("key", item, value, truncatedKey, rightColumnContent)
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
@@ -311,7 +318,7 @@ func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 
 	key := utils.CleanInput(valueEntry.Text)
 
-	valueSearch, err := QueryKey(valueEntry)
+	valueSearch, err := QueryKey(valueEntry.Text)
 	if valueSearch == "" && err != nil {
 		dialog.ShowInformation("Error", "This key does not exist in the database", editWindow)
 	} else {
@@ -326,10 +333,9 @@ func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	}
 }
 
-func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.Window) {
+func AddKeyLogic(iputKey string, valueFinish []byte, windowAdd fyne.Window) {
 
-	key := utils.CleanInput(iputKey.Text)
-	value := utils.CleanInput(iputvalue.Text)
+	key := utils.CleanInput(iputKey)
 
 	defer variable.CurrentDBClient.Close()
 
@@ -338,7 +344,7 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 		dialog.ShowInformation("Error", "This key has already been added to your database", windowAdd)
 
 	} else {
-		err = variable.CurrentDBClient.Add(key, value)
+		err = variable.CurrentDBClient.Add(key, string(valueFinish))
 		if err != nil {
 			log.Fatal("error : this error in func addkeylogic for add key in database")
 		}
@@ -349,10 +355,10 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 	}
 }
 
-func QueryKey(iputKey *widget.Entry) (string, error) {
+func QueryKey(iputKey string) (string, error) {
 	var err error
 
-	key := utils.CleanInput(iputKey.Text)
+	key := utils.CleanInput(iputKey)
 
 	err = variable.CurrentDBClient.Open()
 	if err != nil {
