@@ -171,7 +171,7 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container)
 
 			}
 		}
-		if rightColumnScrollable.Offset.Y >= variable.PreviousOffsetY {
+		if rightColumnScrollable.Offset.Y >= variable.PreviousOffsetY-100 {
 
 			if rightColumnScrollable.Offset.Y >= maxScroll {
 				if len(rightColumnAll.Objects) >= (variable.ItemsPerPage+1)*3 {

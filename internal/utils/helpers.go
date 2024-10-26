@@ -2,7 +2,10 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 	variable "testgui"
@@ -12,7 +15,32 @@ import (
 	leveldbb "testgui/internal/Databaces/leveldb"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/storage"
+	"fyne.io/fyne/v2/widget"
 )
+
+type TappableLabel struct {
+	widget.Label
+	onTapped func()
+}
+
+func NewTappableLabel(text string, tapped func()) *TappableLabel {
+	label := &TappableLabel{
+		Label: widget.Label{
+			Text: text,
+		},
+		onTapped: tapped,
+	}
+	label.ExtendBaseWidget(label)
+	return label
+}
+
+func (t *TappableLabel) Tapped(_ *fyne.PointEvent) {
+	t.onTapped()
+}
 
 func TruncateString(input string, length int) string {
 	if len(input) > length {
@@ -63,4 +91,51 @@ func Checkdatabace(test string, nameDatabace string) error {
 func CleanInput(input string) string {
 	cleaned := strings.TrimSpace(input)
 	return cleaned
+}
+
+func ImageShow(value []byte, nameLable string, rightColumnContent *fyne.Container, editWindow fyne.Window) {
+
+	imgReader := bytes.NewReader([]byte(value))
+	image := canvas.NewImageFromReader(imgReader, "image.png")
+
+	image.FillMode = canvas.ImageFillContain
+	image.SetMinSize(fyne.NewSize(400, 400))
+
+	content := container.NewVBox(image)
+
+	rightColumnContent.Add(content)
+
+	lableAddpicture := widget.NewButton("+", func() {
+		folderPath := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
+			if err != nil {
+				fmt.Println("Error opening folder:", err)
+				return
+			}
+			if dir == nil {
+				fmt.Println("No folder selected")
+				return
+			}
+
+			valueFinish, err := ioutil.ReadAll(dir)
+			if err != nil {
+				fmt.Println("Error reading file:", err)
+				return
+			}
+
+			imgReader := bytes.NewReader(valueFinish)
+			image := canvas.NewImageFromReader(imgReader, "image.png")
+
+			image.FillMode = canvas.ImageFillContain
+			image.SetMinSize(fyne.NewSize(400, 400))
+
+			content := container.NewVBox(image)
+
+			rightColumnContent.Add(content)
+			rightColumnContent.Refresh()
+		}, editWindow)
+		folderPath.SetFilter(storage.NewExtensionFileFilter([]string{".png", ".jpg", ".jpeg", ".gif"}))
+
+		folderPath.Show()
+	})
+	rightColumnContent.Add(lableAddpicture)
 }

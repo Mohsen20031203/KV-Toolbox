@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -110,7 +109,7 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 	for _, item := range data {
 
 		truncatedKey := utils.TruncateString(string(item.Key), 20)
-		truncatedValue := utils.TruncateString(string(item.Value), 50)
+		truncatedValue := utils.TruncateString(string(item.Value), 30)
 
 		typeValue := mimetype.Detect([]byte(item.Value))
 		if typeValue.Extension() != ".txt" {
@@ -186,28 +185,46 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	return buttonContainer
 }
 
-func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, nameLable string, rightColumnContent *fyne.Container) *TappableLabel {
-	var lableKeyAndValue *TappableLabel
+func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, nameLable string, rightColumnContent *fyne.Container) *utils.TappableLabel {
+	var lableKeyAndValue *utils.TappableLabel
 
-	lableKeyAndValue = NewTappableLabel(nameLable, func() {
+	lableKeyAndValue = utils.NewTappableLabel(nameLable, func() {
 		editWindow := fyne.CurrentApp().NewWindow("Edit" + eidtKeyAbdValue)
 		editWindow.Resize(fyne.NewSize(600, 600))
 
 		valueEntry := widget.NewMultiLineEntry()
 		valueEntry.Resize(fyne.NewSize(500, 500))
+		mainContainer := container.NewVBox()
 		if eidtKeyAbdValue == "value" {
-			if utils.IsValidJSON(value) {
-				var formattedJSON map[string]interface{}
-				json.Unmarshal([]byte(value), &formattedJSON)
-				jsonString, _ := json.MarshalIndent(formattedJSON, "", "  ")
-				valueEntry.SetText(string(jsonString))
-			}
-		}
-		valueEntry.SetText(key)
-		scrollableEntry := container.NewScroll(valueEntry)
-		mainContainer := container.NewBorder(nil, nil, nil, nil, scrollableEntry)
+			typeVlaue := mimetype.Detect([]byte(value))
 
-		scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
+			switch {
+			case strings.HasPrefix(typeVlaue.String(), "image/"):
+				utils.ImageShow([]byte(value), nameLable, mainContainer, editWindow)
+
+			case strings.HasPrefix(typeVlaue.String(), "video/"):
+				fmt.Println("video")
+			case strings.HasPrefix(typeVlaue.String(), "audio/"):
+				fmt.Println("audio")
+			case strings.HasPrefix(typeVlaue.String(), "application/"):
+				fmt.Println("application")
+			case strings.HasPrefix(typeVlaue.String(), "text/"):
+				valueEntry.SetText(value)
+				scrollableEntry := container.NewScroll(valueEntry)
+				mainContainer = container.NewBorder(nil, nil, nil, nil, scrollableEntry)
+				scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
+
+			case strings.HasPrefix(typeVlaue.String(), "font/"):
+				fmt.Println("font")
+			}
+
+		} else {
+			valueEntry.SetText(key)
+			scrollableEntry := container.NewScroll(valueEntry)
+			mainContainer = container.NewBorder(nil, nil, nil, nil, scrollableEntry)
+			scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
+		}
+
 		saveButton := widget.NewButton("Save", func() {
 			var truncatedKey2 string
 
@@ -297,7 +314,7 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 			return false, err
 		}
 		truncatedKey := utils.TruncateString(item, 20)
-		truncatedValue := utils.TruncateString(value, 50)
+		truncatedValue := utils.TruncateString(value, 30)
 
 		typeValue := mimetype.Detect([]byte(value))
 		if typeValue.Extension() != ".txt" {
@@ -348,8 +365,6 @@ func AddKeyLogic(iputKey string, valueFinish []byte, windowAdd fyne.Window) {
 		if err != nil {
 			log.Fatal("error : this error in func addkeylogic for add key in database")
 		}
-		dialog.ShowInformation("successful", "The operation was successful", windowAdd)
-		time.Sleep(2 * time.Second)
 
 		windowAdd.Close()
 	}
