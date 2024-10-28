@@ -1,7 +1,9 @@
 package logic
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"strings"
 	variable "testgui"
@@ -13,9 +15,11 @@ import (
 	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/gabriel-vasile/mimetype"
@@ -187,6 +191,9 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 
 func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, nameLable string, rightColumnContent *fyne.Container) *utils.TappableLabel {
 	var lableKeyAndValue *utils.TappableLabel
+	var bottomDelete *widget.Button
+	var contentt *fyne.Container
+	var lableAddpicture *widget.Button
 
 	lableKeyAndValue = utils.NewTappableLabel(nameLable, func() {
 		editWindow := fyne.CurrentApp().NewWindow("Edit" + eidtKeyAbdValue)
@@ -195,13 +202,12 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 		valueEntry := widget.NewMultiLineEntry()
 		valueEntry.Resize(fyne.NewSize(500, 500))
 		mainContainer := container.NewVBox()
+		typeVlaue := mimetype.Detect([]byte(value))
 		if eidtKeyAbdValue == "value" {
-			typeVlaue := mimetype.Detect([]byte(value))
 
 			switch {
 			case strings.HasPrefix(typeVlaue.String(), "image/"):
-				utils.ImageShow([]byte(value), nameLable, mainContainer, editWindow)
-
+				utils.ImageShow([]byte(key), []byte(value), nameLable, mainContainer, editWindow)
 			case strings.HasPrefix(typeVlaue.String(), "video/"):
 				fmt.Println("video")
 			case strings.HasPrefix(typeVlaue.String(), "audio/"):
@@ -235,11 +241,14 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			defer variable.CurrentDBClient.Close()
 
 			if eidtKeyAbdValue == "value" {
-				err := variable.CurrentDBClient.Add(key, valueEntry.Text)
+
+				err := variable.CurrentDBClient.Add(key, value)
 				if err != nil {
 					fmt.Println(err)
 				}
-				truncatedKey2 = utils.TruncateString(valueEntry.Text, 50)
+				typeValue := mimetype.Detect([]byte(value))
+
+				truncatedKey2 = fmt.Sprintf("* %s . . .", typeValue.Extension())
 
 			} else {
 
@@ -268,6 +277,60 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			rightColumnContent.Refresh()
 		})
 
+		lableAddpicture = widget.NewButton("+", func() {
+			folderPath := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
+				if err != nil {
+					fmt.Println("Error opening folder:", err)
+					return
+				}
+				if dir == nil {
+					fmt.Println("No folder selected")
+					return
+				}
+
+				valueFinish, err := ioutil.ReadAll(dir)
+				if err != nil {
+					fmt.Println("Error reading file:", err)
+					return
+				}
+
+				imgReader := bytes.NewReader(valueFinish)
+				image := canvas.NewImageFromReader(imgReader, "image.png")
+
+				image.FillMode = canvas.ImageFillContain
+				image.SetMinSize(fyne.NewSize(400, 400))
+
+				mainContainer.Add(image)
+				if len(mainContainer.Objects) >= 1 {
+					bottomDelete.Enable()
+					lableAddpicture.Disable()
+				}
+				mainContainer.Refresh()
+				value = string(valueFinish)
+			}, editWindow)
+			folderPath.SetFilter(storage.NewExtensionFileFilter([]string{".png", ".jpg", ".jpeg", ".gif"}))
+
+			folderPath.Show()
+		})
+
+		if len(mainContainer.Objects) >= 1 {
+			lableAddpicture.Disable()
+		}
+
+		bottomDelete = widget.NewButton("Delete picture", func() {
+
+			mainContainer.Remove(mainContainer.Objects[0])
+			mainContainer.Refresh()
+			lableAddpicture.Enable()
+			bottomDelete.Disable()
+
+		})
+
+		contentt = container.NewVBox(
+			lableAddpicture,
+			bottomDelete,
+		)
+
 		cancelButton := widget.NewButton("Cancel", func() {
 			editWindow.Close()
 		})
@@ -275,14 +338,16 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 		m := container.NewGridWithColumns(2, cancelButton, saveButton)
 		b := container.NewBorder(nil, m, nil, nil)
 
-		editContent := container.NewVBox(
-			widget.NewLabel("Edit "+eidtKeyAbdValue+" :"),
-			mainContainer,
-			layout.NewSpacer(),
+		rowBottom := container.NewVBox(
+			contentt,
 			b,
 		)
+		editContentScr := container.NewScroll(mainContainer)
+		coulumnORG := container.NewBorder(
+			widget.NewLabel("Edit "+eidtKeyAbdValue+" :"), rowBottom, nil, nil, editContentScr,
+		)
 
-		editWindow.SetContent(editContent)
+		editWindow.SetContent(coulumnORG)
 		editWindow.Show()
 	})
 	return lableKeyAndValue

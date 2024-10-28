@@ -64,6 +64,7 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 
 		}
 	})
+
 	redioType.Horizontal = true
 	rowRedio := container.NewHBox(typeValue, redioType)
 
