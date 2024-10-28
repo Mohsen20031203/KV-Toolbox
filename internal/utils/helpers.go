@@ -4,6 +4,8 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 	variable "testgui"
@@ -14,6 +16,9 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -88,7 +93,10 @@ func CleanInput(input string) string {
 	return cleaned
 }
 
-func ImageShow(key []byte, value []byte, nameLable string, mainContainer *fyne.Container, editWindow fyne.Window) {
+func ImageShow(key []byte, value []byte, nameLable string, mainContainer *fyne.Container, editWindow fyne.Window) *fyne.Container {
+	var bottomDelete *widget.Button
+	var contentt *fyne.Container
+	var lableAddpicture *widget.Button
 
 	imgReader := bytes.NewReader([]byte(value))
 	image := canvas.NewImageFromReader(imgReader, "image.png")
@@ -97,4 +105,59 @@ func ImageShow(key []byte, value []byte, nameLable string, mainContainer *fyne.C
 	image.SetMinSize(fyne.NewSize(400, 400))
 
 	mainContainer.Add(image)
+
+	lableAddpicture = widget.NewButton("+", func() {
+		folderPath := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
+			if err != nil {
+				fmt.Println("Error opening folder:", err)
+				return
+			}
+			if dir == nil {
+				fmt.Println("No folder selected")
+				return
+			}
+
+			valueFinish, err := ioutil.ReadAll(dir)
+			if err != nil {
+				fmt.Println("Error reading file:", err)
+				return
+			}
+
+			imgReader := bytes.NewReader(valueFinish)
+			image := canvas.NewImageFromReader(imgReader, "image.png")
+
+			image.FillMode = canvas.ImageFillContain
+			image.SetMinSize(fyne.NewSize(400, 400))
+
+			mainContainer.Add(image)
+			if len(mainContainer.Objects) >= 1 {
+				bottomDelete.Enable()
+				lableAddpicture.Disable()
+			}
+			mainContainer.Refresh()
+			value = valueFinish
+		}, editWindow)
+		folderPath.SetFilter(storage.NewExtensionFileFilter([]string{".png", ".jpg", ".jpeg", ".gif"}))
+
+		folderPath.Show()
+	})
+
+	bottomDelete = widget.NewButton("Delete picture", func() {
+
+		mainContainer.Remove(mainContainer.Objects[0])
+		mainContainer.Refresh()
+		lableAddpicture.Enable()
+		bottomDelete.Disable()
+
+	})
+
+	if len(mainContainer.Objects) >= 1 {
+		lableAddpicture.Disable()
+	}
+
+	contentt = container.NewVBox(
+		lableAddpicture,
+		bottomDelete,
+	)
+	return contentt
 }

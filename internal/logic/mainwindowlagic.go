@@ -1,9 +1,7 @@
 package logic
 
 import (
-	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"strings"
 	variable "testgui"
@@ -15,11 +13,9 @@ import (
 	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/gabriel-vasile/mimetype"
@@ -191,34 +187,41 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 
 func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, nameLable string, rightColumnContent *fyne.Container) *utils.TappableLabel {
 	var lableKeyAndValue *utils.TappableLabel
-	var bottomDelete *widget.Button
-	var contentt *fyne.Container
-	var lableAddpicture *widget.Button
+	var contentType *fyne.Container
+	var valueEntry *widget.Entry
+	var truncatedKey2 string
 
 	lableKeyAndValue = utils.NewTappableLabel(nameLable, func() {
 		editWindow := fyne.CurrentApp().NewWindow("Edit" + eidtKeyAbdValue)
 		editWindow.Resize(fyne.NewSize(600, 600))
-
-		valueEntry := widget.NewMultiLineEntry()
-		valueEntry.Resize(fyne.NewSize(500, 500))
 		mainContainer := container.NewVBox()
+
 		typeVlaue := mimetype.Detect([]byte(value))
 		if eidtKeyAbdValue == "value" {
 
 			switch {
 			case strings.HasPrefix(typeVlaue.String(), "image/"):
-				utils.ImageShow([]byte(key), []byte(value), nameLable, mainContainer, editWindow)
+				contentType = utils.ImageShow([]byte(key), []byte(value), nameLable, mainContainer, editWindow)
+				typeValue := mimetype.Detect([]byte(value))
+				truncatedKey2 = fmt.Sprintf("* %s . . .", typeValue.Extension())
+
 			case strings.HasPrefix(typeVlaue.String(), "video/"):
 				fmt.Println("video")
+
 			case strings.HasPrefix(typeVlaue.String(), "audio/"):
 				fmt.Println("audio")
+
 			case strings.HasPrefix(typeVlaue.String(), "application/"):
 				fmt.Println("application")
+
 			case strings.HasPrefix(typeVlaue.String(), "text/"):
+				valueEntry = widget.NewMultiLineEntry()
+				valueEntry.Resize(fyne.NewSize(500, 500))
 				valueEntry.SetText(value)
-				scrollableEntry := container.NewScroll(valueEntry)
-				mainContainer = container.NewBorder(nil, nil, nil, nil, scrollableEntry)
-				scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
+				mainContainer.Add(valueEntry)
+
+				contentType = container.NewVBox(widget.NewLabel(""))
+				truncatedKey2 = utils.TruncateString(valueEntry.Text, 30)
 
 			case strings.HasPrefix(typeVlaue.String(), "font/"):
 				fmt.Println("font")
@@ -226,13 +229,9 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 
 		} else {
 			valueEntry.SetText(key)
-			scrollableEntry := container.NewScroll(valueEntry)
-			mainContainer = container.NewBorder(nil, nil, nil, nil, scrollableEntry)
-			scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
 		}
 
 		saveButton := widget.NewButton("Save", func() {
-			var truncatedKey2 string
 
 			err := variable.CurrentDBClient.Open()
 			if err != nil {
@@ -246,9 +245,6 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 				if err != nil {
 					fmt.Println(err)
 				}
-				typeValue := mimetype.Detect([]byte(value))
-
-				truncatedKey2 = fmt.Sprintf("* %s . . .", typeValue.Extension())
 
 			} else {
 
@@ -277,70 +273,13 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			rightColumnContent.Refresh()
 		})
 
-		lableAddpicture = widget.NewButton("+", func() {
-			folderPath := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
-				if err != nil {
-					fmt.Println("Error opening folder:", err)
-					return
-				}
-				if dir == nil {
-					fmt.Println("No folder selected")
-					return
-				}
-
-				valueFinish, err := ioutil.ReadAll(dir)
-				if err != nil {
-					fmt.Println("Error reading file:", err)
-					return
-				}
-
-				imgReader := bytes.NewReader(valueFinish)
-				image := canvas.NewImageFromReader(imgReader, "image.png")
-
-				image.FillMode = canvas.ImageFillContain
-				image.SetMinSize(fyne.NewSize(400, 400))
-
-				mainContainer.Add(image)
-				if len(mainContainer.Objects) >= 1 {
-					bottomDelete.Enable()
-					lableAddpicture.Disable()
-				}
-				mainContainer.Refresh()
-				value = string(valueFinish)
-			}, editWindow)
-			folderPath.SetFilter(storage.NewExtensionFileFilter([]string{".png", ".jpg", ".jpeg", ".gif"}))
-
-			folderPath.Show()
-		})
-
-		if len(mainContainer.Objects) >= 1 {
-			lableAddpicture.Disable()
-		}
-
-		bottomDelete = widget.NewButton("Delete picture", func() {
-
-			mainContainer.Remove(mainContainer.Objects[0])
-			mainContainer.Refresh()
-			lableAddpicture.Enable()
-			bottomDelete.Disable()
-
-		})
-
-		contentt = container.NewVBox(
-			lableAddpicture,
-			bottomDelete,
-		)
-
 		cancelButton := widget.NewButton("Cancel", func() {
 			editWindow.Close()
 		})
 
-		m := container.NewGridWithColumns(2, cancelButton, saveButton)
-		b := container.NewBorder(nil, m, nil, nil)
-
 		rowBottom := container.NewVBox(
-			contentt,
-			b,
+			contentType,
+			container.NewBorder(nil, container.NewGridWithColumns(2, cancelButton, saveButton), nil, nil),
 		)
 		editContentScr := container.NewScroll(mainContainer)
 		coulumnORG := container.NewBorder(
