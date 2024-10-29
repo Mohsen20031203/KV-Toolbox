@@ -22,6 +22,8 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+var ValueImage []byte
+
 type TappableLabel struct {
 	widget.Label
 	onTapped func()
@@ -67,11 +69,11 @@ func Checkdatabace(test string, nameDatabace string) error {
 
 	switch nameDatabace {
 	case "levelDB":
-		variable.CurrentDBClient = leveldbb.NewDataBaseLeveldb(parts[0])
+		variable.CurrentDBClient = leveldbb.NewDataBaseLeveldb(test)
 	case "Pebble":
-		variable.CurrentDBClient = PebbleDB.NewDataBasePebble(parts[0])
+		variable.CurrentDBClient = PebbleDB.NewDataBasePebble(test)
 	case "Badger":
-		variable.CurrentDBClient = badgerDB.NewDataBaseBadger(parts[0])
+		variable.CurrentDBClient = badgerDB.NewDataBaseBadger(test)
 	case "Redis":
 
 		variable.CurrentDBClient = Redisdb.NewDataBaseRedis(parts[0], parts[1], parts[2])
@@ -94,7 +96,6 @@ func CleanInput(input string) string {
 }
 
 func ImageShow(key []byte, value []byte, nameLable string, mainContainer *fyne.Container, editWindow fyne.Window) *fyne.Container {
-	var bottomDelete *widget.Button
 	var contentt *fyne.Container
 	var lableAddpicture *widget.Button
 
@@ -122,6 +123,7 @@ func ImageShow(key []byte, value []byte, nameLable string, mainContainer *fyne.C
 				fmt.Println("Error reading file:", err)
 				return
 			}
+			ValueImage = valueFinish
 
 			imgReader := bytes.NewReader(valueFinish)
 			image := canvas.NewImageFromReader(imgReader, "image.png")
@@ -129,35 +131,21 @@ func ImageShow(key []byte, value []byte, nameLable string, mainContainer *fyne.C
 			image.FillMode = canvas.ImageFillContain
 			image.SetMinSize(fyne.NewSize(400, 400))
 
-			mainContainer.Add(image)
 			if len(mainContainer.Objects) >= 1 {
-				bottomDelete.Enable()
-				lableAddpicture.Disable()
+				mainContainer.Objects = mainContainer.Objects[:0]
 			}
+
+			mainContainer.Add(image)
 			mainContainer.Refresh()
-			value = valueFinish
+
 		}, editWindow)
 		folderPath.SetFilter(storage.NewExtensionFileFilter([]string{".png", ".jpg", ".jpeg", ".gif"}))
 
 		folderPath.Show()
 	})
 
-	bottomDelete = widget.NewButton("Delete picture", func() {
-
-		mainContainer.Remove(mainContainer.Objects[0])
-		mainContainer.Refresh()
-		lableAddpicture.Enable()
-		bottomDelete.Disable()
-
-	})
-
-	if len(mainContainer.Objects) >= 1 {
-		lableAddpicture.Disable()
-	}
-
 	contentt = container.NewVBox(
 		lableAddpicture,
-		bottomDelete,
 	)
 	return contentt
 }

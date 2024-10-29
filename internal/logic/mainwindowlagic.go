@@ -138,11 +138,10 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 
 func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string) *fyne.Container {
 	projectButton := widget.NewButton(inputText+" - "+nameDatabace, func() {
-		parts := strings.Split(path, "|-|")
 		variable.ItemsAdded = false
 		utils.Checkdatabace(path, nameDatabace)
 		buttonAdd.Enable()
-		variable.FolderPath = parts[0]
+		variable.FolderPath = path
 		lastEnd = nil
 		variable.CurrentPage = 1
 		lastPage = 0
@@ -202,6 +201,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			switch {
 			case strings.HasPrefix(typeVlaue.String(), "image/"):
 				contentType = utils.ImageShow([]byte(key), []byte(value), nameLable, mainContainer, editWindow)
+
 				typeValue := mimetype.Detect([]byte(value))
 				truncatedKey2 = fmt.Sprintf("* %s . . .", typeValue.Extension())
 
@@ -212,17 +212,28 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 				fmt.Println("audio")
 
 			case strings.HasPrefix(typeVlaue.String(), "application/"):
-				fmt.Println("application")
+				valueEntry2 := widget.NewMultiLineEntry()
+				valueEntry2.Resize(fyne.NewSize(500, 500))
+				valueEntry2.SetText(value)
+				mainContainer.Add(valueEntry2)
+
+				contentType = container.NewVBox(widget.NewLabel(""))
+
+				value = valueEntry2.Text
 
 			case strings.HasPrefix(typeVlaue.String(), "text/"):
+
 				valueEntry = widget.NewMultiLineEntry()
 				valueEntry.Resize(fyne.NewSize(500, 500))
 				valueEntry.SetText(value)
-				mainContainer.Add(valueEntry)
+				scrollableEntry := container.NewScroll(valueEntry)
+				mainContainer = container.NewBorder(nil, nil, nil, nil, scrollableEntry)
+				scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
+				mainContainer.Add(scrollableEntry)
 
 				contentType = container.NewVBox(widget.NewLabel(""))
-				truncatedKey2 = utils.TruncateString(valueEntry.Text, 30)
 
+				value = valueEntry.Text
 			case strings.HasPrefix(typeVlaue.String(), "font/"):
 				fmt.Println("font")
 			}
@@ -240,6 +251,14 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			defer variable.CurrentDBClient.Close()
 
 			if eidtKeyAbdValue == "value" {
+
+				if strings.HasPrefix(typeVlaue.String(), "text/") {
+					value = valueEntry.Text
+					truncatedKey2 = utils.TruncateString(valueEntry.Text, 30)
+				} else if utils.ValueImage != nil {
+					value = string(utils.ValueImage)
+
+				}
 
 				err := variable.CurrentDBClient.Add(key, value)
 				if err != nil {
