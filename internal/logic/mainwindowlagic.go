@@ -29,9 +29,8 @@ func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *w
 		println("Error loading JSON data:", err)
 	} else {
 		for _, project := range jsonDataa.RecentProjects {
-			path := fmt.Sprintf("%s|-|%s|-|%s", project.FileAddress, project.Username, project.Password)
 
-			buttonContainer := ProjectButton(project.Name, lastColumnContent, path, rightColumnContentORG, nameButtonProject, buttonAdd, project.Databace)
+			buttonContainer := ProjectButton(project.Name, lastColumnContent, project.FileAddress, rightColumnContentORG, nameButtonProject, buttonAdd, project.Databace)
 			lastColumnContent.Add(buttonContainer)
 		}
 	}
@@ -239,7 +238,15 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			}
 
 		} else {
+			valueEntry = widget.NewMultiLineEntry()
+			valueEntry.Resize(fyne.NewSize(500, 500))
 			valueEntry.SetText(key)
+			scrollableEntry := container.NewScroll(valueEntry)
+			mainContainer = container.NewBorder(nil, nil, nil, nil, scrollableEntry)
+			scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
+			mainContainer.Add(scrollableEntry)
+			contentType = container.NewVBox(widget.NewLabel(""))
+
 		}
 
 		saveButton := widget.NewButton("Save", func() {

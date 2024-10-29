@@ -15,8 +15,6 @@ type Project struct {
 	Comment     string `json:"comment"`
 	FileAddress string `json:"fileAddress"`
 	Databace    string `json:"databace"`
-	Username    string `json:"username"`
-	Password    string `json:"password"`
 }
 
 type JsonFile interface {

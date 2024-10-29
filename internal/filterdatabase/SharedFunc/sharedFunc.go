@@ -108,8 +108,6 @@ func FormPasteDatabase(a fyne.App, title string, lastColumnContent *fyne.Contain
 			"Comment":  pathEntryComment.Text,
 			"Addres":   pathEntry2.Text,
 			"Database": title,
-			"Username": "",
-			"Password": "",
 		}
 		if pathEntry.Text == "" {
 			dialog.ShowInformation("Error ", "Please fill in the name field", newWindow)

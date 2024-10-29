@@ -64,7 +64,7 @@ func (j *ConstantJsonFile) Add(data map[string]string, window fyne.Window, nameD
 	}
 
 	for _, addres := range state.RecentProjects {
-		if data["Addres"] == addres.FileAddress && data["Username"] == addres.Username {
+		if data["Addres"] == addres.FileAddress {
 			dialog.ShowInformation("error", fmt.Sprintf("This database has already been added to your projects under the name '%s'", addres.Name), window)
 			return nil, true
 		}
@@ -75,8 +75,6 @@ func (j *ConstantJsonFile) Add(data map[string]string, window fyne.Window, nameD
 		Comment:     data["Comment"],
 		FileAddress: data["Addres"],
 		Databace:    data["Database"],
-		Username:    data["Username"],
-		Password:    data["Password"],
 	}
 
 	state.RecentProjects = append(state.RecentProjects, newActivity)
