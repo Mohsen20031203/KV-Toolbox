@@ -1,8 +1,8 @@
 package PebbleDB
 
 import (
+	"bytes"
 	"fmt"
-	"strings"
 	dbpak "testgui/internal/Databaces"
 
 	"github.com/cockroachdb/pebble"
@@ -19,8 +19,8 @@ func NewDataBasePebble(address string) dbpak.DBClient {
 	}
 }
 
-func (p *PebbleDatabase) Delete(key string) error {
-	err := p.DB.Delete([]byte(key), nil)
+func (p *PebbleDatabase) Delete(key []byte) error {
+	err := p.DB.Delete(key, nil)
 	if err != nil {
 		return err
 	}
@@ -37,35 +37,35 @@ func (p *PebbleDatabase) Close() {
 	p.DB.Close()
 }
 
-func (p *PebbleDatabase) Add(key, value string) error {
-	return p.DB.Set([]byte(key), []byte(value), nil)
+func (p *PebbleDatabase) Add(key, value []byte) error {
+	return p.DB.Set(key, value, nil)
 }
 
-func (p *PebbleDatabase) Get(key string) (string, error) {
+func (p *PebbleDatabase) Get(key []byte) ([]byte, error) {
 	if p.DB == nil {
-		return "", nil
+		return nil, nil
 	}
 
 	data, closer, err := p.DB.Get([]byte(key))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	defer closer.Close()
 
-	return string(data), err
+	return data, err
 }
 
-func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
+func (p *PebbleDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVData) {
 	var Item []dbpak.KVData
 
 	iterOptions := &pebble.IterOptions{}
 	if start != nil {
-		iterOptions.LowerBound = []byte(*start)
+		iterOptions.LowerBound = *start
 	}
 	if end != nil {
 
-		iterOptions.UpperBound = []byte(*end)
+		iterOptions.UpperBound = *end
 	}
 
 	iter, err := p.DB.NewIter(iterOptions)
@@ -81,7 +81,7 @@ func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 		key := iter.Key()
 		value := iter.Value()
 
-		Item = append(Item, dbpak.KVData{Key: string(key), Value: string(value)})
+		Item = append(Item, dbpak.KVData{Key: key, Value: value})
 		cnt++
 
 		for iter.Prev() {
@@ -92,7 +92,7 @@ func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 			key := iter.Key()
 			value := iter.Value()
 
-			Item = append(Item, dbpak.KVData{Key: string(key), Value: string(value)})
+			Item = append(Item, dbpak.KVData{Key: key, Value: value})
 		}
 
 		for i := 0; i < len(Item)/2; i++ {
@@ -103,7 +103,7 @@ func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 		}
 	} else {
 		if start != nil {
-			iter.SeekGE([]byte(*start))
+			iter.SeekGE(*start)
 			iter.Next()
 		} else {
 			iter.First()
@@ -116,7 +116,7 @@ func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 			}
 			key := iter.Key()
 			value := iter.Value()
-			Item = append(Item, dbpak.KVData{Key: string(key), Value: string(value)})
+			Item = append(Item, dbpak.KVData{Key: key, Value: value})
 			iter.Next()
 		}
 	}
@@ -124,8 +124,8 @@ func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 	return nil, Item
 }
 
-func (l *PebbleDatabase) Search(valueEntry string) (error, []string) {
-	var data []string
+func (l *PebbleDatabase) Search(valueEntry []byte) (error, [][]byte) {
+	var data [][]byte
 
 	Iterator, err := l.DB.NewIter(nil)
 	if err != nil {
@@ -140,9 +140,9 @@ func (l *PebbleDatabase) Search(valueEntry string) (error, []string) {
 
 	for Iterator.Valid() {
 
-		if strings.Contains(string(Iterator.Key()), valueEntry) {
+		if bytes.Contains(Iterator.Key(), valueEntry) {
 
-			data = append(data, string(Iterator.Key()))
+			data = append(data, Iterator.Key())
 
 		}
 		if !Iterator.Next() {

@@ -157,13 +157,13 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container)
 		if rightColumnScrollable.Offset.Y < variable.PreviousOffsetY {
 
 			if up && rightColumnScrollable.Offset.Y == 0 {
-				variable.CurrentPage--
 				if variable.CurrentPage < 3 {
 					up = false
 					variable.PreviousOffsetY = rightColumnScrollable.Offset.Y
 					variable.CurrentPage = 3
 					return
 				}
+				variable.CurrentPage--
 				rightColumnAll.Objects = rightColumnAll.Objects[:(variable.ItemsPerPage+1)*2]
 				logic.UpdatePage(rightColumnAll)
 				rightColumnScrollable.Offset.Y = maxScroll / 2

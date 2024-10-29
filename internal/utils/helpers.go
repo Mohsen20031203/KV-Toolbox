@@ -10,7 +10,6 @@ import (
 	"strings"
 	variable "testgui"
 	"testgui/internal/Databaces/PebbleDB"
-	Redisdb "testgui/internal/Databaces/Redis"
 	badgerDB "testgui/internal/Databaces/badger"
 	leveldbb "testgui/internal/Databaces/leveldb"
 
@@ -65,7 +64,7 @@ func CheckCondition(rightColumnContent *fyne.Container) {
 }
 
 func Checkdatabace(test string, nameDatabace string) error {
-	parts := strings.Split(test, "|-|")
+	//parts := strings.Split(test, "|-|")
 
 	switch nameDatabace {
 	case "levelDB":
@@ -76,7 +75,7 @@ func Checkdatabace(test string, nameDatabace string) error {
 		variable.CurrentDBClient = badgerDB.NewDataBaseBadger(test)
 	case "Redis":
 
-		variable.CurrentDBClient = Redisdb.NewDataBaseRedis(parts[0], parts[1], parts[2])
+		//variable.CurrentDBClient = Redisdb.NewDataBaseRedis(parts[0], parts[1], parts[2])
 	}
 
 	if nameDatabace != "Redis" {

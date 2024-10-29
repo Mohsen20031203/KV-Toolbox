@@ -54,8 +54,8 @@ func SetupThemeButtons(app fyne.App) *fyne.Container {
 }
 
 var (
-	lastStart *string
-	lastEnd   *string
+	lastStart *[]byte
+	lastEnd   *[]byte
 	count     int
 	Orgdata   []dbpak.KVData
 	lastPage  int
@@ -71,7 +71,7 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 	}
 	defer variable.CurrentDBClient.Close()
 
-	if lastPage <= variable.CurrentPage {
+	if lastPage < variable.CurrentPage {
 		//next page
 
 		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
@@ -110,13 +110,13 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		truncatedKey := utils.TruncateString(string(item.Key), 20)
 		truncatedValue := utils.TruncateString(string(item.Value), 30)
 
-		typeValue := mimetype.Detect([]byte(item.Value))
+		typeValue := mimetype.Detect(item.Value)
 		if typeValue.Extension() != ".txt" {
 
 			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
 		}
-		valueLabel := BuidLableKeyAndValue("value", string(item.Key), string(item.Value), truncatedValue, rightColumnContent)
-		keyLabel := BuidLableKeyAndValue("key", string(item.Key), string(item.Value), truncatedKey, rightColumnContent)
+		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, rightColumnContent)
+		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, rightColumnContent)
 
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		arrayContainer = append(arrayContainer, buttonRow)
@@ -183,7 +183,7 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	return buttonContainer
 }
 
-func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, nameLable string, rightColumnContent *fyne.Container) *utils.TappableLabel {
+func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, nameLable string, rightColumnContent *fyne.Container) *utils.TappableLabel {
 	var lableKeyAndValue *utils.TappableLabel
 	var contentType *fyne.Container
 	var valueEntry *widget.Entry
@@ -213,18 +213,18 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			case strings.HasPrefix(typeVlaue.String(), "application/"):
 				valueEntry2 := widget.NewMultiLineEntry()
 				valueEntry2.Resize(fyne.NewSize(500, 500))
-				valueEntry2.SetText(value)
+				valueEntry2.SetText(string(value))
 				mainContainer.Add(valueEntry2)
 
 				contentType = container.NewVBox(widget.NewLabel(""))
 
-				value = valueEntry2.Text
+				value = []byte(valueEntry2.Text)
 
 			case strings.HasPrefix(typeVlaue.String(), "text/"):
 
 				valueEntry = widget.NewMultiLineEntry()
 				valueEntry.Resize(fyne.NewSize(500, 500))
-				valueEntry.SetText(value)
+				valueEntry.SetText(string(value))
 				scrollableEntry := container.NewScroll(valueEntry)
 				mainContainer = container.NewBorder(nil, nil, nil, nil, scrollableEntry)
 				scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
@@ -232,7 +232,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 
 				contentType = container.NewVBox(widget.NewLabel(""))
 
-				value = valueEntry.Text
+				value = []byte(valueEntry.Text)
 			case strings.HasPrefix(typeVlaue.String(), "font/"):
 				fmt.Println("font")
 			}
@@ -240,7 +240,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 		} else {
 			valueEntry = widget.NewMultiLineEntry()
 			valueEntry.Resize(fyne.NewSize(500, 500))
-			valueEntry.SetText(key)
+			valueEntry.SetText(string(key))
 			scrollableEntry := container.NewScroll(valueEntry)
 			mainContainer = container.NewBorder(nil, nil, nil, nil, scrollableEntry)
 			scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
@@ -260,10 +260,10 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			if eidtKeyAbdValue == "value" {
 
 				if strings.HasPrefix(typeVlaue.String(), "text/") {
-					value = valueEntry.Text
+					value = []byte(valueEntry.Text)
 					truncatedKey2 = utils.TruncateString(valueEntry.Text, 30)
 				} else if utils.ValueImage != nil {
-					value = string(utils.ValueImage)
+					value = utils.ValueImage
 
 				}
 
@@ -283,13 +283,13 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 					return
 				}
 
-				key = utils.CleanInput(valueEntry.Text)
+				key = []byte(utils.CleanInput(valueEntry.Text))
 
 				err = variable.CurrentDBClient.Add(key, valueBefor)
 				if err != nil {
 					fmt.Println(err)
 				}
-				truncatedKey2 = utils.TruncateString(key, 20)
+				truncatedKey2 = utils.TruncateString(string(key), 20)
 			}
 
 			lableKeyAndValue.SetText(truncatedKey2)
@@ -326,7 +326,7 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	}
 
 	key := utils.CleanInput(valueEntry.Text)
-	err, data := variable.CurrentDBClient.Search(key)
+	err, data := variable.CurrentDBClient.Search([]byte(key))
 	if err != nil {
 		return false, err
 	}
@@ -343,8 +343,8 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		if err != nil {
 			return false, err
 		}
-		truncatedKey := utils.TruncateString(item, 20)
-		truncatedValue := utils.TruncateString(value, 30)
+		truncatedKey := utils.TruncateString(string(item), 20)
+		truncatedValue := utils.TruncateString(string(value), 30)
 
 		typeValue := mimetype.Detect([]byte(value))
 		if typeValue.Extension() != ".txt" {
@@ -369,7 +369,7 @@ func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	if valueSearch == "" && err != nil {
 		dialog.ShowInformation("Error", "This key does not exist in the database", editWindow)
 	} else {
-		err = variable.CurrentDBClient.Delete(key)
+		err = variable.CurrentDBClient.Delete([]byte(key))
 		if err != nil {
 			log.Fatal("this err for func DeletKeyLogic part else delete || err : ", err)
 			return
@@ -391,7 +391,7 @@ func AddKeyLogic(iputKey string, valueFinish []byte, windowAdd fyne.Window) {
 		dialog.ShowInformation("Error", "This key has already been added to your database", windowAdd)
 
 	} else {
-		err = variable.CurrentDBClient.Add(key, string(valueFinish))
+		err = variable.CurrentDBClient.Add([]byte(key), valueFinish)
 		if err != nil {
 			log.Fatal("error : this error in func addkeylogic for add key in database")
 		}
@@ -409,9 +409,9 @@ func QueryKey(iputKey string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	checkNow, err := variable.CurrentDBClient.Get(key)
+	checkNow, err := variable.CurrentDBClient.Get([]byte(key))
 	if err != nil {
 		fmt.Println("error : delete func logic for get key in databace")
 	}
-	return checkNow, err
+	return string(checkNow), err
 }

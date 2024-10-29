@@ -20,9 +20,9 @@ type RedisDatabase struct {
 var cursor uint64
 var Rediscursor []uint64
 
-func NewDataBaseRedis(addres string, username string, password string) dbpak.DBClient {
+func NewDataBaseRedis(addres string, username string, password string) RedisDatabase {
 
-	return &RedisDatabase{
+	return RedisDatabase{
 		Addres:   addres,
 		Username: username,
 		Password: password,
@@ -73,7 +73,7 @@ func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVDa
 			if err != nil {
 				log.Fatalf(" error %v", err)
 			}
-			Item = append(Item, dbpak.KVData{Key: key, Value: value})
+			Item = append(Item, dbpak.KVData{Key: []byte(key), Value: []byte(value)})
 			cnt++
 			if cnt >= count {
 				break
@@ -97,7 +97,7 @@ func (r *RedisDatabase) Read(start, end *string, count int) (error, []dbpak.KVDa
 			if err != nil {
 				log.Fatalf("error %v", err)
 			}
-			Item = append(Item, dbpak.KVData{Key: key, Value: value})
+			Item = append(Item, dbpak.KVData{Key: []byte(key), Value: []byte(value)})
 		}
 
 		cursor = newCursor
