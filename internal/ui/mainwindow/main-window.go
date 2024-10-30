@@ -3,7 +3,6 @@ package mainwindow
 import (
 	"image/color"
 	variable "testgui"
-	"time"
 
 	Filterbadger "testgui/internal/filterdatabase/badger"
 	FilterLeveldb "testgui/internal/filterdatabase/leveldb"
@@ -151,47 +150,41 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container)
 	up := false
 
 	rightColumnScrollable.OnScrolled = func(p fyne.Position) {
-		variable.ItemsAdded = false
 		maxScroll := rightColumnAll.MinSize().Height - rightColumnScrollable.Size().Height
 
-		if rightColumnScrollable.Offset.Y < variable.PreviousOffsetY {
-
-			if up && rightColumnScrollable.Offset.Y == 0 {
-				if variable.CurrentPage < 3 {
-					up = false
-					variable.PreviousOffsetY = rightColumnScrollable.Offset.Y
-					variable.CurrentPage = 3
-					return
-				}
-				variable.CurrentPage--
-				rightColumnAll.Objects = rightColumnAll.Objects[:(variable.ItemsPerPage+1)*2]
-				logic.UpdatePage(rightColumnAll)
-				rightColumnScrollable.Offset.Y = maxScroll / 2
-				rightColumnScrollable.Refresh()
-
+		if up && p.Y == 0 {
+			variable.CurrentPage--
+			if variable.CurrentPage < 3 {
+				up = false
+				variable.CurrentPage = 3
+				return
 			}
-		}
-		if rightColumnScrollable.Offset.Y >= variable.PreviousOffsetY-100 {
+			numberLast := len(rightColumnAll.Objects)
+			_ = numberLast
+			logic.UpdatePage(rightColumnAll)
 
-			if rightColumnScrollable.Offset.Y >= maxScroll {
-				if len(rightColumnAll.Objects) >= (variable.ItemsPerPage+1)*3 {
-					rightColumnAll.Objects = rightColumnAll.Objects[(variable.ItemsPerPage + 1):]
-					up = true
-				}
-				time.AfterFunc(100*time.Millisecond, func() {
-					if !variable.ItemsAdded {
-						variable.CurrentPage++
-						logic.UpdatePage(rightColumnAll)
-						rightColumnScrollable.Offset.Y = maxScroll / 2
-						variable.ItemsAdded = true
-					}
-				})
-			}
-		} else {
+			// be edited --- its false
+			rightColumnAll.Objects = rightColumnAll.Objects[:len(rightColumnAll.Objects)-numberLast]
+			//------------------------
+
+			rightColumnScrollable.Offset.Y = maxScroll / 2
+			rightColumnScrollable.Refresh()
+
+		} else if p.Y == maxScroll && !variable.ItemsAdded {
 			return
-		}
+		} else if p.Y == maxScroll && variable.ItemsAdded {
 
-		variable.PreviousOffsetY = rightColumnScrollable.Offset.Y
+			variable.CurrentPage++
+			numberLast := len(rightColumnAll.Objects)
+			logic.UpdatePage(rightColumnAll)
+			rightColumnScrollable.Offset.Y = maxScroll / 2
+
+			if len(rightColumnAll.Objects) > (variable.ItemsPerPage)*3 {
+				rightColumnAll.Objects = rightColumnAll.Objects[len(rightColumnAll.Objects)-numberLast:]
+				up = true
+			}
+
+		}
 
 	}
 

@@ -71,6 +71,10 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 	}
 	defer variable.CurrentDBClient.Close()
 
+	if lastEnd == nil && lastStart == nil {
+		count = 0
+		Orgdata = Orgdata[:0]
+	}
 	if lastPage < variable.CurrentPage {
 		//next page
 
@@ -80,8 +84,19 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 			fmt.Println(err)
 		}
 
+		if len(data) == variable.ItemsPerPage+1 {
+			data = data[:variable.ItemsPerPage]
+			variable.ItemsAdded = true
+
+		} else {
+			variable.ItemsAdded = false
+
+		}
+		if len(data) == 0 {
+			return
+		}
 		if count > 2 {
-			Orgdata = Orgdata[(variable.ItemsPerPage + 1):]
+			Orgdata = Orgdata[len(data):]
 		}
 
 		Orgdata = append(Orgdata, data...)
@@ -93,12 +108,17 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		Orgdata = Orgdata[:(variable.ItemsPerPage+1)*2]
+
+		if len(data) == variable.ItemsPerPage+1 {
+			data = data[1:]
+			variable.ItemsAdded = true
+		}
+		if len(data) == 0 {
+			return
+		}
+		Orgdata = Orgdata[:len(Orgdata)-len(data)]
 		Orgdata = append(data, Orgdata...)
 
-	}
-	if len(data) == 0 {
-		return
 	}
 
 	lastStart = &Orgdata[0].Key
@@ -137,7 +157,7 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 
 func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string) *fyne.Container {
 	projectButton := widget.NewButton(inputText+" - "+nameDatabace, func() {
-		variable.ItemsAdded = false
+		variable.ItemsAdded = true
 		utils.Checkdatabace(path, nameDatabace)
 		buttonAdd.Enable()
 		variable.FolderPath = path

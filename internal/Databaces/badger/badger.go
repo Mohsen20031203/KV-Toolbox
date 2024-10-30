@@ -88,14 +88,18 @@ func (c *badgerDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVD
 					break
 				}
 				item := iter.Item()
-				key := item.Key()
 
 				valCopy, err := item.ValueCopy(nil)
 				if err != nil {
 					return err
 				}
 
-				items = append(items, dbpak.KVData{Key: key, Value: valCopy})
+				key1 := make([]byte, len(item.Key()))
+				copy(key1, item.Key())
+
+				value1 := make([]byte, len(valCopy))
+				copy(value1, valCopy)
+				items = append(items, dbpak.KVData{Key: key1, Value: value1})
 			}
 
 			for i := 0; i < len(items)/2; i++ {
@@ -119,15 +123,20 @@ func (c *badgerDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVD
 				if cnt > count {
 					break
 				}
+
 				item := iter.Item()
-				key := item.Key()
 
 				valCopy, err := item.ValueCopy(nil)
 				if err != nil {
 					return err
 				}
 
-				items = append(items, dbpak.KVData{Key: key, Value: valCopy})
+				key1 := make([]byte, len(item.Key()))
+				copy(key1, item.Key())
+
+				value1 := make([]byte, len(valCopy))
+				copy(value1, valCopy)
+				items = append(items, dbpak.KVData{Key: key1, Value: value1})
 			}
 		}
 		return nil
