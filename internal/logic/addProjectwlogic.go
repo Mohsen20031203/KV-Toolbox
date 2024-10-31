@@ -1,15 +1,15 @@
 package logic
 
 import (
+	variable "DatabaseDB"
+	"DatabaseDB/internal/utils"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"path/filepath"
 	"strings"
-	variable "testgui"
-	"testgui/internal/utils"
 
-	// "testgui/internal/logic/mainwindowlagic"
+	// "DatabaseDB/internal/logic/mainwindowlagic"
 
 	"fyne.io/fyne/v2/widget"
 )

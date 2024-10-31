@@ -1,7 +1,7 @@
 package searchkeyui
 
 import (
-	"testgui/internal/logic"
+	"DatabaseDB/internal/logic"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"

@@ -1,11 +1,11 @@
 package jsondata
 
 import (
+	jsFile "DatabaseDB/internal/json"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
-	jsFile "testgui/internal/json"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"

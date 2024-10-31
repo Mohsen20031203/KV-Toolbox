@@ -1,11 +1,11 @@
 package Filterbadger
 
 import (
+	"DatabaseDB/internal/filterdatabase"
+	sharedfunc "DatabaseDB/internal/filterdatabase/SharedFunc"
 	"io/ioutil"
 	"log"
 	"path/filepath"
-	"testgui/internal/filterdatabase"
-	sharedfunc "testgui/internal/filterdatabase/SharedFunc"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"

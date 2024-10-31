@@ -1,16 +1,16 @@
 package logic
 
 import (
+	variable "DatabaseDB"
 	"fmt"
 	"log"
 	"strings"
-	variable "testgui"
 	"time"
 
-	// "testgui/internal/logic/addProjectwindowlogic"
+	// "DatabaseDB/internal/logic/addProjectwindowlogic"
 
-	dbpak "testgui/internal/Databaces"
-	"testgui/internal/utils"
+	dbpak "DatabaseDB/internal/Databaces"
+	"DatabaseDB/internal/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"

@@ -1,12 +1,12 @@
 package Filterredis
 
 import (
+	variable "DatabaseDB"
+	"DatabaseDB/internal/filterdatabase"
+	"DatabaseDB/internal/logic"
+	"DatabaseDB/internal/utils"
 	"fmt"
 	"image/color"
-	variable "testgui"
-	"testgui/internal/filterdatabase"
-	"testgui/internal/logic"
-	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"

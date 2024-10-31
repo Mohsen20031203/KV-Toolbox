@@ -1,15 +1,15 @@
 package sharedfunc
 
 import (
+	variable "DatabaseDB"
+	"DatabaseDB/internal/logic"
+	"DatabaseDB/internal/utils"
 	"fmt"
 	"image/color"
 	"io/ioutil"
 	"log"
 	"path/filepath"
 	"strings"
-	variable "testgui"
-	"testgui/internal/logic"
-	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"

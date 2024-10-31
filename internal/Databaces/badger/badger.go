@@ -1,8 +1,8 @@
 package badgerDB
 
 import (
+	dbpak "DatabaseDB/internal/Databaces"
 	"bytes"
-	dbpak "testgui/internal/Databaces"
 
 	"github.com/dgraph-io/badger/v4"
 )

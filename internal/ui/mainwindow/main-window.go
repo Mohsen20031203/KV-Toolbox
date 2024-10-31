@@ -1,16 +1,16 @@
 package mainwindow
 
 import (
+	variable "DatabaseDB"
 	"image/color"
-	variable "testgui"
 
-	Filterbadger "testgui/internal/filterdatabase/badger"
-	FilterLeveldb "testgui/internal/filterdatabase/leveldb"
-	Filterpebbledb "testgui/internal/filterdatabase/pebble"
-	"testgui/internal/logic"
-	addkeyui "testgui/internal/ui/addKeyui"
-	deletkeyui "testgui/internal/ui/deletKeyUi"
-	searchkeyui "testgui/internal/ui/searchKeyui"
+	Filterbadger "DatabaseDB/internal/filterdatabase/badger"
+	FilterLeveldb "DatabaseDB/internal/filterdatabase/leveldb"
+	Filterpebbledb "DatabaseDB/internal/filterdatabase/pebble"
+	"DatabaseDB/internal/logic"
+	addkeyui "DatabaseDB/internal/ui/addKeyui"
+	deletkeyui "DatabaseDB/internal/ui/deletKeyUi"
+	searchkeyui "DatabaseDB/internal/ui/searchKeyui"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"

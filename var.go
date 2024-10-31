@@ -1,9 +1,9 @@
 package variable
 
 import (
-	dbpak "testgui/internal/Databaces"
-	"testgui/internal/filterdatabase"
-	jsFile "testgui/internal/json"
+	dbpak "DatabaseDB/internal/Databaces"
+	"DatabaseDB/internal/filterdatabase"
+	jsFile "DatabaseDB/internal/json"
 )
 
 var (
