@@ -1,13 +1,13 @@
-package addProjectwindowui
+package sharedfunc
 
 import (
 	"fmt"
 	"image/color"
+	"io/ioutil"
+	"log"
 	"path/filepath"
+	"strings"
 	variable "testgui"
-
-	//"testgui/internal/logic/logic"
-
 	"testgui/internal/logic"
 	"testgui/internal/utils"
 
@@ -19,8 +19,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) {
-
+func FormPasteDatabase(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) {
 	newWindow := a.NewWindow(title)
 
 	createSeparator := func() *canvas.Line {
@@ -104,6 +103,12 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	})
 
 	buttonOk := widget.NewButton("Add", func() {
+		data := map[string]string{
+			"Name":     pathEntry.Text,
+			"Comment":  pathEntryComment.Text,
+			"Addres":   pathEntry2.Text,
+			"Database": title,
+		}
 		if pathEntry.Text == "" {
 			dialog.ShowInformation("Error ", "Please fill in the name field", newWindow)
 			return
@@ -123,7 +128,7 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 		err = logic.HandleButtonClick(pathEntry2.Text, title)
 		if err == nil {
 
-			err, addButton = variable.CurrentJson.Add(pathEntry2.Text, pathEntry.Text, pathEntryComment.Text, newWindow, title)
+			err, addButton = variable.CurrentJson.Add(data, newWindow, title)
 		}
 
 		if err != nil {
@@ -169,4 +174,23 @@ func OpenNewWindow(a fyne.App, title string, lastColumnContent *fyne.Container, 
 	newWindow.CenterOnScreen()
 	newWindow.SetContent(rightColumnContent)
 	newWindow.Show()
+}
+
+func FormatFilesDatabase(path string) bool {
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		log.Fatal("Error reading folder:", err)
+		return false
+	}
+	var count uint8
+	for _, file := range files {
+		if strings.HasPrefix(file.Name(), "MANIFEST-") || filepath.Ext(file.Name()) == ".log" {
+			count++
+		}
+
+		if count == 2 {
+			return true
+		}
+	}
+	return false
 }

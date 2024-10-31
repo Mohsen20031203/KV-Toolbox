@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -19,6 +18,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/gabriel-vasile/mimetype"
 )
 
 func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
@@ -29,6 +29,7 @@ func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *w
 		println("Error loading JSON data:", err)
 	} else {
 		for _, project := range jsonDataa.RecentProjects {
+
 			buttonContainer := ProjectButton(project.Name, lastColumnContent, project.FileAddress, rightColumnContentORG, nameButtonProject, buttonAdd, project.Databace)
 			lastColumnContent.Add(buttonContainer)
 		}
@@ -53,17 +54,14 @@ func SetupThemeButtons(app fyne.App) *fyne.Container {
 }
 
 var (
-	lastStart       *string
-	lastEnd         *string
-	lastPage        uint8
-	currentData     []dbpak.KVData
-	lastcurrentData []dbpak.KVData
-	next_prev       bool
+	lastStart *[]byte
+	lastEnd   *[]byte
+	count     int
+	Orgdata   []dbpak.KVData
+	lastPage  int
 )
 
 func UpdatePage(rightColumnContent *fyne.Container) {
-
-	utils.CheckCondition(rightColumnContent)
 
 	var data = make([]dbpak.KVData, 0)
 	var err error
@@ -72,7 +70,12 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		return
 	}
 	defer variable.CurrentDBClient.Close()
-	if lastPage <= variable.CurrentPage {
+
+	if lastEnd == nil && lastStart == nil {
+		count = 0
+		Orgdata = Orgdata[:0]
+	}
+	if lastPage < variable.CurrentPage {
 		//next page
 
 		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
@@ -80,17 +83,25 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		if len(data) > variable.ItemsPerPage {
-			variable.NextButton.Enable()
-			next_prev = true
+
+		if len(data) == variable.ItemsPerPage+1 {
+			data = data[:variable.ItemsPerPage]
+			variable.ItemsAdded = true
+
 		} else {
-			variable.NextButton.Disable()
+			variable.ItemsAdded = false
+
 		}
-	} else {
-		//last page
-		if len(currentData) == 0 {
+		if len(data) == 0 {
 			return
 		}
+		if count > 2 {
+			Orgdata = Orgdata[len(data):]
+		}
+
+		Orgdata = append(Orgdata, data...)
+		count++
+	} else {
 
 		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
 		err, data = variable.CurrentDBClient.Read(nil, lastStart, variable.ItemsPerPage+1)
@@ -98,85 +109,70 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 			fmt.Println(err)
 		}
 
-		if len(data) > variable.ItemsPerPage {
-			variable.PrevButton.Enable()
-			next_prev = false
-		} else {
-			variable.PrevButton.Disable()
-		}
-	}
-
-	lastcurrentData = make([]dbpak.KVData, len(currentData))
-	copy(lastcurrentData, currentData)
-	currentData = make([]dbpak.KVData, len(data))
-	copy(currentData, data)
-	if len(data) == 0 {
-		return
-	}
-
-	lastPage = variable.CurrentPage
-	if next_prev {
-		lastStart = &data[0].Key
 		if len(data) == variable.ItemsPerPage+1 {
-
-			lastEnd = &data[len(data)-2].Key
-		} else {
-			lastEnd = &data[len(data)-1].Key
-
-		}
-
-	} else {
-		lastEnd = &data[len(data)-1].Key
-		if len(data) >= variable.ItemsPerPage+1 {
-			lastStart = &data[1].Key
 			data = data[1:]
-		} else {
-			lastStart = &data[0].Key
+			variable.ItemsAdded = true
 		}
+		if len(data) == 0 {
+			return
+		}
+		Orgdata = Orgdata[:len(Orgdata)-len(data)]
+		Orgdata = append(data, Orgdata...)
+
 	}
 
-	number := 0
+	lastStart = &Orgdata[0].Key
+	lastEnd = &Orgdata[len(Orgdata)-1].Key
 
+	var arrayContainer []fyne.CanvasObject
 	for _, item := range data {
-		if number == variable.ItemsPerPage {
-			break
+
+		truncatedKey := utils.TruncateString(string(item.Key), 20)
+		truncatedValue := utils.TruncateString(string(item.Value), 30)
+
+		typeValue := mimetype.Detect(item.Value)
+		if typeValue.Extension() != ".txt" {
+
+			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
 		}
-		number++
-
-		truncatedKey := utils.TruncateString(item.Key, 20)
-		truncatedValue := utils.TruncateString(item.Value, 50)
-
 		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, rightColumnContent)
 		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, rightColumnContent)
 
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
-		rightColumnContent.Add(buttonRow)
+		arrayContainer = append(arrayContainer, buttonRow)
+	}
+	if lastPage > variable.CurrentPage {
+
+		rightColumnContent.Objects = append(arrayContainer, rightColumnContent.Objects...)
+	} else {
+
+		rightColumnContent.Objects = append(rightColumnContent.Objects, arrayContainer...)
+
 	}
 
-	variable.PageLabel.SetText(fmt.Sprintf("Page %d", variable.CurrentPage+1))
-
+	data = data[:0]
 	rightColumnContent.Refresh()
+	lastPage = variable.CurrentPage
 }
 
 func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string) *fyne.Container {
-	projectButton := widget.NewButton(inputText, func() {
+	projectButton := widget.NewButton(inputText+" - "+nameDatabace, func() {
+		variable.ItemsAdded = true
 		utils.Checkdatabace(path, nameDatabace)
-		variable.PrevButton.Disable()
-		variable.NextButton.Enable()
 		buttonAdd.Enable()
 		variable.FolderPath = path
-		lastPage = 0
-		variable.CurrentPage = 0
 		lastEnd = nil
+		variable.CurrentPage = 1
+		lastPage = 0
+		variable.PreviousOffsetY = 0
 		lastStart = nil
-		variable.PageLabel.Text = "Page 1"
+		utils.CheckCondition(rightColumnContentORG)
 		UpdatePage(rightColumnContentORG)
 
 		nameButtonProject.Text = ""
 		nameButtonProject.Text = inputText + " - " + nameDatabace
 
 		nameButtonProject.Refresh()
-		variable.PageLabel.Refresh()
 
 	})
 
@@ -207,33 +203,57 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	return buttonContainer
 }
 
-func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, nameLable string, rightColumnContent *fyne.Container) *TappableLabel {
-	var lableKeyAndValue *TappableLabel
+func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, nameLable string, rightColumnContent *fyne.Container) *utils.TappableLabel {
+	var lableKeyAndValue *utils.TappableLabel
+	var contentType *fyne.Container
+	var valueEntry *widget.Entry
+	var truncatedKey2 string
 
-	lableKeyAndValue = NewTappableLabel(nameLable, func() {
+	lableKeyAndValue = utils.NewTappableLabel(nameLable, func() {
 		editWindow := fyne.CurrentApp().NewWindow("Edit" + eidtKeyAbdValue)
 		editWindow.Resize(fyne.NewSize(600, 600))
+		mainContainer := container.NewVBox()
 
-		valueEntry := widget.NewMultiLineEntry()
-		valueEntry.Resize(fyne.NewSize(500, 500))
+		typeVlaue := mimetype.Detect([]byte(value))
 		if eidtKeyAbdValue == "value" {
-			if utils.IsValidJSON(value) {
-				var formattedJSON map[string]interface{}
-				json.Unmarshal([]byte(value), &formattedJSON)
-				jsonString, _ := json.MarshalIndent(formattedJSON, "", "  ")
-				valueEntry.SetText(string(jsonString))
-			} else {
-				valueEntry.SetText(value)
-			}
-		} else {
-			valueEntry.SetText(key)
-		}
-		scrollableEntry := container.NewScroll(valueEntry)
-		mainContainer := container.NewBorder(nil, nil, nil, nil, scrollableEntry)
 
-		scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
+			switch {
+			case strings.HasPrefix(typeVlaue.String(), "image/"):
+				contentType = utils.ImageShow([]byte(key), []byte(value), nameLable, mainContainer, editWindow)
+
+				typeValue := mimetype.Detect([]byte(value))
+				truncatedKey2 = fmt.Sprintf("* %s . . .", typeValue.Extension())
+
+			case strings.HasPrefix(typeVlaue.String(), "text/") || strings.HasPrefix(typeVlaue.String(), "application/"):
+
+				valueEntry = widget.NewMultiLineEntry()
+				valueEntry.Resize(fyne.NewSize(500, 500))
+				valueEntry.SetText(string(value))
+				scrollableEntry := container.NewScroll(valueEntry)
+				mainContainer = container.NewBorder(nil, nil, nil, nil, scrollableEntry)
+				scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
+				mainContainer.Add(scrollableEntry)
+
+				contentType = container.NewVBox(widget.NewLabel(""))
+
+				value = []byte(valueEntry.Text)
+			case strings.HasPrefix(typeVlaue.String(), "font/"):
+				fmt.Println("font")
+			}
+
+		} else {
+			valueEntry = widget.NewMultiLineEntry()
+			valueEntry.Resize(fyne.NewSize(500, 500))
+			valueEntry.SetText(string(key))
+			scrollableEntry := container.NewScroll(valueEntry)
+			mainContainer = container.NewBorder(nil, nil, nil, nil, scrollableEntry)
+			scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
+			mainContainer.Add(scrollableEntry)
+			contentType = container.NewVBox(widget.NewLabel(""))
+
+		}
+
 		saveButton := widget.NewButton("Save", func() {
-			var truncatedKey2 string
 
 			err := variable.CurrentDBClient.Open()
 			if err != nil {
@@ -242,11 +262,19 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			defer variable.CurrentDBClient.Close()
 
 			if eidtKeyAbdValue == "value" {
-				err := variable.CurrentDBClient.Add(key, valueEntry.Text)
+
+				if strings.HasPrefix(typeVlaue.String(), "text/") {
+					value = []byte(valueEntry.Text)
+					truncatedKey2 = utils.TruncateString(valueEntry.Text, 30)
+				} else if utils.ValueImage != nil {
+					value = utils.ValueImage
+
+				}
+
+				err := variable.CurrentDBClient.Add(key, value)
 				if err != nil {
 					fmt.Println(err)
 				}
-				truncatedKey2 = utils.TruncateString(valueEntry.Text, 50)
 
 			} else {
 
@@ -259,13 +287,13 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 					return
 				}
 
-				key = utils.CleanInput(valueEntry.Text)
+				key = []byte(utils.CleanInput(valueEntry.Text))
 
 				err = variable.CurrentDBClient.Add(key, valueBefor)
 				if err != nil {
 					fmt.Println(err)
 				}
-				truncatedKey2 = utils.TruncateString(key, 20)
+				truncatedKey2 = utils.TruncateString(string(key), 20)
 			}
 
 			lableKeyAndValue.SetText(truncatedKey2)
@@ -279,17 +307,16 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key string, value string, name
 			editWindow.Close()
 		})
 
-		m := container.NewGridWithColumns(2, cancelButton, saveButton)
-		b := container.NewBorder(nil, m, nil, nil)
-
-		editContent := container.NewVBox(
-			widget.NewLabel("Edit "+eidtKeyAbdValue+" :"),
-			mainContainer,
-			layout.NewSpacer(),
-			b,
+		rowBottom := container.NewVBox(
+			contentType,
+			container.NewBorder(nil, container.NewGridWithColumns(2, cancelButton, saveButton), nil, nil),
+		)
+		editContentScr := container.NewScroll(mainContainer)
+		coulumnORG := container.NewBorder(
+			widget.NewLabel("Edit "+eidtKeyAbdValue+" :"), rowBottom, nil, nil, editContentScr,
 		)
 
-		editWindow.SetContent(editContent)
+		editWindow.SetContent(coulumnORG)
 		editWindow.Show()
 	})
 	return lableKeyAndValue
@@ -301,48 +328,39 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	if err != nil {
 		return false, err
 	}
-	Iterator := variable.CurrentDBClient.Iterator(nil, nil)
-	if Iterator == nil {
-		log.Fatal("Iterator is nil")
+
+	key := utils.CleanInput(valueEntry.Text)
+	err, data := variable.CurrentDBClient.Search([]byte(key))
+	if err != nil {
 		return false, err
 	}
 
 	defer variable.CurrentDBClient.Close()
-	defer Iterator.Close()
 
-	key := utils.CleanInput(valueEntry.Text)
-	searchFound := false
-
-	if !Iterator.First() {
-		return false, fmt.Errorf("iterator is empty")
+	if len(data) == 0 {
+		return false, err
 	}
+	utils.CheckCondition(rightColumnContent)
+	for _, item := range data {
 
-	for Iterator.Valid() {
-
-		if strings.Contains(string(Iterator.Key()), key) {
-			if !searchFound {
-				utils.CheckCondition(rightColumnContent)
-				searchFound = true
-			}
-
-			truncatedKey := utils.TruncateString(Iterator.Key(), 20)
-			truncatedValue := utils.TruncateString(Iterator.Value(), 50)
-
-			valueLabel := BuidLableKeyAndValue("value", Iterator.Key(), Iterator.Value(), truncatedValue, rightColumnContent)
-			keyLabel := BuidLableKeyAndValue("key", Iterator.Key(), Iterator.Value(), truncatedKey, rightColumnContent)
-			buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
-			rightColumnContent.Add(buttonRow)
+		value, err := variable.CurrentDBClient.Get(item)
+		if err != nil {
+			return false, err
 		}
-		Iterator.Next()
-	}
+		truncatedKey := utils.TruncateString(string(item), 20)
+		truncatedValue := utils.TruncateString(string(value), 30)
 
-	if !searchFound {
-		return false, nil
+		typeValue := mimetype.Detect([]byte(value))
+		if typeValue.Extension() != ".txt" {
+			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
+		}
+		valueLabel := BuidLableKeyAndValue("value", item, value, truncatedValue, rightColumnContent)
+		keyLabel := BuidLableKeyAndValue("key", item, value, truncatedKey, rightColumnContent)
+		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
+		rightColumnContent.Add(buttonRow)
 	}
 
 	editWindow.Close()
-	variable.NextButton.Disable()
-	variable.PrevButton.Disable()
 	return true, nil
 }
 
@@ -351,11 +369,11 @@ func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 
 	key := utils.CleanInput(valueEntry.Text)
 
-	valueSearch, err := QueryKey(valueEntry)
+	valueSearch, err := QueryKey(valueEntry.Text)
 	if valueSearch == "" && err != nil {
 		dialog.ShowInformation("Error", "This key does not exist in the database", editWindow)
 	} else {
-		err = variable.CurrentDBClient.Delete(key)
+		err = variable.CurrentDBClient.Delete([]byte(key))
 		if err != nil {
 			log.Fatal("this err for func DeletKeyLogic part else delete || err : ", err)
 			return
@@ -366,10 +384,9 @@ func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	}
 }
 
-func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.Window) {
+func AddKeyLogic(iputKey string, valueFinish []byte, windowAdd fyne.Window) {
 
-	key := utils.CleanInput(iputKey.Text)
-	value := utils.CleanInput(iputvalue.Text)
+	key := utils.CleanInput(iputKey)
 
 	defer variable.CurrentDBClient.Close()
 
@@ -378,29 +395,27 @@ func AddKeyLogic(iputKey *widget.Entry, iputvalue *widget.Entry, windowAdd fyne.
 		dialog.ShowInformation("Error", "This key has already been added to your database", windowAdd)
 
 	} else {
-		err = variable.CurrentDBClient.Add(key, value)
+		err = variable.CurrentDBClient.Add([]byte(key), valueFinish)
 		if err != nil {
 			log.Fatal("error : this error in func addkeylogic for add key in database")
 		}
-		dialog.ShowInformation("successful", "The operation was successful", windowAdd)
-		time.Sleep(2 * time.Second)
 
 		windowAdd.Close()
 	}
 }
 
-func QueryKey(iputKey *widget.Entry) (string, error) {
+func QueryKey(iputKey string) (string, error) {
 	var err error
 
-	key := utils.CleanInput(iputKey.Text)
+	key := utils.CleanInput(iputKey)
 
 	err = variable.CurrentDBClient.Open()
 	if err != nil {
 		return "", err
 	}
-	checkNow, err := variable.CurrentDBClient.Get(key)
+	checkNow, err := variable.CurrentDBClient.Get([]byte(key))
 	if err != nil {
 		fmt.Println("error : delete func logic for get key in databace")
 	}
-	return checkNow, err
+	return string(checkNow), err
 }

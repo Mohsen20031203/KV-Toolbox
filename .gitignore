@@ -6,9 +6,10 @@ LOG
 LOG.old
 CURRENT
 MANIFEST-*
-.DS_Store
-**/.DS_Store
-.DS_Store
 *.json
 test
-cmd/myapp/__debug_bin
+__debug_bin*
+*.txt
+.DS_Store
+cmd/.DS_Store
+services

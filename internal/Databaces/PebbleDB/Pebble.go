@@ -1,10 +1,9 @@
 package PebbleDB
 
 import (
-	"log"
+	"bytes"
+	"fmt"
 	dbpak "testgui/internal/Databaces"
-	"testgui/internal/Databaces/itertor"
-	iterPebble "testgui/internal/Databaces/itertor/pebble"
 
 	"github.com/cockroachdb/pebble"
 )
@@ -20,8 +19,8 @@ func NewDataBasePebble(address string) dbpak.DBClient {
 	}
 }
 
-func (p *PebbleDatabase) Delete(key string) error {
-	err := p.DB.Delete([]byte(key), nil)
+func (p *PebbleDatabase) Delete(key []byte) error {
+	err := p.DB.Delete(key, nil)
 	if err != nil {
 		return err
 	}
@@ -38,35 +37,35 @@ func (p *PebbleDatabase) Close() {
 	p.DB.Close()
 }
 
-func (p *PebbleDatabase) Add(key, value string) error {
-	return p.DB.Set([]byte(key), []byte(value), nil)
+func (p *PebbleDatabase) Add(key, value []byte) error {
+	return p.DB.Set(key, value, nil)
 }
 
-func (p *PebbleDatabase) Get(key string) (string, error) {
+func (p *PebbleDatabase) Get(key []byte) ([]byte, error) {
 	if p.DB == nil {
-		return "", nil
+		return nil, nil
 	}
 
 	data, closer, err := p.DB.Get([]byte(key))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	defer closer.Close()
 
-	return string(data), err
+	return data, err
 }
 
-func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVData) {
+func (p *PebbleDatabase) Read(start, end *[]byte, count int) (error, []dbpak.KVData) {
 	var Item []dbpak.KVData
 
 	iterOptions := &pebble.IterOptions{}
 	if start != nil {
-		iterOptions.LowerBound = []byte(*start)
+		iterOptions.LowerBound = *start
 	}
 	if end != nil {
 
-		iterOptions.UpperBound = []byte(*end)
+		iterOptions.UpperBound = *end
 	}
 
 	iter, err := p.DB.NewIter(iterOptions)
@@ -79,9 +78,13 @@ func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 	if end != nil && start == nil {
 		iter.Last()
 
-		key := string(iter.Key())
-		value := string(iter.Value())
-		Item = append(Item, dbpak.KVData{Key: key, Value: value})
+		key1 := make([]byte, len(iter.Key()))
+		copy(key1, iter.Key())
+
+		value1 := make([]byte, len(iter.Value()))
+		copy(value1, iter.Value())
+
+		Item = append(Item, dbpak.KVData{Key: key1, Value: value1})
 		cnt++
 
 		for iter.Prev() {
@@ -89,9 +92,13 @@ func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 			if cnt > count {
 				break
 			}
-			key := string(iter.Key())
-			value := string(iter.Value())
-			Item = append(Item, dbpak.KVData{Key: key, Value: value})
+			key1 := make([]byte, len(iter.Key()))
+			copy(key1, iter.Key())
+
+			value1 := make([]byte, len(iter.Value()))
+			copy(value1, iter.Value())
+
+			Item = append(Item, dbpak.KVData{Key: key1, Value: value1})
 		}
 
 		for i := 0; i < len(Item)/2; i++ {
@@ -102,7 +109,7 @@ func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 		}
 	} else {
 		if start != nil {
-			iter.SeekGE([]byte(*start))
+			iter.SeekGE(*start)
 			iter.Next()
 		} else {
 			iter.First()
@@ -113,9 +120,13 @@ func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 			if cnt > count {
 				break
 			}
-			key := string(iter.Key())
-			value := string(iter.Value())
-			Item = append(Item, dbpak.KVData{Key: key, Value: value})
+			key1 := make([]byte, len(iter.Key()))
+			copy(key1, iter.Key())
+
+			value1 := make([]byte, len(iter.Value()))
+			copy(value1, iter.Value())
+
+			Item = append(Item, dbpak.KVData{Key: key1, Value: value1})
 			iter.Next()
 		}
 	}
@@ -123,22 +134,31 @@ func (p *PebbleDatabase) Read(start, end *string, count int) (error, []dbpak.KVD
 	return nil, Item
 }
 
-func (p *PebbleDatabase) Iterator(start, end *string) itertor.IterDB {
+func (l *PebbleDatabase) Search(valueEntry []byte) (error, [][]byte) {
+	var data [][]byte
 
-	iterOptions := &pebble.IterOptions{}
-
-	if start != nil {
-		iterOptions.LowerBound = []byte(*start)
-	}
-	if end != nil {
-		iterOptions.UpperBound = []byte(*end)
-	}
-
-	Iter2, err := p.DB.NewIter(iterOptions)
+	Iterator, err := l.DB.NewIter(nil)
 	if err != nil {
-		log.Fatal("err in iter pebble")
+		return err, data
 	}
-	return &iterPebble.PebbleIter{
-		Iter: Iter2,
+
+	defer l.Close()
+
+	if !Iterator.First() {
+		return fmt.Errorf("iterator is empty"), data
 	}
+
+	for Iterator.Valid() {
+
+		if bytes.Contains(Iterator.Key(), valueEntry) {
+
+			data = append(data, Iterator.Key())
+
+		}
+		if !Iterator.Next() {
+			break
+		}
+	}
+
+	return nil, data
 }

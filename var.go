@@ -4,27 +4,25 @@ import (
 	dbpak "testgui/internal/Databaces"
 	"testgui/internal/filterdatabase"
 	jsFile "testgui/internal/json"
-
-	"fyne.io/fyne/v2/widget"
 )
 
 var (
 	CurrentDBClient dbpak.DBClient
-	CurrentPage     uint8
+	CurrentPage     int
 	ItemsPerPage    = 20
 	FolderPath      string
 	CurrentJson     jsFile.JsonFile
 	NameData        filterdatabase.FilterData
+	ItemsAdded      bool
+	PreviousOffsetY float32
 )
-
-var NextButton, PrevButton *widget.Button
-var PageLabel *widget.Label
 
 var (
 	NameDatabase = []string{
 		"levelDB",
 		"Pebble",
 		"Badger",
+		//"Redis",
 	}
 )
 

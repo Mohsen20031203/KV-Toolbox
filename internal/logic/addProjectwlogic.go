@@ -11,14 +11,8 @@ import (
 
 	// "testgui/internal/logic/mainwindowlagic"
 
-	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
 )
-
-type TappableLabel struct {
-	widget.Label
-	onTapped func()
-}
 
 func HasManifestFile(folderPath string) bool {
 	files, err := ioutil.ReadDir(folderPath)
@@ -39,21 +33,6 @@ func HasManifestFile(folderPath string) bool {
 	return false
 }
 
-func NewTappableLabel(text string, tapped func()) *TappableLabel {
-	label := &TappableLabel{
-		Label: widget.Label{
-			Text: text,
-		},
-		onTapped: tapped,
-	}
-	label.ExtendBaseWidget(label)
-	return label
-}
-
-func (t *TappableLabel) Tapped(_ *fyne.PointEvent) {
-	t.onTapped()
-}
-
 func CreatFile(value bool, openButton *widget.Button, testConnectionButton *widget.Button) {
 	if value {
 		openButton.Disable()
@@ -67,7 +46,6 @@ func CreatFile(value bool, openButton *widget.Button, testConnectionButton *widg
 }
 
 func HandleButtonClick(test string, nameDatabace string) error {
-
 	err := utils.Checkdatabace(test, nameDatabace)
 	if err != nil {
 		return err
@@ -87,5 +65,4 @@ func HandleButtonClick(test string, nameDatabace string) error {
 	defer variable.CurrentDBClient.Close()
 
 	return nil
-
 }

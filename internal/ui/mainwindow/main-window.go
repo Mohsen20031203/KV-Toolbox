@@ -1,7 +1,6 @@
 package mainwindow
 
 import (
-	"fmt"
 	"image/color"
 	variable "testgui"
 
@@ -10,14 +9,12 @@ import (
 	Filterpebbledb "testgui/internal/filterdatabase/pebble"
 	"testgui/internal/logic"
 	addkeyui "testgui/internal/ui/addKeyui"
-	"testgui/internal/ui/addProjectwindowui"
 	deletkeyui "testgui/internal/ui/deletKeyUi"
 	searchkeyui "testgui/internal/ui/searchKeyui"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
@@ -72,34 +69,6 @@ func MainWindow(myApp fyne.App) {
 		deletkeyui.DeleteKeyUi(rightColumnAll)
 	})
 
-	variable.PageLabel = widget.NewLabel(fmt.Sprintf("Page %d", variable.CurrentPage+1))
-
-	variable.NextButton = widget.NewButton("next", func() {
-		variable.CurrentPage++
-		variable.PrevButton.Enable()
-		logic.UpdatePage(rightColumnAll)
-	})
-	variable.NextButton.Disable()
-
-	variable.PrevButton = widget.NewButton("prev", func() {
-		if variable.CurrentPage > 0 {
-			variable.CurrentPage--
-			logic.UpdatePage(rightColumnAll)
-			variable.NextButton.Enable()
-		}
-	})
-
-	pageLabelposition := container.NewHBox(
-		layout.NewSpacer(),
-		variable.PageLabel,
-		layout.NewSpacer(),
-	)
-
-	rawPrev_Label_Next := container.NewVBox(
-		layout.NewSpacer(),
-		container.NewGridWithColumns(3, variable.PrevButton, pageLabelposition, variable.NextButton),
-	)
-
 	topRightColumn := container.NewVBox(
 		nameButtonProject,
 		line,
@@ -115,7 +84,6 @@ func MainWindow(myApp fyne.App) {
 	for _, m := range variable.NameDatabase {
 
 		leveldbButton = widget.NewButton(m, func() {
-			addProjectwindowui.OpenNewWindow(myApp, m, leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd)
 
 			switch m {
 			case "levelDB":
@@ -124,7 +92,12 @@ func MainWindow(myApp fyne.App) {
 				variable.NameData = Filterpebbledb.NewFileterLeveldb()
 			case "Badger":
 				variable.NameData = Filterbadger.NewFileterBadger()
+			//case "Redis":
+			//	variable.NameData = Filterredis.NewFileterRedis()
+			default:
+
 			}
+			variable.NameData.FormCreate(myApp, m, leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd)
 		})
 		BottomDatabase = append(BottomDatabase, leveldbButton)
 	}
@@ -157,7 +130,7 @@ func MainWindow(myApp fyne.App) {
 	darkLight := logic.SetupThemeButtons(myApp)
 
 	// all window
-	containerAll := ColumnContent(rightColumnAll, leftColumnAll, topLeftColumn, darkLight, topRightColumn, rawPrev_Label_Next)
+	containerAll := ColumnContent(rightColumnAll, leftColumnAll, topLeftColumn, darkLight, topRightColumn)
 	mainWindow.CenterOnScreen()
 	mainWindow.SetContent(containerAll)
 	mainWindow.Resize(fyne.NewSize(1200, 800))
@@ -171,18 +144,57 @@ func LeftColumn(leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, da
 	return mainContent
 }
 
-func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container, rawSearchAndAdd *fyne.Container) fyne.CanvasObject {
+func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container) fyne.CanvasObject {
 	rightColumnScrollable := container.NewVScroll(rightColumnAll)
-	mainContent := container.NewBorder(topRightColumn, rawSearchAndAdd, nil, nil, rightColumnScrollable)
+
+	up := false
+
+	rightColumnScrollable.OnScrolled = func(p fyne.Position) {
+		maxScroll := rightColumnAll.MinSize().Height - rightColumnScrollable.Size().Height
+
+		if up && p.Y == 0 {
+			variable.CurrentPage--
+			if variable.CurrentPage < 3 {
+				up = false
+				variable.CurrentPage = 3
+				return
+			}
+			numberLast := len(rightColumnAll.Objects)
+			logic.UpdatePage(rightColumnAll)
+
+			rightColumnAll.Objects = rightColumnAll.Objects[:numberLast]
+
+			rightColumnScrollable.Offset.Y = maxScroll / 2
+			rightColumnScrollable.Refresh()
+
+		} else if p.Y == maxScroll && !variable.ItemsAdded {
+			return
+		} else if p.Y == maxScroll && variable.ItemsAdded {
+
+			variable.CurrentPage++
+			numberLast := len(rightColumnAll.Objects)
+			logic.UpdatePage(rightColumnAll)
+			rightColumnScrollable.Offset.Y = maxScroll / 2
+
+			if len(rightColumnAll.Objects) > (variable.ItemsPerPage)*3 {
+				rightColumnAll.Objects = rightColumnAll.Objects[len(rightColumnAll.Objects)-numberLast:]
+				up = true
+			}
+
+		}
+
+	}
+
+	mainContent := container.NewBorder(topRightColumn, nil, nil, nil, rightColumnScrollable)
 
 	return mainContent
 }
 
-func ColumnContent(rightColumnAll *fyne.Container, leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, darkLight *fyne.Container, topRightColumn *fyne.Container, rawSearchAndAdd *fyne.Container) fyne.CanvasObject {
+func ColumnContent(rightColumnAll *fyne.Container, leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, darkLight *fyne.Container, topRightColumn *fyne.Container) fyne.CanvasObject {
 
 	mainContent := LeftColumn(leftColumnAll, topLeftColumn, darkLight)
 
-	rightColumnScrollable := RightColumn(rightColumnAll, topRightColumn, rawSearchAndAdd)
+	rightColumnScrollable := RightColumn(rightColumnAll, topRightColumn)
 
 	columns := container.NewHSplit(mainContent, rightColumnScrollable)
 	columns.SetOffset(0.25)

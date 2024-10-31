@@ -1,9 +1,6 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	_ "net/http/pprof"
 	variable "testgui"
 	jsondata "testgui/internal/json/jsonData"
 	"testgui/internal/ui/mainwindow"
@@ -16,8 +13,5 @@ func main() {
 
 	variable.CurrentJson = jsondata.NewDataBase()
 
-	go func() {
-		log.Println(http.ListenAndServe("localhost:6060", nil))
-	}()
 	mainwindow.MainWindow(myApp)
 }
