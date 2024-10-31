@@ -71,10 +71,10 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 	columns := container.NewHSplit(uploadFile, nameFile)
 	columns.SetOffset(0.80)
 
-	if uploadFile.Disabled() {
-		valueFinish = []byte(iputKey.Text)
-	}
 	ButtonAddAdd := widget.NewButton("Add", func() {
+		if uploadFile.Disabled() {
+			valueFinish = []byte(iputvalue.Text)
+		}
 		logic.AddKeyLogic(iputKey.Text, valueFinish, windowAdd)
 	})
 
