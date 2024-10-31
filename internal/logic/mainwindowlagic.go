@@ -224,23 +224,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 				typeValue := mimetype.Detect([]byte(value))
 				truncatedKey2 = fmt.Sprintf("* %s . . .", typeValue.Extension())
 
-			case strings.HasPrefix(typeVlaue.String(), "video/"):
-				fmt.Println("video")
-
-			case strings.HasPrefix(typeVlaue.String(), "audio/"):
-				fmt.Println("audio")
-
-			case strings.HasPrefix(typeVlaue.String(), "application/"):
-				valueEntry2 := widget.NewMultiLineEntry()
-				valueEntry2.Resize(fyne.NewSize(500, 500))
-				valueEntry2.SetText(string(value))
-				mainContainer.Add(valueEntry2)
-
-				contentType = container.NewVBox(widget.NewLabel(""))
-
-				value = []byte(valueEntry2.Text)
-
-			case strings.HasPrefix(typeVlaue.String(), "text/"):
+			case strings.HasPrefix(typeVlaue.String(), "text/") || strings.HasPrefix(typeVlaue.String(), "application/"):
 
 				valueEntry = widget.NewMultiLineEntry()
 				valueEntry.Resize(fyne.NewSize(500, 500))

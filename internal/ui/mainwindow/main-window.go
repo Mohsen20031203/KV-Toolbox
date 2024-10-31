@@ -162,9 +162,7 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container)
 			numberLast := len(rightColumnAll.Objects)
 			logic.UpdatePage(rightColumnAll)
 
-			// be edited --- its false
 			rightColumnAll.Objects = rightColumnAll.Objects[:numberLast]
-			//------------------------
 
 			rightColumnScrollable.Offset.Y = maxScroll / 2
 			rightColumnScrollable.Refresh()
