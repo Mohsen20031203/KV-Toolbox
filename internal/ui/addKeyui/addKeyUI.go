@@ -8,6 +8,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -22,7 +23,8 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 	nameFile := widget.NewButton("Name File", nil)
 
 	var valueFinish []byte
-	uploadFile := widget.NewButton("UploadFile", func() {
+	var uploadFile *widget.Button
+	uploadFile = widget.NewButton("UploadFile", func() {
 		folderPath := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
 			if err != nil {
 				fmt.Println("Error opening folder:", err)
@@ -44,8 +46,10 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 			nameFile.SetText(filename)
 			nameFile.Refresh()
 		}, windowAdd)
+		folderPath.SetFilter(storage.NewExtensionFileFilter([]string{".png", ".jpg", ".jpeg", ".gif", ".txt", ".json", ".go"}))
 		folderPath.Show()
 	})
+
 	uploadFile.Disable()
 	iputvalue.Disable()
 	nameFile.Disable()

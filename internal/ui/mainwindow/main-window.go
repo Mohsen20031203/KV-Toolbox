@@ -47,7 +47,7 @@ func MainWindow(myApp fyne.App) {
 	// column key and value
 	keyAndRight := container.NewGridWithColumns(2, keyRightColunm, valueRightColunm)
 
-	// name bottom project in colunm left
+	// name bottom project in colunm right
 	nameButtonProject := widget.NewLabelWithStyle(
 		"",
 		fyne.TextAlignCenter,
@@ -92,9 +92,8 @@ func MainWindow(myApp fyne.App) {
 				variable.NameData = Filterpebbledb.NewFileterLeveldb()
 			case "Badger":
 				variable.NameData = Filterbadger.NewFileterBadger()
-			//case "Redis":
-			//	variable.NameData = Filterredis.NewFileterRedis()
-			default:
+				//case "Redis":
+				//	variable.NameData = Filterredis.NewFileterRedis()
 
 			}
 			variable.NameData.FormCreate(myApp, m, leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd)
