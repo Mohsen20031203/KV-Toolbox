@@ -3,9 +3,7 @@ package logic
 import (
 	variable "DatabaseDB"
 	"fmt"
-	"log"
 	"strings"
-	"time"
 
 	// "DatabaseDB/internal/logic/addProjectwindowlogic"
 
@@ -14,14 +12,13 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/gabriel-vasile/mimetype"
 )
 
-func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) *fyne.Container {
+func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, inputEditString, largeEntry *widget.Entry) *fyne.Container {
 	lastColumnContent := container.NewVBox()
 
 	jsonDataa, err := variable.CurrentJson.Load()
@@ -30,7 +27,7 @@ func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *w
 	} else {
 		for _, project := range jsonDataa.RecentProjects {
 
-			buttonContainer := ProjectButton(project.Name, lastColumnContent, project.FileAddress, rightColumnContentORG, nameButtonProject, buttonAdd, project.Databace)
+			buttonContainer := ProjectButton(project.Name, lastColumnContent, project.FileAddress, rightColumnContentORG, nameButtonProject, buttonAdd, project.Databace, inputEditString, largeEntry)
 			lastColumnContent.Add(buttonContainer)
 		}
 	}
@@ -60,7 +57,7 @@ var (
 	lastPage  int
 )
 
-func UpdatePage(rightColumnContent *fyne.Container) {
+func UpdatePage(rightColumnContent *fyne.Container, inputEditString, largeEntry *widget.Entry) {
 
 	var data = make([]dbpak.KVData, 0)
 	var err error
@@ -132,8 +129,8 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 
 			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
 		}
-		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, rightColumnContent)
-		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, rightColumnContent)
+		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, rightColumnContent, inputEditString, largeEntry)
+		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, rightColumnContent, inputEditString, largeEntry)
 
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		arrayContainer = append(arrayContainer, buttonRow)
@@ -152,7 +149,7 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 	lastPage = variable.CurrentPage
 }
 
-func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string) *fyne.Container {
+func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string, inputEditString, largeEntry *widget.Entry) *fyne.Container {
 	projectButton := widget.NewButton(inputText+" - "+nameDatabace, func() {
 		variable.ItemsAdded = true
 		utils.Checkdatabace(path, nameDatabace)
@@ -164,7 +161,7 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 		variable.PreviousOffsetY = 0
 		lastStart = nil
 		utils.CheckCondition(rightColumnContentORG)
-		UpdatePage(rightColumnContentORG)
+		UpdatePage(rightColumnContentORG, inputEditString, largeEntry)
 
 		nameButtonProject.Text = ""
 		nameButtonProject.Text = inputText + " - " + nameDatabace
@@ -200,7 +197,7 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	return buttonContainer
 }
 
-func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, nameLable string, rightColumnContent *fyne.Container) *utils.TappableLabel {
+func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, nameLable string, rightColumnContent *fyne.Container, inputEditString, largeEntry *widget.Entry) *utils.TappableLabel {
 	var lableKeyAndValue *utils.TappableLabel
 	var contentType *fyne.Container
 	var valueEntry *widget.Entry
@@ -317,103 +314,4 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 		editWindow.Show()
 	})
 	return lableKeyAndValue
-}
-
-func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) (bool, error) {
-
-	err := variable.CurrentDBClient.Open()
-	if err != nil {
-		return false, err
-	}
-
-	key := utils.CleanInput(valueEntry.Text)
-	err, data := variable.CurrentDBClient.Search([]byte(key))
-	if err != nil {
-		return false, err
-	}
-
-	defer variable.CurrentDBClient.Close()
-
-	if len(data) == 0 {
-		return false, err
-	}
-	utils.CheckCondition(rightColumnContent)
-	for _, item := range data {
-
-		value, err := variable.CurrentDBClient.Get(item)
-		if err != nil {
-			return false, err
-		}
-		truncatedKey := utils.TruncateString(string(item), 20)
-		truncatedValue := utils.TruncateString(string(value), 30)
-
-		typeValue := mimetype.Detect([]byte(value))
-		if typeValue.Extension() != ".txt" {
-			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
-		}
-		valueLabel := BuidLableKeyAndValue("value", item, value, truncatedValue, rightColumnContent)
-		keyLabel := BuidLableKeyAndValue("key", item, value, truncatedKey, rightColumnContent)
-
-		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
-		rightColumnContent.Add(buttonRow)
-	}
-
-	editWindow.Close()
-	return true, nil
-}
-
-func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container) {
-	defer variable.CurrentDBClient.Close()
-
-	key := utils.CleanInput(valueEntry.Text)
-
-	valueSearch, err := QueryKey(valueEntry.Text)
-	if valueSearch == "" && err != nil {
-		dialog.ShowInformation("Error", "This key does not exist in the database", editWindow)
-	} else {
-		err = variable.CurrentDBClient.Delete([]byte(key))
-		if err != nil {
-			log.Fatal("this err for func DeletKeyLogic part else delete || err : ", err)
-			return
-		}
-		dialog.ShowInformation("successful", "The operation was successful", editWindow)
-		time.Sleep(2 * time.Second)
-		editWindow.Close()
-	}
-}
-
-func AddKeyLogic(iputKey string, valueFinish []byte, windowAdd fyne.Window) {
-
-	key := utils.CleanInput(iputKey)
-
-	defer variable.CurrentDBClient.Close()
-
-	checkNow, err := QueryKey(iputKey)
-	if checkNow != "" || err == nil {
-		dialog.ShowInformation("Error", "This key has already been added to your database", windowAdd)
-
-	} else {
-		err = variable.CurrentDBClient.Add([]byte(key), valueFinish)
-		if err != nil {
-			log.Fatal("error : this error in func addkeylogic for add key in database")
-		}
-
-		windowAdd.Close()
-	}
-}
-
-func QueryKey(iputKey string) (string, error) {
-	var err error
-
-	key := utils.CleanInput(iputKey)
-
-	err = variable.CurrentDBClient.Open()
-	if err != nil {
-		return "", err
-	}
-	checkNow, err := variable.CurrentDBClient.Get([]byte(key))
-	if err != nil {
-		fmt.Println("error : delete func logic for get key in databace")
-	}
-	return string(checkNow), err
 }

@@ -24,6 +24,6 @@ func (l *NameDatabaseLeveldb) FilterFormat(folderDialog *dialog.FileDialog) {
 	folderDialog.SetFilter(storage.NewExtensionFileFilter([]string{".log"}))
 }
 
-func (l *NameDatabaseLeveldb) FormCreate(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) {
-	sharedfunc.FormPasteDatabase(a, title, lastColumnContent, rightColumnContentORG, nameButtonProject, buttonAdd)
+func (l *NameDatabaseLeveldb) FormCreate(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, inputEditString, largeEntry *widget.Entry) {
+	sharedfunc.FormPasteDatabase(a, title, lastColumnContent, rightColumnContentORG, nameButtonProject, buttonAdd, inputEditString, largeEntry)
 }

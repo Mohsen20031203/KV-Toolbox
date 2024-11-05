@@ -9,5 +9,5 @@ import (
 type FilterData interface {
 	FilterFile(path string) bool
 	FilterFormat(folderDialog *dialog.FileDialog)
-	FormCreate(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button)
+	FormCreate(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, inputEditString, largeEntry *widget.Entry)
 }
