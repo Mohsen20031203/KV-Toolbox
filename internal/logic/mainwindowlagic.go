@@ -56,7 +56,6 @@ func SetupThemeButtons(app fyne.App) *fyne.Container {
 var (
 	lastStart *[]byte
 	lastEnd   *[]byte
-	count     int
 	Orgdata   []dbpak.KVData
 	lastPage  int
 )
@@ -72,7 +71,6 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 	defer variable.CurrentDBClient.Close()
 
 	if lastEnd == nil && lastStart == nil {
-		count = 0
 		Orgdata = Orgdata[:0]
 	}
 	if lastPage < variable.CurrentPage {
@@ -95,12 +93,11 @@ func UpdatePage(rightColumnContent *fyne.Container) {
 		if len(data) == 0 {
 			return
 		}
-		if count > 2 {
+		if len(rightColumnContent.Objects) >= variable.ItemsPerPage*3 {
 			Orgdata = Orgdata[len(data):]
 		}
 
 		Orgdata = append(Orgdata, data...)
-		count++
 	} else {
 
 		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
@@ -356,6 +353,7 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		}
 		valueLabel := BuidLableKeyAndValue("value", item, value, truncatedValue, rightColumnContent)
 		keyLabel := BuidLableKeyAndValue("key", item, value, truncatedKey, rightColumnContent)
+
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
 	}

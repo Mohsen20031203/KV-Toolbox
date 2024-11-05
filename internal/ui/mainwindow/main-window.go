@@ -32,8 +32,11 @@ func MainWindow(myApp fyne.App) {
 
 	spacer := widget.NewLabel("")
 
-	// right column
+	// right column show key
 	rightColumnAll := container.NewVBox()
+
+	// right column Edit
+	rightColumEdit := container.NewVBox()
 
 	line := canvas.NewLine(color.Black)
 	line.StrokeWidth = 2
@@ -44,8 +47,11 @@ func MainWindow(myApp fyne.App) {
 	// value top window for colunm values
 	valueRightColunm := widget.NewLabelWithStyle("value", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
 
+	// value top window for colunm values
+	editRightColunm := widget.NewLabelWithStyle("Edit", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
+
 	// column key and value
-	keyAndRight := container.NewGridWithColumns(2, keyRightColunm, valueRightColunm)
+	keyAndRight := container.NewGridWithColumns(3, keyRightColunm, valueRightColunm, editRightColunm)
 
 	// name bottom project in colunm right
 	nameButtonProject := widget.NewLabelWithStyle(
@@ -53,6 +59,28 @@ func MainWindow(myApp fyne.App) {
 		fyne.TextAlignCenter,
 		fyne.TextStyle{Bold: true},
 	)
+
+	largeEntry := widget.NewMultiLineEntry()
+
+	largeEntry.Wrapping = fyne.TextWrapWord
+
+	scroll := container.NewVScroll(largeEntry)
+	scroll.SetMinSize(fyne.NewSize(400, 400))
+
+	saveEditKey := widget.NewButton("Save", nil)
+	cancelEditKey := widget.NewButton("Cancle", nil)
+
+	saveAndCancle := container.NewGridWithColumns(2, saveEditKey, cancelEditKey)
+
+	rightColumEdit = container.NewVBox(
+		widget.NewLabel("key"),
+		widget.NewLabel("String"),
+		widget.NewEntry(),
+		widget.NewLabel("Byte"),
+		scroll,
+	)
+
+	columnEdit := container.NewBorder(nil, saveAndCancle, nil, nil, rightColumEdit)
 
 	searchButton := widget.NewButton("Search", func() {
 
@@ -129,10 +157,10 @@ func MainWindow(myApp fyne.App) {
 	darkLight := logic.SetupThemeButtons(myApp)
 
 	// all window
-	containerAll := ColumnContent(rightColumnAll, leftColumnAll, topLeftColumn, darkLight, topRightColumn)
+	containerAll := ColumnContent(rightColumnAll, columnEdit, leftColumnAll, topLeftColumn, darkLight, topRightColumn)
 	mainWindow.CenterOnScreen()
 	mainWindow.SetContent(containerAll)
-	mainWindow.Resize(fyne.NewSize(1200, 800))
+	mainWindow.Resize(fyne.NewSize(1300, 800))
 	mainWindow.ShowAndRun()
 }
 
@@ -143,7 +171,7 @@ func LeftColumn(leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, da
 	return mainContent
 }
 
-func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container) fyne.CanvasObject {
+func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container, rightColumEdit *fyne.Container) fyne.CanvasObject {
 	rightColumnScrollable := container.NewVScroll(rightColumnAll)
 
 	up := false
@@ -184,19 +212,21 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container)
 
 	}
 
-	mainContent := container.NewBorder(topRightColumn, nil, nil, nil, rightColumnScrollable)
+	columns := container.NewHSplit(rightColumnScrollable, rightColumEdit)
+	columns.SetOffset(0.65)
+	mainContent := container.NewBorder(topRightColumn, nil, nil, nil, columns)
 
 	return mainContent
 }
 
-func ColumnContent(rightColumnAll *fyne.Container, leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, darkLight *fyne.Container, topRightColumn *fyne.Container) fyne.CanvasObject {
+func ColumnContent(rightColumnAll *fyne.Container, rightColumEdit *fyne.Container, leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, darkLight *fyne.Container, topRightColumn *fyne.Container) fyne.CanvasObject {
 
 	mainContent := LeftColumn(leftColumnAll, topLeftColumn, darkLight)
 
-	rightColumnScrollable := RightColumn(rightColumnAll, topRightColumn)
+	rightColumnScrollable := RightColumn(rightColumnAll, topRightColumn, rightColumEdit)
 
 	columns := container.NewHSplit(mainContent, rightColumnScrollable)
-	columns.SetOffset(0.25)
+	columns.SetOffset(0.20)
 
 	container.NewScroll(columns)
 	return columns

@@ -138,7 +138,10 @@ func (l *LeveldbDatabase) Search(valueEntry []byte) (error, [][]byte) {
 
 		if bytes.Contains(Iterator.Key(), valueEntry) {
 
-			data = append(data, Iterator.Key())
+			key1 := make([]byte, len(Iterator.Key()))
+			copy(key1, Iterator.Key())
+
+			data = append(data, key1)
 
 		}
 		if !Iterator.Next() {

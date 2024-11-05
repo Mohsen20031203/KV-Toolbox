@@ -23,8 +23,7 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 	nameFile := widget.NewButton("Name File", nil)
 
 	var valueFinish []byte
-	var uploadFile *widget.Button
-	uploadFile = widget.NewButton("UploadFile", func() {
+	uploadFile := widget.NewButton("UploadFile", func() {
 		folderPath := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
 			if err != nil {
 				fmt.Println("Error opening folder:", err)
