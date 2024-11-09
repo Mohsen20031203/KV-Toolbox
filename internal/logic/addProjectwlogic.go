@@ -71,7 +71,7 @@ func HandleButtonClick(test string, nameDatabace string) error {
 	return nil
 }
 
-func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container, inputEditString, largeEntry *widget.Entry) (bool, error) {
+func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColumnContent *fyne.Container, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) (bool, error) {
 
 	err := variable.CurrentDBClient.Open()
 	if err != nil {
@@ -89,6 +89,7 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	if len(data) == 0 {
 		return false, err
 	}
+	utils.CheckCondition(columnEditKey)
 	utils.CheckCondition(rightColumnContent)
 	for _, item := range data {
 
@@ -103,9 +104,9 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		if typeValue.Extension() != ".txt" {
 			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
 		}
-		valueLabel := BuidLableKeyAndValue("value", item, value, truncatedValue, rightColumnContent, inputEditString, largeEntry)
-		keyLabel := BuidLableKeyAndValue("key", item, value, truncatedKey, rightColumnContent, inputEditString, largeEntry)
-
+		valueLabel := BuidLableKeyAndValue("value", item, value, truncatedValue, columnEditKey, saveKey, mainWindow)
+		keyLabel := BuidLableKeyAndValue("key", item, value, truncatedKey, columnEditKey, saveKey, mainWindow)
+		rightColumnContent.Refresh()
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
 	}

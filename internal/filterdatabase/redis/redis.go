@@ -28,7 +28,7 @@ func (l *NameDatabaseredis) FilterFile(path string) bool {
 
 func (l *NameDatabaseredis) FilterFormat(folderDialog *dialog.FileDialog) {}
 
-func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, inputEditString, largeEntry *widget.Entry) {
+func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) {
 	newWindow := a.NewWindow(title)
 
 	createSeparator := func() *canvas.Line {

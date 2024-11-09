@@ -18,7 +18,7 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 )
 
-func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, inputEditString, largeEntry *widget.Entry) *fyne.Container {
+func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) *fyne.Container {
 	lastColumnContent := container.NewVBox()
 
 	jsonDataa, err := variable.CurrentJson.Load()
@@ -27,7 +27,7 @@ func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *w
 	} else {
 		for _, project := range jsonDataa.RecentProjects {
 
-			buttonContainer := ProjectButton(project.Name, lastColumnContent, project.FileAddress, rightColumnContentORG, nameButtonProject, buttonAdd, project.Databace, inputEditString, largeEntry)
+			buttonContainer := ProjectButton(project.Name, lastColumnContent, project.FileAddress, rightColumnContentORG, nameButtonProject, buttonAdd, project.Databace, columnEditKey, saveKey, mainWindow)
 			lastColumnContent.Add(buttonContainer)
 		}
 	}
@@ -57,7 +57,7 @@ var (
 	lastPage  int
 )
 
-func UpdatePage(rightColumnContent *fyne.Container, inputEditString, largeEntry *widget.Entry) {
+func UpdatePage(rightColumnContent *fyne.Container, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) {
 
 	var data = make([]dbpak.KVData, 0)
 	var err error
@@ -129,8 +129,8 @@ func UpdatePage(rightColumnContent *fyne.Container, inputEditString, largeEntry 
 
 			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
 		}
-		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, rightColumnContent, inputEditString, largeEntry)
-		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, rightColumnContent, inputEditString, largeEntry)
+		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, columnEditKey, saveKey, mainWindow)
+		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, columnEditKey, saveKey, mainWindow)
 
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		arrayContainer = append(arrayContainer, buttonRow)
@@ -149,7 +149,7 @@ func UpdatePage(rightColumnContent *fyne.Container, inputEditString, largeEntry 
 	lastPage = variable.CurrentPage
 }
 
-func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string, inputEditString, largeEntry *widget.Entry) *fyne.Container {
+func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) *fyne.Container {
 	projectButton := widget.NewButton(inputText+" - "+nameDatabace, func() {
 		variable.ItemsAdded = true
 		utils.Checkdatabace(path, nameDatabace)
@@ -161,7 +161,8 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 		variable.PreviousOffsetY = 0
 		lastStart = nil
 		utils.CheckCondition(rightColumnContentORG)
-		UpdatePage(rightColumnContentORG, inputEditString, largeEntry)
+		utils.CheckCondition(columnEditKey)
+		UpdatePage(rightColumnContentORG, columnEditKey, saveKey, mainWindow)
 
 		nameButtonProject.Text = ""
 		nameButtonProject.Text = inputText + " - " + nameDatabace
@@ -176,6 +177,7 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 
 		if nameButtonProject.Text == inputText+" - "+nameDatabace {
 			utils.CheckCondition(rightColumnContentORG)
+			utils.CheckCondition(columnEditKey)
 
 			buttonAdd.Disable()
 
@@ -197,23 +199,22 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	return buttonContainer
 }
 
-func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, nameLable string, rightColumnContent *fyne.Container, inputEditString, largeEntry *widget.Entry) *utils.TappableLabel {
+func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, nameLable string, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) *utils.TappableLabel {
 	var lableKeyAndValue *utils.TappableLabel
-	var contentType *fyne.Container
 	var valueEntry *widget.Entry
+
 	var truncatedKey2 string
 
 	lableKeyAndValue = utils.NewTappableLabel(nameLable, func() {
-		editWindow := fyne.CurrentApp().NewWindow("Edit" + eidtKeyAbdValue)
-		editWindow.Resize(fyne.NewSize(600, 600))
-		mainContainer := container.NewVBox()
+		utils.CheckCondition(columnEditKey)
 
 		typeVlaue := mimetype.Detect([]byte(value))
 		if eidtKeyAbdValue == "value" {
 
+			columnEditKey.Add(widget.NewLabel(fmt.Sprintf("Edit %s - %s", "value", nameLable)))
 			switch {
 			case strings.HasPrefix(typeVlaue.String(), "image/"):
-				contentType = utils.ImageShow([]byte(key), []byte(value), nameLable, mainContainer, editWindow)
+				utils.ImageShow([]byte(key), []byte(value), nameLable, columnEditKey, mainWindow)
 
 				typeValue := mimetype.Detect([]byte(value))
 				truncatedKey2 = fmt.Sprintf("* %s . . .", typeValue.Extension())
@@ -224,11 +225,9 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 				valueEntry.Resize(fyne.NewSize(500, 500))
 				valueEntry.SetText(string(value))
 				scrollableEntry := container.NewScroll(valueEntry)
-				mainContainer = container.NewBorder(nil, nil, nil, nil, scrollableEntry)
-				scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
-				mainContainer.Add(scrollableEntry)
 
-				contentType = container.NewVBox(widget.NewLabel(""))
+				scrollableEntry.SetMinSize(fyne.NewSize(200, 300))
+				columnEditKey.Add(scrollableEntry)
 
 				value = []byte(valueEntry.Text)
 			case strings.HasPrefix(typeVlaue.String(), "font/"):
@@ -236,19 +235,21 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 			}
 
 		} else {
+			columnEditKey.Add(widget.NewLabel(fmt.Sprintf("Edit %s - %s", "key", nameLable)))
+
 			valueEntry = widget.NewMultiLineEntry()
 			valueEntry.Resize(fyne.NewSize(500, 500))
 			valueEntry.SetText(string(key))
 			scrollableEntry := container.NewScroll(valueEntry)
-			mainContainer = container.NewBorder(nil, nil, nil, nil, scrollableEntry)
-			scrollableEntry.SetMinSize(fyne.NewSize(600, 500))
-			mainContainer.Add(scrollableEntry)
-			contentType = container.NewVBox(widget.NewLabel(""))
+
+			scrollableEntry.SetMinSize(fyne.NewSize(200, 300))
+			columnEditKey.Add(scrollableEntry)
 
 		}
 
-		saveButton := widget.NewButton("Save", func() {
+		saveKey = widget.NewButton("Save", func() {
 
+			Example()
 			err := variable.CurrentDBClient.Open()
 			if err != nil {
 				fmt.Println("error Open")
@@ -292,26 +293,13 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 
 			lableKeyAndValue.SetText(truncatedKey2)
 			lableKeyAndValue.Refresh()
-
-			editWindow.Close()
-			rightColumnContent.Refresh()
 		})
 
-		cancelButton := widget.NewButton("Cancel", func() {
-			editWindow.Close()
-		})
-
-		rowBottom := container.NewVBox(
-			contentType,
-			container.NewBorder(nil, container.NewGridWithColumns(2, cancelButton, saveButton), nil, nil),
-		)
-		editContentScr := container.NewScroll(mainContainer)
-		coulumnORG := container.NewBorder(
-			widget.NewLabel("Edit "+eidtKeyAbdValue+" :"), rowBottom, nil, nil, editContentScr,
-		)
-
-		editWindow.SetContent(coulumnORG)
-		editWindow.Show()
+		columnEditKey.Refresh()
 	})
 	return lableKeyAndValue
+}
+
+func Example() {
+
 }

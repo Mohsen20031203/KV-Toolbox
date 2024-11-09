@@ -15,7 +15,6 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
-	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
@@ -94,8 +93,7 @@ func CleanInput(input string) string {
 	return cleaned
 }
 
-func ImageShow(key []byte, value []byte, nameLable string, mainContainer *fyne.Container, editWindow fyne.Window) *fyne.Container {
-	var contentt *fyne.Container
+func ImageShow(key []byte, value []byte, nameLable string, mainContainer *fyne.Container, editWindow fyne.Window) {
 	var lableAddpicture *widget.Button
 
 	imgReader := bytes.NewReader([]byte(value))
@@ -130,11 +128,10 @@ func ImageShow(key []byte, value []byte, nameLable string, mainContainer *fyne.C
 			image.FillMode = canvas.ImageFillContain
 			image.SetMinSize(fyne.NewSize(400, 400))
 
-			if len(mainContainer.Objects) >= 1 {
-				mainContainer.Objects = mainContainer.Objects[:0]
+			if len(mainContainer.Objects) == 3 {
+				mainContainer.Objects[1] = image
 			}
 
-			mainContainer.Add(image)
 			mainContainer.Refresh()
 
 		}, editWindow)
@@ -143,8 +140,5 @@ func ImageShow(key []byte, value []byte, nameLable string, mainContainer *fyne.C
 		folderPath.Show()
 	})
 
-	contentt = container.NewVBox(
-		lableAddpicture,
-	)
-	return contentt
+	mainContainer.Add(lableAddpicture)
 }

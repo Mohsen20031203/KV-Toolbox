@@ -11,6 +11,7 @@ import (
 	addkeyui "DatabaseDB/internal/ui/addKeyui"
 	deletkeyui "DatabaseDB/internal/ui/deletKeyUi"
 	searchkeyui "DatabaseDB/internal/ui/searchKeyui"
+	"DatabaseDB/internal/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -60,33 +61,22 @@ func MainWindow(myApp fyne.App) {
 		fyne.TextStyle{Bold: true},
 	)
 
-	inputEditString := widget.NewEntry()
-
-	largeEntry := widget.NewMultiLineEntry()
-	largeEntry.Wrapping = fyne.TextWrapWord
-	inputByte := container.NewVScroll(largeEntry)
-	inputByte.SetMinSize(fyne.NewSize(200, 350))
-
 	saveEditKey := widget.NewButton("Save", func() {
 
 	})
-	cancelEditKey := widget.NewButton("Cancle", nil)
+	cancelEditKey := widget.NewButton("Cancle", func() {
+		utils.CheckCondition(rightColumEdit)
+	})
 
 	saveAndCancle := container.NewGridWithColumns(2, cancelEditKey, saveEditKey)
 
-	rightColumEdit = container.NewVBox(
-		widget.NewLabel("key"),
-		widget.NewLabel("String"),
-		inputEditString,
-		widget.NewLabel("Byte"),
-		inputByte,
-	)
+	rightColumEdit = container.NewVBox()
 
 	columnEdit := container.NewBorder(nil, saveAndCancle, nil, nil, rightColumEdit)
 
 	searchButton := widget.NewButton("Search", func() {
 
-		searchkeyui.SearchKeyUi(rightColumnAll, inputEditString, largeEntry)
+		searchkeyui.SearchKeyUi(rightColumnAll, rightColumEdit, saveEditKey, mainWindow)
 
 	})
 
@@ -108,7 +98,7 @@ func MainWindow(myApp fyne.App) {
 	)
 
 	// left column
-	leftColumnAll := logic.SetupLastColumn(rightColumnAll, nameButtonProject, buttonAdd, inputEditString, largeEntry)
+	leftColumnAll := logic.SetupLastColumn(rightColumnAll, nameButtonProject, buttonAdd, rightColumEdit, saveEditKey, mainWindow)
 	spacer.Resize(fyne.NewSize(0, 30))
 
 	for _, m := range variable.NameDatabase {
@@ -126,7 +116,7 @@ func MainWindow(myApp fyne.App) {
 				//	variable.NameData = Filterredis.NewFileterRedis()
 
 			}
-			variable.NameData.FormCreate(myApp, m, leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd, inputEditString, largeEntry)
+			variable.NameData.FormCreate(myApp, m, leftColumnAll, rightColumnAll, nameButtonProject, buttonAdd, rightColumEdit, saveEditKey, mainWindow)
 		})
 		BottomDatabase = append(BottomDatabase, leveldbButton)
 	}
@@ -159,7 +149,7 @@ func MainWindow(myApp fyne.App) {
 	darkLight := logic.SetupThemeButtons(myApp)
 
 	// all window
-	containerAll := ColumnContent(rightColumnAll, columnEdit, leftColumnAll, topLeftColumn, darkLight, topRightColumn, inputEditString, largeEntry)
+	containerAll := ColumnContent(rightColumnAll, columnEdit, leftColumnAll, topLeftColumn, darkLight, topRightColumn, rightColumEdit, saveEditKey, mainWindow)
 	mainWindow.CenterOnScreen()
 	mainWindow.SetContent(containerAll)
 	mainWindow.Resize(fyne.NewSize(1300, 800))
@@ -173,7 +163,7 @@ func LeftColumn(leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, da
 	return mainContent
 }
 
-func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container, rightColumEdit *fyne.Container, inputEditString, largeEntry *widget.Entry) fyne.CanvasObject {
+func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container, rightColumEdit *fyne.Container, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) fyne.CanvasObject {
 	rightColumnScrollable := container.NewVScroll(rightColumnAll)
 
 	up := false
@@ -189,7 +179,7 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container,
 				return
 			}
 			numberLast := len(rightColumnAll.Objects)
-			logic.UpdatePage(rightColumnAll, inputEditString, largeEntry)
+			logic.UpdatePage(rightColumnAll, columnEditKey, saveKey, mainWindow)
 
 			rightColumnAll.Objects = rightColumnAll.Objects[:numberLast]
 
@@ -202,7 +192,7 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container,
 
 			variable.CurrentPage++
 			numberLast := len(rightColumnAll.Objects)
-			logic.UpdatePage(rightColumnAll, inputEditString, largeEntry)
+			logic.UpdatePage(rightColumnAll, columnEditKey, saveKey, mainWindow)
 			rightColumnScrollable.Offset.Y = maxScroll / 2
 
 			if len(rightColumnAll.Objects) > (variable.ItemsPerPage)*3 {
@@ -221,11 +211,11 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container,
 	return mainContent
 }
 
-func ColumnContent(rightColumnAll *fyne.Container, rightColumEdit *fyne.Container, leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, darkLight *fyne.Container, topRightColumn *fyne.Container, inputEditString, largeEntry *widget.Entry) fyne.CanvasObject {
+func ColumnContent(rightColumnAll *fyne.Container, rightColumEdit *fyne.Container, leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, darkLight *fyne.Container, topRightColumn *fyne.Container, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) fyne.CanvasObject {
 
 	mainContent := LeftColumn(leftColumnAll, topLeftColumn, darkLight)
 
-	rightColumnScrollable := RightColumn(rightColumnAll, topRightColumn, rightColumEdit, inputEditString, largeEntry)
+	rightColumnScrollable := RightColumn(rightColumnAll, topRightColumn, rightColumEdit, columnEditKey, saveKey, mainWindow)
 
 	columns := container.NewHSplit(mainContent, rightColumnScrollable)
 	columns.SetOffset(0.20)

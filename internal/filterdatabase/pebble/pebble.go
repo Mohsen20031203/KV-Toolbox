@@ -24,7 +24,7 @@ func (l *NameDatabasePebble) FilterFormat(folderDialog *dialog.FileDialog) {
 	folderDialog.SetFilter(storage.NewExtensionFileFilter([]string{".log"}))
 }
 
-func (l *NameDatabasePebble) FormCreate(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, inputEditString, largeEntry *widget.Entry) {
-	sharedfunc.FormPasteDatabase(a, title, lastColumnContent, rightColumnContentORG, nameButtonProject, buttonAdd, inputEditString, largeEntry)
+func (l *NameDatabasePebble) FormCreate(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) {
+	sharedfunc.FormPasteDatabase(a, title, lastColumnContent, rightColumnContentORG, nameButtonProject, buttonAdd, columnEditKey, saveKey, mainWindow)
 
 }
