@@ -60,10 +60,10 @@ func MainWindow(myApp fyne.App) {
 		fyne.TextAlignCenter,
 		fyne.TextStyle{Bold: true},
 	)
+	var saveEditKey *widget.Button
 
-	saveEditKey := widget.NewButton("Save", func() {
+	saveEditKey = widget.NewButton("Save", nil)
 
-	})
 	cancelEditKey := widget.NewButton("Cancle", func() {
 		utils.CheckCondition(rightColumEdit)
 	})

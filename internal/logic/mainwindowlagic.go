@@ -202,104 +202,93 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, nameLable string, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) *utils.TappableLabel {
 	var lableKeyAndValue *utils.TappableLabel
 	var valueEntry *widget.Entry
-
 	var truncatedKey2 string
 
 	lableKeyAndValue = utils.NewTappableLabel(nameLable, func() {
 		utils.CheckCondition(columnEditKey)
 
-		typeVlaue := mimetype.Detect([]byte(value))
+		typeValue := mimetype.Detect([]byte(value))
+		columnEditKey.Add(widget.NewLabel(fmt.Sprintf("Edit %s - %s", eidtKeyAbdValue, nameLable)))
+
 		if eidtKeyAbdValue == "value" {
 
-			columnEditKey.Add(widget.NewLabel(fmt.Sprintf("Edit %s - %s", "value", nameLable)))
 			switch {
-			case strings.HasPrefix(typeVlaue.String(), "image/"):
+			case strings.HasPrefix(typeValue.String(), "image/"):
 				utils.ImageShow([]byte(key), []byte(value), nameLable, columnEditKey, mainWindow)
-
-				typeValue := mimetype.Detect([]byte(value))
 				truncatedKey2 = fmt.Sprintf("* %s . . .", typeValue.Extension())
 
-			case strings.HasPrefix(typeVlaue.String(), "text/") || strings.HasPrefix(typeVlaue.String(), "application/"):
-
-				valueEntry = widget.NewMultiLineEntry()
-				valueEntry.Resize(fyne.NewSize(500, 500))
-				valueEntry.SetText(string(value))
-				scrollableEntry := container.NewScroll(valueEntry)
-
-				scrollableEntry.SetMinSize(fyne.NewSize(200, 300))
-				columnEditKey.Add(scrollableEntry)
-
+			case strings.HasPrefix(typeValue.String(), "text/") || strings.HasPrefix(typeValue.String(), "application/"):
+				valueEntry = configureEntry(columnEditKey, "value", string(value), nameLable)
 				value = []byte(valueEntry.Text)
-			case strings.HasPrefix(typeVlaue.String(), "font/"):
+
+			case strings.HasPrefix(typeValue.String(), "font/"):
 				fmt.Println("font")
 			}
 
 		} else {
-			columnEditKey.Add(widget.NewLabel(fmt.Sprintf("Edit %s - %s", "key", nameLable)))
 
-			valueEntry = widget.NewMultiLineEntry()
-			valueEntry.Resize(fyne.NewSize(500, 500))
-			valueEntry.SetText(string(key))
-			scrollableEntry := container.NewScroll(valueEntry)
-
-			scrollableEntry.SetMinSize(fyne.NewSize(200, 300))
-			columnEditKey.Add(scrollableEntry)
-
+			valueEntry = configureEntry(columnEditKey, "key", string(key), nameLable)
 		}
 
-		saveKey = widget.NewButton("Save", func() {
-
-			Example()
+		saveKey.OnTapped = func() {
 			err := variable.CurrentDBClient.Open()
 			if err != nil {
 				fmt.Println("error Open")
+				return
 			}
 			defer variable.CurrentDBClient.Close()
 
-			if eidtKeyAbdValue == "value" {
-
-				if strings.HasPrefix(typeVlaue.String(), "text/") {
+			saveValue := func() {
+				if strings.HasPrefix(typeValue.String(), "text/") {
 					value = []byte(valueEntry.Text)
 					truncatedKey2 = utils.TruncateString(valueEntry.Text, 30)
 				} else if utils.ValueImage != nil {
 					value = utils.ValueImage
-
+					utils.ValueImage = nil
 				}
-
-				err := variable.CurrentDBClient.Add(key, value)
-				if err != nil {
+				if err := variable.CurrentDBClient.Add(key, value); err != nil {
 					fmt.Println(err)
 				}
+			}
 
-			} else {
-
+			updateKey := func() {
 				valueBefor, err := variable.CurrentDBClient.Get(key)
 				if err != nil {
 					return
 				}
-				err = variable.CurrentDBClient.Delete(key)
-				if err != nil {
+				if err := variable.CurrentDBClient.Delete(key); err != nil {
 					return
 				}
 
 				key = []byte(utils.CleanInput(valueEntry.Text))
-
-				err = variable.CurrentDBClient.Add(key, valueBefor)
-				if err != nil {
+				if err := variable.CurrentDBClient.Add(key, valueBefor); err != nil {
 					fmt.Println(err)
 				}
 				truncatedKey2 = utils.TruncateString(string(key), 20)
 			}
 
+			if eidtKeyAbdValue == "value" {
+				saveValue()
+			} else {
+				updateKey()
+			}
+
 			lableKeyAndValue.SetText(truncatedKey2)
 			lableKeyAndValue.Refresh()
-		})
+		}
 
 		columnEditKey.Refresh()
 	})
 	return lableKeyAndValue
 }
 
-func Example() {
-
+func configureEntry(columnEditKey *fyne.Container, label string, content string, nameLable string) *widget.Entry {
+	columnEditKey.Add(widget.NewLabel(fmt.Sprintf("Edit %s - %s", label, nameLable)))
+	entry := widget.NewMultiLineEntry()
+	entry.Resize(fyne.NewSize(500, 500))
+	entry.SetText(content)
+	scrollableEntry := container.NewScroll(entry)
+	scrollableEntry.SetMinSize(fyne.NewSize(200, 300))
+	columnEditKey.Add(scrollableEntry)
+	return entry
 }
