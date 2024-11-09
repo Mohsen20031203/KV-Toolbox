@@ -129,8 +129,8 @@ func UpdatePage(rightColumnContent *fyne.Container, columnEditKey *fyne.Containe
 
 			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
 		}
-		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, columnEditKey, saveKey, mainWindow)
-		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, columnEditKey, saveKey, mainWindow)
+		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, rightColumnContent, columnEditKey, saveKey, mainWindow)
+		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, rightColumnContent, columnEditKey, saveKey, mainWindow)
 
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		arrayContainer = append(arrayContainer, buttonRow)
@@ -199,7 +199,7 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	return buttonContainer
 }
 
-func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, nameLable string, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) *utils.TappableLabel {
+func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, nameLable string, rightColumn *fyne.Container, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) *utils.TappableLabel {
 	var lableKeyAndValue *utils.TappableLabel
 	var valueEntry *widget.Entry
 	var truncatedKey2 string
@@ -218,16 +218,14 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 				truncatedKey2 = fmt.Sprintf("* %s . . .", typeValue.Extension())
 
 			case strings.HasPrefix(typeValue.String(), "text/") || strings.HasPrefix(typeValue.String(), "application/"):
-				valueEntry = configureEntry(columnEditKey, "value", string(value), nameLable)
+				valueEntry = configureEntry(columnEditKey, string(value))
 				value = []byte(valueEntry.Text)
 
-			case strings.HasPrefix(typeValue.String(), "font/"):
-				fmt.Println("font")
 			}
 
 		} else {
 
-			valueEntry = configureEntry(columnEditKey, "key", string(key), nameLable)
+			valueEntry = configureEntry(columnEditKey, string(key))
 		}
 
 		saveKey.OnTapped = func() {
@@ -246,6 +244,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 					value = utils.ValueImage
 					utils.ValueImage = nil
 				}
+				rightColumn.Refresh()
 				if err := variable.CurrentDBClient.Add(key, value); err != nil {
 					fmt.Println(err)
 				}
@@ -282,8 +281,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 	return lableKeyAndValue
 }
 
-func configureEntry(columnEditKey *fyne.Container, label string, content string, nameLable string) *widget.Entry {
-	columnEditKey.Add(widget.NewLabel(fmt.Sprintf("Edit %s - %s", label, nameLable)))
+func configureEntry(columnEditKey *fyne.Container, content string) *widget.Entry {
 	entry := widget.NewMultiLineEntry()
 	entry.Resize(fyne.NewSize(500, 500))
 	entry.SetText(content)

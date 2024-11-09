@@ -154,7 +154,7 @@ func (l *badgerDatabase) Search(valueEntry []byte) (error, [][]byte) {
 
 	err := l.db.View(func(txn *badger.Txn) error {
 		Iterator := txn.NewIterator(opts)
-
+		defer Iterator.Close()
 		Iterator.Rewind()
 
 		for Iterator.Valid() {

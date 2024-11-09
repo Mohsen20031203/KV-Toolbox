@@ -104,8 +104,8 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		if typeValue.Extension() != ".txt" {
 			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
 		}
-		valueLabel := BuidLableKeyAndValue("value", item, value, truncatedValue, columnEditKey, saveKey, mainWindow)
-		keyLabel := BuidLableKeyAndValue("key", item, value, truncatedKey, columnEditKey, saveKey, mainWindow)
+		valueLabel := BuidLableKeyAndValue("value", item, value, truncatedValue, rightColumnContent, columnEditKey, saveKey, mainWindow)
+		keyLabel := BuidLableKeyAndValue("key", item, value, truncatedKey, rightColumnContent, columnEditKey, saveKey, mainWindow)
 		rightColumnContent.Refresh()
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
