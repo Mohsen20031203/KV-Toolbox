@@ -161,7 +161,10 @@ func (l *badgerDatabase) Search(valueEntry []byte) (error, [][]byte) {
 
 			if bytes.Contains(Iterator.Item().Key(), valueEntry) {
 
-				data = append(data, Iterator.Item().Key())
+				key1 := make([]byte, len(Iterator.Item().Key()))
+				copy(key1, Iterator.Item().Key())
+
+				data = append(data, key1)
 
 			}
 			Iterator.Next()

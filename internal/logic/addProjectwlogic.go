@@ -84,8 +84,6 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		return false, err
 	}
 
-	defer variable.CurrentDBClient.Close()
-
 	if len(data) == 0 {
 		return false, err
 	}
@@ -110,6 +108,8 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
 	}
+
+	defer variable.CurrentDBClient.Close()
 
 	editWindow.Close()
 	return true, nil
