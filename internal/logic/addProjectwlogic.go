@@ -90,7 +90,15 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	utils.CheckCondition(columnEditKey)
 	utils.CheckCondition(rightColumnContent)
 	var truncatedValue string
+	var count int
 	for _, item := range data {
+
+		if count > 60 {
+			dialog.ShowInformation("Error", "The result of your keys is more than 60 and I will only show the first 60.If your key is not among these, please search more precisely.", mainWindow)
+			count = 0
+			break
+		}
+		count++
 
 		value, err := variable.CurrentDBClient.Get(item)
 		if err != nil {
