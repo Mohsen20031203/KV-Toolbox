@@ -161,7 +161,7 @@ func UpdatePage(rightColumnContent *fyne.Container, columnEditKey *fyne.Containe
 }
 
 func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) *fyne.Container {
-	projectButton := widget.NewButton(inputText+" - "+nameDatabace, func() {
+	projectButton := widget.NewButtonWithIcon(inputText+" - "+nameDatabace, theme.ViewRefreshIcon(), func() {
 		variable.ItemsAdded = true
 		utils.Checkdatabace(path, nameDatabace)
 		buttonAdd.Enable()

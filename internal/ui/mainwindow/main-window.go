@@ -110,7 +110,7 @@ func MainWindow(myApp fyne.App) {
 			case "levelDB":
 				variable.NameData = FilterLeveldb.NewFileterLeveldb()
 			case "Pebble":
-				variable.NameData = Filterpebbledb.NewFileterLeveldb()
+				variable.NameData = Filterpebbledb.NewFileterPebble()
 			case "Badger":
 				variable.NameData = Filterbadger.NewFileterBadger()
 				//case "Redis":
@@ -153,7 +153,7 @@ func MainWindow(myApp fyne.App) {
 	containerAll := ColumnContent(rightColumnAll, columnEdit, leftColumnAll, topLeftColumn, darkLight, topRightColumn, rightColumEdit, saveEditKey, mainWindow)
 	mainWindow.CenterOnScreen()
 	mainWindow.SetContent(containerAll)
-	mainWindow.Resize(fyne.NewSize(1100, 600))
+	mainWindow.Resize(fyne.NewSize(1100, 700))
 	mainWindow.ShowAndRun()
 }
 

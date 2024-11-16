@@ -12,7 +12,7 @@ import (
 
 type NameDatabasePebble struct{}
 
-func NewFileterLeveldb() filterdatabase.FilterData {
+func NewFileterPebble() filterdatabase.FilterData {
 	return &NameDatabasePebble{}
 }
 
