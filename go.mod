@@ -1,4 +1,4 @@
-module testgui
+module DatabaseDB
 
 go 1.22.3
 

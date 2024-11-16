@@ -2,20 +2,19 @@
 package utils
 
 import (
+	variable "DatabaseDB"
+	"DatabaseDB/internal/Databaces/PebbleDB"
+	badgerDB "DatabaseDB/internal/Databaces/badger"
+	leveldbb "DatabaseDB/internal/Databaces/leveldb"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
-	variable "testgui"
-	"testgui/internal/Databaces/PebbleDB"
-	badgerDB "testgui/internal/Databaces/badger"
-	leveldbb "testgui/internal/Databaces/leveldb"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
-	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
@@ -44,12 +43,18 @@ func (t *TappableLabel) Tapped(_ *fyne.PointEvent) {
 }
 
 func TruncateString(input string, length int) string {
-	if len(input) > length {
-		return input[:length] + "..."
+	nameData := input
+	if len(nameData) > length {
+		nameData = nameData[:length] + ". . ."
 	}
-	return input
-}
+	parts := strings.Split(nameData, "\n")
+	if len(parts) > 1 {
 
+		nameData = parts[0] + " . . ."
+	}
+
+	return nameData
+}
 func IsValidJSON(data string) bool {
 	var js json.RawMessage
 	m := json.Unmarshal([]byte(data), &js) == nil
@@ -94,15 +99,14 @@ func CleanInput(input string) string {
 	return cleaned
 }
 
-func ImageShow(key []byte, value []byte, nameLable string, mainContainer *fyne.Container, editWindow fyne.Window) *fyne.Container {
-	var contentt *fyne.Container
+func ImageShow(key []byte, value []byte, mainContainer *fyne.Container, editWindow fyne.Window) {
 	var lableAddpicture *widget.Button
 
 	imgReader := bytes.NewReader([]byte(value))
 	image := canvas.NewImageFromReader(imgReader, "image.png")
 
 	image.FillMode = canvas.ImageFillContain
-	image.SetMinSize(fyne.NewSize(400, 400))
+	image.SetMinSize(fyne.NewSize(300, 300))
 
 	mainContainer.Add(image)
 
@@ -128,13 +132,12 @@ func ImageShow(key []byte, value []byte, nameLable string, mainContainer *fyne.C
 			image := canvas.NewImageFromReader(imgReader, "image.png")
 
 			image.FillMode = canvas.ImageFillContain
-			image.SetMinSize(fyne.NewSize(400, 400))
+			image.SetMinSize(fyne.NewSize(300, 300))
 
-			if len(mainContainer.Objects) >= 1 {
-				mainContainer.Objects = mainContainer.Objects[:0]
+			if len(mainContainer.Objects) == 3 {
+				mainContainer.Objects[1] = image
 			}
 
-			mainContainer.Add(image)
 			mainContainer.Refresh()
 
 		}, editWindow)
@@ -143,8 +146,5 @@ func ImageShow(key []byte, value []byte, nameLable string, mainContainer *fyne.C
 		folderPath.Show()
 	})
 
-	contentt = container.NewVBox(
-		lableAddpicture,
-	)
-	return contentt
+	mainContainer.Add(lableAddpicture)
 }

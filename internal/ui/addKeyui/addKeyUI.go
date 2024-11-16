@@ -1,13 +1,14 @@
 package addkeyui
 
 import (
+	"DatabaseDB/internal/logic"
 	"fmt"
 	"io/ioutil"
-	"testgui/internal/logic"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -44,8 +45,10 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 			nameFile.SetText(filename)
 			nameFile.Refresh()
 		}, windowAdd)
+		folderPath.SetFilter(storage.NewExtensionFileFilter([]string{".png", ".jpg", ".jpeg", ".gif", ".txt", ".json", ".go"}))
 		folderPath.Show()
 	})
+
 	uploadFile.Disable()
 	iputvalue.Disable()
 	nameFile.Disable()

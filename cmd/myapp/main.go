@@ -1,9 +1,9 @@
 package main
 
 import (
-	variable "testgui"
-	jsondata "testgui/internal/json/jsonData"
-	"testgui/internal/ui/mainwindow"
+	variable "DatabaseDB"
+	jsondata "DatabaseDB/internal/json/jsonData"
+	"DatabaseDB/internal/ui/mainwindow"
 
 	"fyne.io/fyne/v2/app"
 )

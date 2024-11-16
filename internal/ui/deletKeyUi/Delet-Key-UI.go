@@ -1,8 +1,8 @@
 package deletkeyui
 
 import (
+	"DatabaseDB/internal/logic"
 	"fmt"
-	"testgui/internal/logic"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"

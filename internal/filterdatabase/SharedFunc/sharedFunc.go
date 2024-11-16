@@ -1,15 +1,15 @@
 package sharedfunc
 
 import (
+	variable "DatabaseDB"
+	"DatabaseDB/internal/logic"
+	"DatabaseDB/internal/utils"
 	"fmt"
 	"image/color"
 	"io/ioutil"
 	"log"
 	"path/filepath"
 	"strings"
-	variable "testgui"
-	"testgui/internal/logic"
-	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -19,7 +19,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func FormPasteDatabase(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) {
+func FormPasteDatabase(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) {
 	newWindow := a.NewWindow(title)
 
 	createSeparator := func() *canvas.Line {
@@ -137,8 +137,9 @@ func FormPasteDatabase(a fyne.App, title string, lastColumnContent *fyne.Contain
 			if !addButton {
 
 				utils.CheckCondition(rightColumnContentORG)
+				utils.CheckCondition(columnEditKey)
 
-				buttonContainer := logic.ProjectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG, nameButtonProject, buttonAdd, title)
+				buttonContainer := logic.ProjectButton(pathEntry.Text, lastColumnContent, pathEntry2.Text, rightColumnContentORG, nameButtonProject, buttonAdd, title, columnEditKey, saveKey, mainWindow)
 				lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 

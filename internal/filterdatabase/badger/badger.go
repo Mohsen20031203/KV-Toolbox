@@ -1,11 +1,11 @@
 package Filterbadger
 
 import (
+	"DatabaseDB/internal/filterdatabase"
+	sharedfunc "DatabaseDB/internal/filterdatabase/SharedFunc"
 	"io/ioutil"
 	"log"
 	"path/filepath"
-	"testgui/internal/filterdatabase"
-	sharedfunc "testgui/internal/filterdatabase/SharedFunc"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
@@ -13,9 +13,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-type NameDatabaseBadger struct {
-	name string
-}
+type NameDatabaseBadger struct{}
 
 func NewFileterBadger() filterdatabase.FilterData {
 	return &NameDatabaseBadger{}
@@ -44,7 +42,7 @@ func (l *NameDatabaseBadger) FilterFormat(folderDialog *dialog.FileDialog) {
 	folderDialog.SetFilter(storage.NewExtensionFileFilter([]string{".sst", ".vlog"}))
 }
 
-func (l *NameDatabaseBadger) FormCreate(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) {
-	sharedfunc.FormPasteDatabase(a, title, lastColumnContent, rightColumnContentORG, nameButtonProject, buttonAdd)
+func (l *NameDatabaseBadger) FormCreate(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) {
+	sharedfunc.FormPasteDatabase(a, title, lastColumnContent, rightColumnContentORG, nameButtonProject, buttonAdd, columnEditKey, saveKey, mainWindow)
 
 }

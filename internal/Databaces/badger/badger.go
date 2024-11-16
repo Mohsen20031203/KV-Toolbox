@@ -1,8 +1,8 @@
 package badgerDB
 
 import (
+	dbpak "DatabaseDB/internal/Databaces"
 	"bytes"
-	dbpak "testgui/internal/Databaces"
 
 	"github.com/dgraph-io/badger/v4"
 )
@@ -154,14 +154,17 @@ func (l *badgerDatabase) Search(valueEntry []byte) (error, [][]byte) {
 
 	err := l.db.View(func(txn *badger.Txn) error {
 		Iterator := txn.NewIterator(opts)
-
+		defer Iterator.Close()
 		Iterator.Rewind()
 
 		for Iterator.Valid() {
 
 			if bytes.Contains(Iterator.Item().Key(), valueEntry) {
 
-				data = append(data, Iterator.Item().Key())
+				key1 := make([]byte, len(Iterator.Item().Key()))
+				copy(key1, Iterator.Item().Key())
+
+				data = append(data, key1)
 
 			}
 			Iterator.Next()

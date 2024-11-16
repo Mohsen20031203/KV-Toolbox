@@ -1,7 +1,7 @@
 package searchkeyui
 
 import (
-	"testgui/internal/logic"
+	"DatabaseDB/internal/logic"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -10,7 +10,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func SearchKeyUi(rightColumnContent *fyne.Container) {
+func SearchKeyUi(rightColumnContent *fyne.Container, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) {
 	editWindow := fyne.CurrentApp().NewWindow("Search in the database")
 	editWindow.Resize(fyne.NewSize(600, 300))
 
@@ -20,21 +20,12 @@ func SearchKeyUi(rightColumnContent *fyne.Container) {
 
 	buttomSearch := widget.NewButton("Search", func() {
 
-		result, _ := logic.SearchDatabase(valueEntry, editWindow, rightColumnContent)
+		result, _ := logic.SearchDatabase(valueEntry, editWindow, rightColumnContent, columnEditKey, saveKey, mainWindow)
 		if !result {
 			dialog.ShowInformation("Error", "Such a key is not available in the database", editWindow)
 		}
 
 	})
-
-	/*valueEntry.OnChanged = func(s string) {
-		if len(s) > 0 && s[len(s)-1] == '\n' {
-
-			valueEntry.SetText(s[:len(s)-1])
-
-			buttomSearch.OnTapped()
-		}
-	}*/
 
 	editContent := container.NewVBox(
 		widget.NewLabel("Enter the desired key"),

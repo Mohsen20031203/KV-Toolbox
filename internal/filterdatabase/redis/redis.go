@@ -1,12 +1,12 @@
 package Filterredis
 
 import (
+	variable "DatabaseDB"
+	"DatabaseDB/internal/filterdatabase"
+	"DatabaseDB/internal/logic"
+	"DatabaseDB/internal/utils"
 	"fmt"
 	"image/color"
-	variable "testgui"
-	"testgui/internal/filterdatabase"
-	"testgui/internal/logic"
-	"testgui/internal/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -28,7 +28,7 @@ func (l *NameDatabaseredis) FilterFile(path string) bool {
 
 func (l *NameDatabaseredis) FilterFormat(folderDialog *dialog.FileDialog) {}
 
-func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button) {
+func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnContent *fyne.Container, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) {
 	newWindow := a.NewWindow(title)
 
 	createSeparator := func() *canvas.Line {
@@ -106,8 +106,8 @@ func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnConte
 
 				utils.CheckCondition(rightColumnContentORG)
 
-				buttonContainer := logic.ProjectButton(pathEntryName.Text, lastColumnContent, path, rightColumnContentORG, nameButtonProject, buttonAdd, title)
-				lastColumnContent.Add(buttonContainer)
+				//buttonContainer := logic.ProjectButton(pathEntryName.Text, lastColumnContent, path, rightColumnContentORG, nameButtonProject, buttonAdd, title)
+				//lastColumnContent.Add(buttonContainer)
 				lastColumnContent.Refresh()
 
 				variable.CreatDatabase = false

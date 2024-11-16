@@ -1,15 +1,15 @@
 package variable
 
 import (
-	dbpak "testgui/internal/Databaces"
-	"testgui/internal/filterdatabase"
-	jsFile "testgui/internal/json"
+	dbpak "DatabaseDB/internal/Databaces"
+	"DatabaseDB/internal/filterdatabase"
+	jsFile "DatabaseDB/internal/json"
 )
 
 var (
 	CurrentDBClient dbpak.DBClient
 	CurrentPage     int
-	ItemsPerPage    = 20
+	ItemsPerPage    = 16
 	FolderPath      string
 	CurrentJson     jsFile.JsonFile
 	NameData        filterdatabase.FilterData
