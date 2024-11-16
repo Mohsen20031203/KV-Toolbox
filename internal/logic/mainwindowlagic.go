@@ -167,6 +167,7 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 		buttonAdd.Enable()
 		variable.FolderPath = path
 		lastEnd = nil
+		variable.ResultSearch = false
 		variable.CurrentPage = 1
 		lastPage = 0
 		variable.PreviousOffsetY = 0
@@ -227,48 +228,6 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 
 		typeValue := mimetype.Detect([]byte(value))
 		columnEditKey.Add(widget.NewLabel(fmt.Sprintf("Edit %s - %s", eidtKeyAbdValue, nameLable)))
-
-		/*typeKey := widget.NewSelect([]string{"Byte", "other"}, func(s string) {
-			if s == "Byte" {
-				columnEditKey.Objects = columnEditKey.Objects[:2]
-
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
-
-			} else {
-				valueEntry := configureEntry(columnEditKey, string(value))
-				value = []byte(valueEntry.Text)
-			}
-		})
-		columnEditKey.Add(typeKey)*/
 
 		if eidtKeyAbdValue == "value" {
 

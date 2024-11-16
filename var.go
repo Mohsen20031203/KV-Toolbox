@@ -15,6 +15,7 @@ var (
 	NameData        filterdatabase.FilterData
 	ItemsAdded      bool
 	PreviousOffsetY float32
+	ResultSearch    bool
 )
 
 var (

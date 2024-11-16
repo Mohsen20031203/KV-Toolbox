@@ -1,6 +1,7 @@
 package searchkeyui
 
 import (
+	variable "DatabaseDB"
 	"DatabaseDB/internal/logic"
 
 	"fyne.io/fyne/v2"
@@ -24,6 +25,7 @@ func SearchKeyUi(rightColumnContent *fyne.Container, columnEditKey *fyne.Contain
 		if !result {
 			dialog.ShowInformation("Error", "Such a key is not available in the database", editWindow)
 		}
+		variable.ResultSearch = true
 
 	})
 

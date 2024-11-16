@@ -172,7 +172,7 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container,
 	rightColumnScrollable.OnScrolled = func(p fyne.Position) {
 		maxScroll := rightColumnAll.MinSize().Height - rightColumnScrollable.Size().Height
 
-		if up && p.Y == 0 {
+		if up && p.Y == 0 && !variable.ResultSearch {
 			variable.CurrentPage--
 			if variable.CurrentPage < 3 {
 				up = false
@@ -187,9 +187,9 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container,
 			rightColumnScrollable.Offset.Y = maxScroll / 2
 			rightColumnScrollable.Refresh()
 
-		} else if p.Y == maxScroll && !variable.ItemsAdded {
+		} else if p.Y == maxScroll && !variable.ItemsAdded && !variable.ResultSearch {
 			return
-		} else if p.Y == maxScroll && variable.ItemsAdded {
+		} else if p.Y == maxScroll && variable.ItemsAdded && !variable.ResultSearch {
 
 			variable.CurrentPage++
 			numberLast := len(rightColumnAll.Objects)
