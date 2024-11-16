@@ -20,6 +20,8 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+var saveAndCancle *fyne.Container
+
 var leveldbButton *widget.Button
 var BottomDatabase []*widget.Button
 
@@ -43,16 +45,16 @@ func MainWindow(myApp fyne.App) {
 	line.StrokeWidth = 2
 
 	// key top window for colunm keys
-	keyRightColunm := widget.NewLabelWithStyle("key", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
+	keyRightColunm := widget.NewLabelWithStyle("key", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
 
 	// value top window for colunm values
 	valueRightColunm := widget.NewLabelWithStyle("value", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
 
 	// value top window for colunm values
-	editRightColunm := widget.NewLabelWithStyle("Edit", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
+	editRightColunm := widget.NewLabelWithStyle("Edit", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
 
 	// column key and value
-	keyAndRight := container.NewGridWithColumns(3, keyRightColunm, valueRightColunm, editRightColunm)
+	keyAndRight := container.NewGridWithColumns(4, keyRightColunm, valueRightColunm, widget.NewLabel(""), editRightColunm)
 
 	// name bottom project in colunm right
 	nameButtonProject := widget.NewLabelWithStyle(
@@ -60,15 +62,14 @@ func MainWindow(myApp fyne.App) {
 		fyne.TextAlignCenter,
 		fyne.TextStyle{Bold: true},
 	)
-	var saveEditKey *widget.Button
 
-	saveEditKey = widget.NewButton("Save", nil)
+	saveEditKey := widget.NewButton("Save", nil)
 
 	cancelEditKey := widget.NewButton("Cancle", func() {
 		utils.CheckCondition(rightColumEdit)
 	})
 
-	saveAndCancle := container.NewGridWithColumns(2, cancelEditKey, saveEditKey)
+	saveAndCancle = container.NewGridWithColumns(2, cancelEditKey, saveEditKey)
 
 	rightColumEdit = container.NewVBox()
 
@@ -203,19 +204,21 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container,
 		}
 
 	}
+	m := container.NewVScroll(columnEditKey)
+	rightColumEdit = container.NewBorder(nil, saveAndCancle, nil, nil, m)
 
 	columns := container.NewHSplit(rightColumnScrollable, rightColumEdit)
-	columns.SetOffset(0.70)
+	columns.SetOffset(0.60)
 	mainContent := container.NewBorder(topRightColumn, nil, nil, nil, columns)
 
 	return mainContent
 }
 
-func ColumnContent(rightColumnAll *fyne.Container, rightColumEdit *fyne.Container, leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, darkLight *fyne.Container, topRightColumn *fyne.Container, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) fyne.CanvasObject {
+func ColumnContent(rightColumnAll *fyne.Container, columnEdit *fyne.Container, leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, darkLight *fyne.Container, topRightColumn *fyne.Container, rightColumEdit *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) fyne.CanvasObject {
 
 	mainContent := LeftColumn(leftColumnAll, topLeftColumn, darkLight)
 
-	rightColumnScrollable := RightColumn(rightColumnAll, topRightColumn, rightColumEdit, columnEditKey, saveKey, mainWindow)
+	rightColumnScrollable := RightColumn(rightColumnAll, topRightColumn, columnEdit, rightColumEdit, saveKey, mainWindow)
 
 	columns := container.NewHSplit(mainContent, rightColumnScrollable)
 	columns.SetOffset(0.20)

@@ -102,8 +102,13 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		if typeValue.Extension() != ".txt" {
 			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
 		}
-		valueLabel := BuidLableKeyAndValue("value", item, value, truncatedValue, rightColumnContent, columnEditKey, saveKey, mainWindow)
-		keyLabel := BuidLableKeyAndValue("key", item, value, truncatedKey, rightColumnContent, columnEditKey, saveKey, mainWindow)
+		radio := widget.NewRadioGroup([]string{""}, nil)
+		valueLabel2 := BuidLableKeyAndValue("value", item, value, truncatedValue, rightColumnContent, columnEditKey, saveKey, mainWindow)
+		keyLabel2 := BuidLableKeyAndValue("key", item, value, truncatedKey, rightColumnContent, columnEditKey, saveKey, mainWindow)
+
+		keyLabel := container.NewGridWithColumns(2, radio, keyLabel2)
+		valueLabel := container.NewGridWithColumns(2, radio, valueLabel2)
+
 		rightColumnContent.Refresh()
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
@@ -126,7 +131,7 @@ func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	} else {
 		err = variable.CurrentDBClient.Delete([]byte(key))
 		if err != nil {
-			log.Fatal("this err for func DeletKeyLogic part else delete || err : ", err)
+			log.Fatal("this err for func DeleteKeyLogic part else delete || err : ", err)
 			return
 		}
 		editWindow.Close()

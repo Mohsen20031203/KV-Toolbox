@@ -210,11 +210,53 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 		typeValue := mimetype.Detect([]byte(value))
 		columnEditKey.Add(widget.NewLabel(fmt.Sprintf("Edit %s - %s", eidtKeyAbdValue, nameLable)))
 
+		/*typeKey := widget.NewSelect([]string{"Byte", "other"}, func(s string) {
+			if s == "Byte" {
+				columnEditKey.Objects = columnEditKey.Objects[:2]
+
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+				columnEditKey.Add(widget.NewLabel("20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 20 49 0a 10 f0 s7 "))
+
+			} else {
+				valueEntry := configureEntry(columnEditKey, string(value))
+				value = []byte(valueEntry.Text)
+			}
+		})
+		columnEditKey.Add(typeKey)*/
+
 		if eidtKeyAbdValue == "value" {
 
 			switch {
 			case strings.HasPrefix(typeValue.String(), "image/"):
-				utils.ImageShow([]byte(key), []byte(value), nameLable, columnEditKey, mainWindow)
+				utils.ImageShow([]byte(key), []byte(value), columnEditKey, mainWindow)
 				truncatedKey2 = fmt.Sprintf("* %s . . .", typeValue.Extension())
 
 			case strings.HasPrefix(typeValue.String(), "text/") || strings.HasPrefix(typeValue.String(), "application/"):

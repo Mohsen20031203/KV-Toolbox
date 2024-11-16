@@ -43,12 +43,18 @@ func (t *TappableLabel) Tapped(_ *fyne.PointEvent) {
 }
 
 func TruncateString(input string, length int) string {
-	if len(input) > length {
-		return input[:length] + "..."
+	nameData := input
+	if len(nameData) > length {
+		nameData = nameData[:length] + "..."
 	}
-	return input
-}
+	parts := strings.Split(nameData, "\n")
+	if len(parts) > 1 {
 
+		nameData = parts[0]
+	}
+
+	return nameData
+}
 func IsValidJSON(data string) bool {
 	var js json.RawMessage
 	m := json.Unmarshal([]byte(data), &js) == nil
@@ -93,7 +99,7 @@ func CleanInput(input string) string {
 	return cleaned
 }
 
-func ImageShow(key []byte, value []byte, nameLable string, mainContainer *fyne.Container, editWindow fyne.Window) {
+func ImageShow(key []byte, value []byte, mainContainer *fyne.Container, editWindow fyne.Window) {
 	var lableAddpicture *widget.Button
 
 	imgReader := bytes.NewReader([]byte(value))
