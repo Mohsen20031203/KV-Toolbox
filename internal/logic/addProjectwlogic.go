@@ -90,7 +90,13 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	utils.CheckCondition(columnEditKey)
 	utils.CheckCondition(rightColumnContent)
 	var truncatedValue string
+	var count int
 	for _, item := range data {
+
+		if count > 10 {
+			break
+		}
+		count++
 
 		value, err := variable.CurrentDBClient.Get(item)
 		if err != nil {
