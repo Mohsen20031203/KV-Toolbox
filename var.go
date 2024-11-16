@@ -9,7 +9,7 @@ import (
 var (
 	CurrentDBClient dbpak.DBClient
 	CurrentPage     int
-	ItemsPerPage    = 20
+	ItemsPerPage    = 12
 	FolderPath      string
 	CurrentJson     jsFile.JsonFile
 	NameData        filterdatabase.FilterData

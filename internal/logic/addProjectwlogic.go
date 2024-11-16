@@ -89,6 +89,7 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	}
 	utils.CheckCondition(columnEditKey)
 	utils.CheckCondition(rightColumnContent)
+	var truncatedValue string
 	for _, item := range data {
 
 		value, err := variable.CurrentDBClient.Get(item)
@@ -96,21 +97,27 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 			return false, err
 		}
 		truncatedKey := utils.TruncateString(string(item), 20)
-		truncatedValue := utils.TruncateString(string(value), 30)
 
 		typeValue := mimetype.Detect([]byte(value))
 		if typeValue.Extension() != ".txt" {
 			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
-		}
-		radio := widget.NewRadioGroup([]string{""}, nil)
-		valueLabel2 := BuidLableKeyAndValue("value", item, value, truncatedValue, rightColumnContent, columnEditKey, saveKey, mainWindow)
-		keyLabel2 := BuidLableKeyAndValue("key", item, value, truncatedKey, rightColumnContent, columnEditKey, saveKey, mainWindow)
+		} else {
+			truncatedValue = utils.TruncateString(string(value), 30)
 
-		keyLabel := container.NewGridWithColumns(2, radio, keyLabel2)
-		valueLabel := container.NewGridWithColumns(2, radio, valueLabel2)
+		}
+		radio := widget.NewRadioGroup([]string{" "}, nil)
+		radio.Disable()
+
+		valueLabel := BuidLableKeyAndValue("value", item, value, truncatedValue, rightColumnContent, columnEditKey, saveKey, mainWindow, radio)
+		keyLabel := BuidLableKeyAndValue("key", item, value, truncatedKey, rightColumnContent, columnEditKey, saveKey, mainWindow, radio)
+
+		keyLabelOrg := container.NewHBox(
+			radio,
+			keyLabel,
+		)
 
 		rightColumnContent.Refresh()
-		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
+		buttonRow := container.NewGridWithColumns(2, keyLabelOrg, valueLabel)
 		rightColumnContent.Add(buttonRow)
 	}
 

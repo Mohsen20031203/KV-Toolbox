@@ -55,6 +55,7 @@ var (
 	lastEnd   *[]byte
 	Orgdata   []dbpak.KVData
 	lastPage  int
+	radioLast *widget.RadioGroup
 )
 
 func UpdatePage(rightColumnContent *fyne.Container, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) {
@@ -118,21 +119,31 @@ func UpdatePage(rightColumnContent *fyne.Container, columnEditKey *fyne.Containe
 	lastStart = &Orgdata[0].Key
 	lastEnd = &Orgdata[len(Orgdata)-1].Key
 
+	var truncatedValue string
 	var arrayContainer []fyne.CanvasObject
 	for _, item := range data {
 
 		truncatedKey := utils.TruncateString(string(item.Key), 20)
-		truncatedValue := utils.TruncateString(string(item.Value), 30)
 
 		typeValue := mimetype.Detect(item.Value)
 		if typeValue.Extension() != ".txt" {
 
 			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
-		}
-		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, rightColumnContent, columnEditKey, saveKey, mainWindow)
-		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, rightColumnContent, columnEditKey, saveKey, mainWindow)
+		} else {
+			truncatedValue = utils.TruncateString(string(item.Value), 30)
 
-		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
+		}
+		radio := widget.NewRadioGroup([]string{" "}, nil)
+		radio.Disable()
+
+		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, rightColumnContent, columnEditKey, saveKey, mainWindow, radio)
+		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, rightColumnContent, columnEditKey, saveKey, mainWindow, radio)
+		m := container.NewHBox(
+			radio,
+			keyLabel,
+		)
+
+		buttonRow := container.NewGridWithColumns(2, m, valueLabel)
 		arrayContainer = append(arrayContainer, buttonRow)
 	}
 	if lastPage > variable.CurrentPage {
@@ -199,12 +210,19 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	return buttonContainer
 }
 
-func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, nameLable string, rightColumn *fyne.Container, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) *utils.TappableLabel {
+func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, nameLable string, rightColumn *fyne.Container, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window, radio *widget.RadioGroup) *utils.TappableLabel {
 	var lableKeyAndValue *utils.TappableLabel
 	var valueEntry *widget.Entry
 	var truncatedKey2 string
 
 	lableKeyAndValue = utils.NewTappableLabel(nameLable, func() {
+		if radioLast != nil {
+
+			radioLast.SetSelected("")
+		}
+		radio.SetSelected(" ")
+		radioLast = radio
+		radioLast.Refresh()
 		utils.CheckCondition(columnEditKey)
 
 		typeValue := mimetype.Detect([]byte(value))

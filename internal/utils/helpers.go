@@ -45,12 +45,12 @@ func (t *TappableLabel) Tapped(_ *fyne.PointEvent) {
 func TruncateString(input string, length int) string {
 	nameData := input
 	if len(nameData) > length {
-		nameData = nameData[:length] + "..."
+		nameData = nameData[:length] + ". . ."
 	}
 	parts := strings.Split(nameData, "\n")
 	if len(parts) > 1 {
 
-		nameData = parts[0]
+		nameData = parts[0] + " . . ."
 	}
 
 	return nameData
@@ -106,7 +106,7 @@ func ImageShow(key []byte, value []byte, mainContainer *fyne.Container, editWind
 	image := canvas.NewImageFromReader(imgReader, "image.png")
 
 	image.FillMode = canvas.ImageFillContain
-	image.SetMinSize(fyne.NewSize(400, 400))
+	image.SetMinSize(fyne.NewSize(300, 300))
 
 	mainContainer.Add(image)
 
@@ -132,7 +132,7 @@ func ImageShow(key []byte, value []byte, mainContainer *fyne.Container, editWind
 			image := canvas.NewImageFromReader(imgReader, "image.png")
 
 			image.FillMode = canvas.ImageFillContain
-			image.SetMinSize(fyne.NewSize(400, 400))
+			image.SetMinSize(fyne.NewSize(300, 300))
 
 			if len(mainContainer.Objects) == 3 {
 				mainContainer.Objects[1] = image
