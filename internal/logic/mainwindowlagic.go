@@ -177,14 +177,12 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 		utils.CheckCondition(rightColumnContentORG)
 		utils.CheckCondition(columnEditKey)
 		UpdatePage(rightColumnContentORG, columnEditKey, saveKey, mainWindow)
-
 		nameButtonProject.Text = ""
 		nameButtonProject.Text = inputText + " - " + nameDatabace
 
 		nameButtonProject.Refresh()
 
 	})
-
 	buttonContainer := container.NewHBox()
 
 	closeButton := widget.NewButton("✖", func() {

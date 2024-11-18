@@ -50,11 +50,8 @@ func MainWindow(myApp fyne.App) {
 	// value top window for colunm values
 	valueRightColunm := widget.NewLabelWithStyle("value", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
 
-	// value top window for colunm values
-	editRightColunm := widget.NewLabelWithStyle("Edit", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-
 	// column key and value
-	keyAndRight := container.NewGridWithColumns(4, keyRightColunm, valueRightColunm, widget.NewLabel(""), editRightColunm)
+	keyAndRight := container.NewGridWithColumns(6, keyRightColunm, widget.NewLabel(""), valueRightColunm, widget.NewLabel(""))
 
 	// name bottom project in colunm right
 	nameButtonProject := widget.NewLabelWithStyle(
@@ -73,12 +70,11 @@ func MainWindow(myApp fyne.App) {
 
 	rightColumEdit = container.NewVBox()
 
-	columnEdit := container.NewBorder(nil, saveAndCancle, nil, nil, rightColumEdit)
+	columnEdit := container.NewBorder(widget.NewLabelWithStyle("Edit", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}), saveAndCancle, nil, nil, rightColumEdit)
 
 	searchButton := widget.NewButton("Search", func() {
 
 		searchkeyui.SearchKeyUi(rightColumnAll, rightColumEdit, saveEditKey, mainWindow)
-
 	})
 
 	buttonAdd := widget.NewButton("Add", func() {
@@ -205,10 +201,10 @@ func RightColumn(rightColumnAll *fyne.Container, topRightColumn *fyne.Container,
 
 	}
 	m := container.NewVScroll(columnEditKey)
-	rightColumEdit = container.NewBorder(nil, saveAndCancle, nil, nil, m)
+	rightColumEdit = container.NewBorder(widget.NewLabelWithStyle("Edit", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}), saveAndCancle, nil, nil, m)
 
 	columns := container.NewHSplit(rightColumnScrollable, rightColumEdit)
-	columns.SetOffset(0.70)
+	columns.SetOffset(0.80)
 	mainContent := container.NewBorder(topRightColumn, nil, nil, nil, columns)
 
 	return mainContent
