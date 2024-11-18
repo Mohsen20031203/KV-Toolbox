@@ -1,7 +1,7 @@
-package jsondata
+package jsonconfig
 
 import (
-	jsFile "DatabaseDB/internal/json"
+	jsFile "DatabaseDB/internal/config"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -15,7 +15,7 @@ type ConstantJsonFile struct {
 	nameFile string
 }
 
-func NewDataBase() jsFile.JsonFile {
+func NewDataBase() jsFile.ConfigHandler {
 	return &ConstantJsonFile{
 		nameFile: "data.json",
 	}

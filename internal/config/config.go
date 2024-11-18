@@ -1,4 +1,4 @@
-package jsFile
+package config
 
 import (
 	"os"
@@ -17,7 +17,7 @@ type Project struct {
 	Databace    string `json:"databace"`
 }
 
-type JsonFile interface {
+type ConfigHandler interface {
 	Open() (*os.File, error)
 	Read(state *JsonInformation) error
 	Add(dataINF map[string]string, window fyne.Window, nameDatabace string) (error, bool)

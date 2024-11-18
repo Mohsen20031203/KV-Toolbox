@@ -2,7 +2,7 @@ package main
 
 import (
 	variable "DatabaseDB"
-	jsondata "DatabaseDB/internal/json/jsonData"
+	jsondata "DatabaseDB/internal/config/jsonconfig"
 	"DatabaseDB/internal/ui/mainwindow"
 
 	"fyne.io/fyne/v2/app"
