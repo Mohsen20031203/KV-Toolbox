@@ -145,6 +145,6 @@ func ImageShow(key []byte, value []byte, mainContainer *fyne.Container, editWind
 
 		folderPath.Show()
 	})
-
+	lableAddpicture.Importance = widget.HighImportance
 	mainContainer.Add(lableAddpicture)
 }

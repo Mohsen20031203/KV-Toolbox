@@ -110,22 +110,15 @@ func SearchDatabase(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 		if typeValue.Extension() != ".txt" {
 			truncatedValue = fmt.Sprintf("* %s . . .", typeValue.Extension())
 		} else {
-			truncatedValue = utils.TruncateString(string(value), 30)
+			truncatedValue = utils.TruncateString(string(value), 20)
 
 		}
-		radio := widget.NewRadioGroup([]string{" "}, nil)
-		radio.Disable()
 
-		valueLabel := BuidLableKeyAndValue("value", item, value, truncatedValue, rightColumnContent, columnEditKey, saveKey, mainWindow, radio)
-		keyLabel := BuidLableKeyAndValue("key", item, value, truncatedKey, rightColumnContent, columnEditKey, saveKey, mainWindow, radio)
-
-		keyLabelOrg := container.NewHBox(
-			radio,
-			keyLabel,
-		)
+		valueLabel := BuidLableKeyAndValue("value", item, value, truncatedValue, rightColumnContent, columnEditKey, saveKey, mainWindow)
+		keyLabel := BuidLableKeyAndValue("key", item, value, truncatedKey, rightColumnContent, columnEditKey, saveKey, mainWindow)
 
 		rightColumnContent.Refresh()
-		buttonRow := container.NewGridWithColumns(2, keyLabelOrg, valueLabel)
+		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		rightColumnContent.Add(buttonRow)
 	}
 

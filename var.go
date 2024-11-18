@@ -16,6 +16,7 @@ var (
 	ItemsAdded      bool
 	PreviousOffsetY float32
 	ResultSearch    bool
+	CreatDatabase   bool
 )
 
 var (
@@ -26,28 +27,3 @@ var (
 		//"Redis",
 	}
 )
-
-var CreatDatabase bool
-
-/*var (
-	SearchName     = "Search"
-	AddName        = "Add"
-	TopColumnKey   = "Key"
-	TopColumnValue = "value"
-	DeleteName     = "Delete"
-	NextName       = "Next"
-	PrevName       = "Prev"
-	nameDatabase   = []string{
-		"leveldb",
-		"pebble",
-	}
-)
-
-var (
-	NameAddProject     = "Name :"
-	CommentAddProject  = "Comment :"
-	TestConnection     = "Test Connection"
-	OpenFile           = "Open Folder"
-	CreatDatabaseCheck = "Create Database"
-	CancelAddProject   = "Cancel"
-)*/

@@ -36,12 +36,28 @@ func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *w
 }
 
 func SetupThemeButtons(app fyne.App) *fyne.Container {
-	darkButton := widget.NewButton("Dark", func() {
+	var darkButton *widget.Button
+	var lightButton *widget.Button
+
+	darkButton = widget.NewButton("Dark", func() {
 		app.Settings().SetTheme(theme.DarkTheme())
+
+		darkButton.Importance = widget.HighImportance
+		lightButton.Importance = widget.MediumImportance
+		darkButton.Refresh()
+		lightButton.Refresh()
 	})
-	lightButton := widget.NewButton("Light", func() {
+	lightButton = widget.NewButton("Light", func() {
 		app.Settings().SetTheme(theme.LightTheme())
+
+		lightButton.Importance = widget.HighImportance
+		darkButton.Importance = widget.MediumImportance
+
+		darkButton.Refresh()
+		lightButton.Refresh()
 	})
+
+	lightButton.Importance = widget.HighImportance
 
 	darkLight := container.NewVBox(
 		layout.NewSpacer(),
@@ -55,7 +71,6 @@ var (
 	lastEnd   *[]byte
 	Orgdata   []dbpak.KVData
 	lastPage  int
-	radioLast *widget.RadioGroup
 )
 
 func UpdatePage(rightColumnContent *fyne.Container, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) {
@@ -133,17 +148,11 @@ func UpdatePage(rightColumnContent *fyne.Container, columnEditKey *fyne.Containe
 			truncatedValue = utils.TruncateString(string(item.Value), 30)
 
 		}
-		radio := widget.NewRadioGroup([]string{" "}, nil)
-		radio.Disable()
 
-		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, rightColumnContent, columnEditKey, saveKey, mainWindow, radio)
-		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, rightColumnContent, columnEditKey, saveKey, mainWindow, radio)
-		m := container.NewHBox(
-			radio,
-			keyLabel,
-		)
+		valueLabel := BuidLableKeyAndValue("value", item.Key, item.Value, truncatedValue, rightColumnContent, columnEditKey, saveKey, mainWindow)
+		keyLabel := BuidLableKeyAndValue("key", item.Key, item.Value, truncatedKey, rightColumnContent, columnEditKey, saveKey, mainWindow)
 
-		buttonRow := container.NewGridWithColumns(2, m, valueLabel)
+		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		arrayContainer = append(arrayContainer, buttonRow)
 	}
 	if lastPage > variable.CurrentPage {
@@ -160,10 +169,37 @@ func UpdatePage(rightColumnContent *fyne.Container, columnEditKey *fyne.Containe
 	lastPage = variable.CurrentPage
 }
 
+var previousClose *widget.Button
+var previousProject *widget.Button
+var previousRefreshButton *widget.Button
+
 func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) *fyne.Container {
 	var refreshButton *widget.Button
+	var projectButton *widget.Button
+	var closeButton *widget.Button
 
-	projectButton := widget.NewButton(inputText+" - "+nameDatabace, func() {
+	projectButton = widget.NewButton(inputText+" - "+nameDatabace, func() {
+		if previousProject != nil {
+			previousProject.Importance = widget.MediumImportance
+			previousClose.Importance = widget.MediumImportance
+			previousRefreshButton.Importance = widget.MediumImportance
+
+			previousProject.Refresh()
+			previousClose.Refresh()
+			previousRefreshButton.Refresh()
+		}
+		projectButton.Importance = widget.HighImportance
+		closeButton.Importance = widget.HighImportance
+		refreshButton.Importance = widget.HighImportance
+
+		projectButton.Refresh()
+		closeButton.Refresh()
+		refreshButton.Refresh()
+
+		previousProject = projectButton
+		previousClose = closeButton
+		previousRefreshButton = refreshButton
+
 		variable.ItemsAdded = true
 		utils.Checkdatabace(path, nameDatabace)
 		buttonAdd.Enable()
@@ -185,7 +221,7 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	})
 	buttonContainer := container.NewHBox()
 
-	closeButton := widget.NewButton("✖", func() {
+	closeButton = widget.NewButtonWithIcon("", theme.CancelIcon(), func() {
 
 		if nameButtonProject.Text == inputText+" - "+nameDatabace {
 			utils.CheckCondition(rightColumnContentORG)
@@ -235,19 +271,24 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 	return buttonContainer
 }
 
-func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, nameLable string, rightColumn *fyne.Container, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window, radio *widget.RadioGroup) *utils.TappableLabel {
+var lastLableKeyAndValue *utils.TappableLabel
+
+func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, nameLable string, rightColumn *fyne.Container, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) *utils.TappableLabel {
 	var lableKeyAndValue *utils.TappableLabel
 	var valueEntry *widget.Entry
 	var truncatedKey2 string
 
 	lableKeyAndValue = utils.NewTappableLabel(nameLable, func() {
-		if radioLast != nil {
+		if lastLableKeyAndValue != nil {
 
-			radioLast.SetSelected("")
+			lastLableKeyAndValue.Importance = widget.MediumImportance
+			lastLableKeyAndValue.Refresh()
+
 		}
-		radio.SetSelected(" ")
-		radioLast = radio
-		radioLast.Refresh()
+		lableKeyAndValue.Importance = widget.WarningImportance
+		lableKeyAndValue.Refresh()
+		lastLableKeyAndValue = lableKeyAndValue
+
 		utils.CheckCondition(columnEditKey)
 
 		typeValue := mimetype.Detect([]byte(value))

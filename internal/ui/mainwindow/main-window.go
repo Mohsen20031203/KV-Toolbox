@@ -61,6 +61,7 @@ func MainWindow(myApp fyne.App) {
 	)
 
 	saveEditKey := widget.NewButton("Save", nil)
+	saveEditKey.Importance = widget.HighImportance
 
 	cancelEditKey := widget.NewButton("Cancle", func() {
 		utils.CheckCondition(rightColumEdit)
@@ -76,15 +77,19 @@ func MainWindow(myApp fyne.App) {
 
 		searchkeyui.SearchKeyUi(rightColumnAll, rightColumEdit, saveEditKey, mainWindow)
 	})
+	searchButton.Importance = widget.HighImportance
 
 	buttonAdd := widget.NewButton("Add", func() {
 		addkeyui.OpenWindowAddButton(myApp, rightColumnAll)
 	})
+	buttonAdd.Importance = widget.HighImportance
 	buttonAdd.Disable()
 
 	buttonDelete := widget.NewButton("Delete", func() {
 		deletkeyui.DeleteKeyUi(rightColumnAll)
 	})
+
+	buttonDelete.Importance = widget.HighImportance
 
 	topRightColumn := container.NewVBox(
 		nameButtonProject,
@@ -136,6 +141,7 @@ func MainWindow(myApp fyne.App) {
 		buttonsVisible = !buttonsVisible
 		toggleButtonsContainer.Refresh()
 	})
+	pluss.Importance = widget.WarningImportance
 
 	topLeftColumn := container.NewVBox(
 		pluss,

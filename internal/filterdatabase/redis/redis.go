@@ -65,6 +65,7 @@ func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnConte
 
 	testConnectionButton := widget.NewButton("Test Connection", func() {})
 	testConnectionButton.Disable()
+	testConnectionButton.Importance = widget.HighImportance
 
 	buttonCancel := widget.NewButton("Cancel", func() {
 		newWindow.Close()
@@ -115,6 +116,7 @@ func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnConte
 			}
 		}
 	})
+	buttonOk.Importance = widget.HighImportance
 
 	rowBotton := container.NewVBox(
 		layout.NewSpacer(),
