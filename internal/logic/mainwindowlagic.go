@@ -161,7 +161,9 @@ func UpdatePage(rightColumnContent *fyne.Container, columnEditKey *fyne.Containe
 }
 
 func ProjectButton(inputText string, lastColumnContent *fyne.Container, path string, rightColumnContentORG *fyne.Container, nameButtonProject *widget.Label, buttonAdd *widget.Button, nameDatabace string, columnEditKey *fyne.Container, saveKey *widget.Button, mainWindow fyne.Window) *fyne.Container {
-	projectButton := widget.NewButtonWithIcon(inputText+" - "+nameDatabace, theme.ViewRefreshIcon(), func() {
+	var refreshButton *widget.Button
+
+	projectButton := widget.NewButton(inputText+" - "+nameDatabace, func() {
 		variable.ItemsAdded = true
 		utils.Checkdatabace(path, nameDatabace)
 		buttonAdd.Enable()
@@ -207,7 +209,31 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 		}
 	})
 
-	buttonContainer = container.NewBorder(nil, nil, nil, closeButton, projectButton)
+	refreshButton = widget.NewButtonWithIcon("", theme.ViewRefreshIcon(), func() {
+
+		if nameButtonProject.Text == inputText+" - "+nameDatabace {
+
+			variable.ItemsAdded = true
+			utils.Checkdatabace(path, nameDatabace)
+			buttonAdd.Enable()
+			variable.FolderPath = path
+			lastEnd = nil
+			variable.ResultSearch = false
+			variable.CurrentPage = 1
+			lastPage = 0
+			variable.PreviousOffsetY = 0
+			lastStart = nil
+			utils.CheckCondition(rightColumnContentORG)
+			utils.CheckCondition(columnEditKey)
+			UpdatePage(rightColumnContentORG, columnEditKey, saveKey, mainWindow)
+
+			nameButtonProject.Refresh()
+		}
+
+	})
+	refreshClose := container.NewGridWithColumns(2, refreshButton, closeButton)
+
+	buttonContainer = container.NewBorder(nil, nil, nil, refreshClose, projectButton)
 	return buttonContainer
 }
 

@@ -153,12 +153,12 @@ func MainWindow(myApp fyne.App) {
 	containerAll := ColumnContent(rightColumnAll, columnEdit, leftColumnAll, topLeftColumn, darkLight, topRightColumn, rightColumEdit, saveEditKey, mainWindow)
 	mainWindow.CenterOnScreen()
 	mainWindow.SetContent(containerAll)
-	mainWindow.Resize(fyne.NewSize(1100, 700))
+	mainWindow.Resize(fyne.NewSize(1200, 700))
 	mainWindow.ShowAndRun()
 }
 
 func LeftColumn(leftColumnAll *fyne.Container, topLeftColumn *fyne.Container, darkLight *fyne.Container) *fyne.Container {
-	lastColumnScrollable := container.NewScroll(leftColumnAll)
+	lastColumnScrollable := container.NewVScroll(leftColumnAll)
 
 	mainContent := container.NewBorder(topLeftColumn, darkLight, nil, nil, lastColumnScrollable)
 	return mainContent
@@ -221,7 +221,7 @@ func ColumnContent(rightColumnAll *fyne.Container, columnEdit *fyne.Container, l
 	rightColumnScrollable := RightColumn(rightColumnAll, topRightColumn, columnEdit, rightColumEdit, saveKey, mainWindow)
 
 	columns := container.NewHSplit(mainContent, rightColumnScrollable)
-	columns.SetOffset(0.20)
+	columns.SetOffset(0.10)
 
 	container.NewScroll(columns)
 	return columns
