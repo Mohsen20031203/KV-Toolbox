@@ -66,6 +66,7 @@ func MainWindow(myApp fyne.App) {
 	cancelEditKey := widget.NewButton("Cancle", func() {
 		utils.CheckCondition(rightColumEdit)
 	})
+	cancelEditKey.Importance = widget.LowImportance
 
 	saveAndCancle = container.NewGridWithColumns(2, cancelEditKey, saveEditKey)
 

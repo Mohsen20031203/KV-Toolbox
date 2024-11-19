@@ -6,7 +6,6 @@ import (
 	"DatabaseDB/internal/Databaces/PebbleDB"
 	badgerDB "DatabaseDB/internal/Databaces/badger"
 	leveldbb "DatabaseDB/internal/Databaces/leveldb"
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -101,50 +100,39 @@ func CleanInput(input string) string {
 
 func ImageShow(key []byte, value []byte, mainContainer *fyne.Container, editWindow fyne.Window) {
 	var lableAddpicture *widget.Button
+	var image *canvas.Image
 
-	imgReader := bytes.NewReader([]byte(value))
-	image := canvas.NewImageFromReader(imgReader, "image.png")
-
+	image = canvas.NewImageFromResource(fyne.NewStaticResource("placeholder.png", value))
 	image.FillMode = canvas.ImageFillContain
 	image.SetMinSize(fyne.NewSize(300, 300))
-
 	mainContainer.Add(image)
 
 	lableAddpicture = widget.NewButton("+", func() {
 		folderPath := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
-			if err != nil {
-				fmt.Println("Error opening folder:", err)
-				return
-			}
-			if dir == nil {
-				fmt.Println("No folder selected")
+			if err != nil || dir == nil {
+				fmt.Println("Error opening folder or no folder selected")
 				return
 			}
 
-			valueFinish, err := ioutil.ReadAll(dir)
-			if err != nil {
-				fmt.Println("Error reading file:", err)
-				return
-			}
-			ValueImage = valueFinish
+			go func() {
 
-			imgReader := bytes.NewReader(valueFinish)
-			image := canvas.NewImageFromReader(imgReader, "image.png")
+				valueFinish, err := ioutil.ReadAll(dir)
+				if err != nil {
+					fmt.Println("Error reading file:", err)
+					return
+				}
 
-			image.FillMode = canvas.ImageFillContain
-			image.SetMinSize(fyne.NewSize(300, 300))
-
-			if len(mainContainer.Objects) == 3 {
-				mainContainer.Objects[1] = image
-			}
-
-			mainContainer.Refresh()
+				image.Resource = fyne.NewStaticResource("image.png", valueFinish)
+				image.Refresh()
+				ValueImage = valueFinish
+			}()
 
 		}, editWindow)
-		folderPath.SetFilter(storage.NewExtensionFileFilter([]string{".png", ".jpg", ".jpeg", ".gif"}))
 
+		folderPath.SetFilter(storage.NewExtensionFileFilter([]string{".png", ".jpg", ".jpeg", ".gif"}))
 		folderPath.Show()
 	})
 	lableAddpicture.Importance = widget.HighImportance
 	mainContainer.Add(lableAddpicture)
+
 }

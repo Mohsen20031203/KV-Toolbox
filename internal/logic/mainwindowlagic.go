@@ -298,7 +298,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 
 			switch {
 			case strings.HasPrefix(typeValue.String(), "image/"):
-				utils.ImageShow([]byte(key), []byte(value), columnEditKey, mainWindow)
+				go utils.ImageShow([]byte(key), []byte(value), columnEditKey, mainWindow)
 				truncatedKey2 = fmt.Sprintf("* %s . . .", typeValue.Extension())
 
 			case strings.HasPrefix(typeValue.String(), "text/") || strings.HasPrefix(typeValue.String(), "application/"):
@@ -311,7 +311,6 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 
 			valueEntry = configureEntry(columnEditKey, string(key))
 		}
-
 		saveKey.OnTapped = func() {
 			err := variable.CurrentDBClient.Open()
 			if err != nil {

@@ -148,6 +148,7 @@ func FormPasteDatabase(a fyne.App, title string, lastColumnContent *fyne.Contain
 			}
 		}
 	})
+	buttonOk.Importance = widget.HighImportance
 
 	rowBotton := container.NewVBox(
 		layout.NewSpacer(),
