@@ -366,7 +366,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 
 func configureEntry(columnEditKey *fyne.Container, content string) *widget.Entry {
 	entry := widget.NewMultiLineEntry()
-	entry.Resize(fyne.NewSize(500, 500))
+	entry.Resize(fyne.NewSize(400, 500))
 	entry.SetText(content)
 	scrollableEntry := container.NewScroll(entry)
 	scrollableEntry.SetMinSize(fyne.NewSize(200, 300))
