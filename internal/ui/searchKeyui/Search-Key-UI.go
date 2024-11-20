@@ -28,7 +28,7 @@ func SearchKeyUi(rightColumnContent *fyne.Container, columnEditKey *fyne.Contain
 		variable.ResultSearch = true
 
 	})
-
+	buttomSearch.Importance = widget.HighImportance
 	editContent := container.NewVBox(
 		widget.NewLabel("Enter the desired key"),
 		valueEntry,

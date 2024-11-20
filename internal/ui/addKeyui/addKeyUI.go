@@ -80,7 +80,7 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 		}
 		logic.AddKeyLogic(iputKey.Text, valueFinish, windowAdd)
 	})
-
+	ButtonAddAdd.Importance = widget.HighImportance
 	cont := container.NewVBox(
 		iputKey,
 		rowRedio,

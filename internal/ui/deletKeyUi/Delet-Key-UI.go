@@ -33,7 +33,7 @@ func DeleteKeyUi(rightColumnContent *fyne.Container) {
 			}, editWindow)
 
 	})
-
+	buttomDelete.Importance = widget.HighImportance
 	editContent := container.NewVBox(
 		widget.NewLabel("Enter the desired key"),
 		valueEntry,
