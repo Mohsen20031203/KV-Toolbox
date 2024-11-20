@@ -2,8 +2,8 @@ package addkeyui
 
 import (
 	"DatabaseDB/internal/logic"
-	"fmt"
 	"io/ioutil"
+	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -26,11 +26,11 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 	uploadFile := widget.NewButton("UploadFile", func() {
 		folderPath := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
 			if err != nil {
-				fmt.Println("Error opening folder:", err)
+				log.Fatal("Error opening folder:", err)
 				return
 			}
 			if dir == nil {
-				fmt.Println("No folder selected")
+				log.Fatal("No folder selected")
 				return
 			}
 
@@ -38,7 +38,7 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 
 			valueFinish, err = ioutil.ReadAll(dir)
 			if err != nil {
-				fmt.Println("Error reading file:", err)
+				log.Fatal("Error reading file:", err)
 				return
 			}
 

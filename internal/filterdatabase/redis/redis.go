@@ -7,6 +7,7 @@ import (
 	"DatabaseDB/internal/utils"
 	"fmt"
 	"image/color"
+	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -82,7 +83,7 @@ func (l *NameDatabaseredis) FormCreate(a fyne.App, title string, lastColumnConte
 		}
 		datajson, err := variable.CurrentJson.Load()
 		if err != nil {
-			fmt.Println("error ", err)
+			log.Fatal("error ", err)
 		}
 		for _, m := range datajson.RecentProjects {
 			if pathEntryName.Text == m.Name {

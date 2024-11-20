@@ -4,7 +4,6 @@ import (
 	variable "DatabaseDB"
 	"DatabaseDB/internal/logic"
 	"DatabaseDB/internal/utils"
-	"fmt"
 	"image/color"
 	"io/ioutil"
 	"log"
@@ -64,11 +63,11 @@ func FormPasteDatabase(a fyne.App, title string, lastColumnContent *fyne.Contain
 	openButton := widget.NewButton("Open Folder", func() {
 		folderDialog := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
 			if err != nil {
-				fmt.Println("Error opening folder:", err)
+				log.Fatal("Error opening folder:", err)
 				return
 			}
 			if dir == nil {
-				fmt.Println("No folder selected")
+				log.Fatal("No folder selected")
 				return
 			}
 			filePath := dir.URI().Path()
@@ -115,7 +114,7 @@ func FormPasteDatabase(a fyne.App, title string, lastColumnContent *fyne.Contain
 		}
 		datajson, err := variable.CurrentJson.Load()
 		if err != nil {
-			fmt.Println(err)
+			log.Fatal(err)
 		}
 		for _, m := range datajson.RecentProjects {
 			if pathEntry.Text == m.Name {

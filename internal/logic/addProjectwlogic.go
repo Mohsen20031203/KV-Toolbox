@@ -175,7 +175,7 @@ func QueryKey(iputKey string) (string, error) {
 	}
 	checkNow, err := variable.CurrentDBClient.Get([]byte(key))
 	if err != nil {
-		fmt.Println("error : delete func logic for get key in databace")
+		log.Fatal("error : delete func logic for get key in databace")
 	}
 	return string(checkNow), err
 }
