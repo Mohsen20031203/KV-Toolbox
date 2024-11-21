@@ -286,7 +286,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 			lastLableKeyAndValue.Refresh()
 
 		}
-		lableKeyAndValue.Importance = widget.WarningImportance
+		lableKeyAndValue.Importance = widget.HighImportance
 		lableKeyAndValue.Refresh()
 		lastLableKeyAndValue = lableKeyAndValue
 

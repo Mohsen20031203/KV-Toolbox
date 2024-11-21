@@ -3,6 +3,7 @@ package leveldbb
 import (
 	dbpak "DatabaseDB/internal/Databaces"
 	"bytes"
+	"fmt"
 	"log"
 
 	"github.com/syndtr/goleveldb/leveldb"
@@ -130,7 +131,7 @@ func (l *LeveldbDatabase) Search(valueEntry []byte) (error, [][]byte) {
 	}
 
 	if !Iterator.First() {
-		return log.Fatal("iterator is empty"), data
+		return fmt.Errorf("iterator is empty"), data
 	}
 
 	for Iterator.Valid() {

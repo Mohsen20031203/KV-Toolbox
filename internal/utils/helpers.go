@@ -132,7 +132,6 @@ func ImageShow(key []byte, value []byte, mainContainer *fyne.Container, editWind
 		folderPath.SetFilter(storage.NewExtensionFileFilter([]string{".png", ".jpg", ".jpeg", ".gif"}))
 		folderPath.Show()
 	})
-	lableAddpicture.Importance = widget.HighImportance
 	mainContainer.Add(lableAddpicture)
 
 }

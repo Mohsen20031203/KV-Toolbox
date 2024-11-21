@@ -3,7 +3,7 @@ package PebbleDB
 import (
 	dbpak "DatabaseDB/internal/Databaces"
 	"bytes"
-	"log"
+	"fmt"
 
 	"github.com/cockroachdb/pebble"
 )
@@ -144,7 +144,7 @@ func (l *PebbleDatabase) Search(valueEntry []byte) (error, [][]byte) {
 
 	defer Iterator.Close()
 	if !Iterator.First() {
-		return log.Fatal("iterator is empty"), data
+		return fmt.Errorf("iterator is empty"), data
 	}
 
 	for Iterator.Valid() {

@@ -27,7 +27,7 @@ var BottomDatabase []*widget.Button
 
 func MainWindow(myApp fyne.App) {
 
-	mainWindow := myApp.NewWindow("master")
+	mainWindow := myApp.NewWindow("ManageDB")
 
 	iconResource := theme.FyneLogo()
 	myApp.SetIcon(iconResource)
@@ -61,7 +61,6 @@ func MainWindow(myApp fyne.App) {
 	)
 
 	saveEditKey := widget.NewButton("Save", nil)
-	saveEditKey.Importance = widget.HighImportance
 
 	cancelEditKey := widget.NewButton("Cancle", func() {
 		utils.CheckCondition(rightColumEdit)
@@ -94,6 +93,9 @@ func MainWindow(myApp fyne.App) {
 		container.NewGridWithColumns(3, buttonDelete, searchButton, buttonAdd),
 		keyAndRight,
 	)
+	var pluss *widget.Button
+	toggleButtonsContainer := container.NewVBox()
+	buttonsVisible := false
 
 	// left column
 	leftColumnAll := logic.SetupLastColumn(rightColumnAll, nameButtonProject, buttonAdd, rightColumEdit, saveEditKey, mainWindow)
@@ -102,7 +104,8 @@ func MainWindow(myApp fyne.App) {
 	for _, m := range variable.NameDatabase {
 
 		leveldbButton = widget.NewButton(m, func() {
-
+			toggleButtonsContainer.Objects = nil
+			buttonsVisible = false
 			switch m {
 			case "levelDB":
 				variable.NameData = FilterLeveldb.NewFileterLeveldb()
@@ -119,11 +122,7 @@ func MainWindow(myApp fyne.App) {
 		BottomDatabase = append(BottomDatabase, leveldbButton)
 	}
 
-	buttonsVisible := false
-
-	toggleButtonsContainer := container.NewVBox()
-
-	pluss := widget.NewButton("+", func() {
+	pluss = widget.NewButton("+", func() {
 		if buttonsVisible {
 
 			toggleButtonsContainer.Objects = nil
@@ -137,7 +136,6 @@ func MainWindow(myApp fyne.App) {
 		buttonsVisible = !buttonsVisible
 		toggleButtonsContainer.Refresh()
 	})
-	pluss.Importance = widget.HighImportance
 
 	topLeftColumn := container.NewVBox(
 		pluss,

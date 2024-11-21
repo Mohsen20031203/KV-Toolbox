@@ -1,5 +1,5 @@
 # Ignore build script
-cmd/myapp/LevelManage.app/Contents
+cmd/KV-Toolbox/ManageDB.app/Contents
 *.ldb
 *.log
 LOG
