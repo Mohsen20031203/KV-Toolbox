@@ -19,7 +19,7 @@ ManageDB is a simple and user-friendly application for managing key-value databa
 ## Installation
 
 ### macOS
-1. Download the `ManageDB.app.zip` file from the [releases section](#).
+1. Download the `ManageDB.app.zip` file from the [releases section](https://github.com/Mohsen20031203/KV-Toolbox/releases/download/v1.0.0/ManageDB.app.zip).
 2. Double-click the file and drag the app to your `Applications` folder.
 3. Open the app from the `Applications` folder.
 
