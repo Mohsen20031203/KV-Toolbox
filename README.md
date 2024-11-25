@@ -2,7 +2,7 @@
 
 ManageDB is a simple and user-friendly application for managing key-value databases. It allows users to create, edit, and delete keys, browse database contents, and perform various operations effortlessly.
 
-![ManageDB Logo](./icon.png)
+![ManageDB Logo](cmd/KV-Toolbox/icon.png)
 
 ---
 
@@ -19,9 +19,33 @@ ManageDB is a simple and user-friendly application for managing key-value databa
 ## Installation
 
 ### macOS
-1. Download the `ManageDB.app.zip` file from the [releases section](https://github.com/Mohsen20031203/KV-Toolbox/releases/download/v1.0.0/ManageDB.app.zip).
-2. Double-click the file and drag the app to your `Applications` folder.
-3. Open the app from the `Applications` folder.
+1. Click on **Install** below to download the program:
+   - [INSTALL](https://github.com/Mohsen20031203/KV-Toolbox/releases/download/v1.0.0/ManageDB.app.zip)
+
+2. When you try to open the app, macOS might display the following error:  
+   _“This application ‘ManageDB.app’ can't be opened”._
+
+   Follow these steps to resolve the issue:
+
+    #### Step 1: Grant executable permissions
+   Open the **terminal**, first go to the location of your application and run the following command to make the application executable:
+
+   ```bash
+   chmod +x ManageDB.app/Contents/MacOS/'KV-Toolbox'
+#### Step 2: Allow the App in Security Settings
+
+1. Open **System Preferences**.
+2. Go to **Security & Privacy** > **General** tab.
+3. Look for a message stating:  
+   _“‘ManageDB.app’ was blocked because it is not from an identified developer.”_
+4. Click **Allow Anyway** or **Open Anyway**.
+
+#### Step 3: Reopen the App
+
+1. Try opening `ManageDB.app` again.
+2. The app should now run without any issues.
+
+
 
 ### Windows
 1. Download the `ManageDB.exe` file from the [releases section](#).
@@ -38,11 +62,13 @@ ManageDB is a simple and user-friendly application for managing key-value databa
 ## How to Use
 
 1. Open the application.
-2. **Create a new database**: Click the "New Database" button and specify a name and path.
-3. **Add keys**: Use the "Add Key" option to create new key-value pairs.
-4. **Edit keys**: Select a key, then click "Edit" to modify its value.
-5. **Delete keys**: Select a key, then click "Delete" to remove it.
-6. **Browse database**: Use the built-in viewer to explore and manage your data.
+2. **Create a new database**: To create a new database, click on the "+" button and select the database you want, then click on "Create Database" in the opened window and enter the address you want.
+2. **Open a new database**: To open a database, click the "+" button and select the database you want, then click the "Open folder" button in the opened window and find your database.
+3. **Add keys**: Use the "Add" option to create new key-value pairs.
+    - You can also assign files, images, or other types of data as the value for a key. This feature allows you to efficiently manage and store additional resources, such as images and files, directly within your database.
+4. **Edit keys**: Find the key you want and click on it to change its value.
+5. **Delete keys**: Click the "delete" key in the main window and then enter the key you want.
+6. **Search keys**: Click on the search button and enter the key you want.
 
 ---
 
@@ -71,44 +97,4 @@ Below are some screenshots showcasing the application in action:
    ![Database Browser](./screenshots/database_browser.png)  
    _Quickly browse through your data._
 
-> Add your screenshots in the `screenshots/` folder and replace the paths above.
-
 ---
-
-## Roadmap
-
-- Add support for cloud-based databases.
-- Implement advanced search and filter functionalities.
-- Multi-language support.
-- Export and import databases in common formats (e.g., JSON, CSV).
-
----
-
-## License
-
-This project is licensed under the [MIT License](./LICENSE).
-
----
-
-## Contributing
-
-Contributions are welcome! If you have ideas or want to report issues, please open an issue or submit a pull request on [GitHub](#).
-
----
-
-## Developer Info
-
-- **Name**: [Your Name](https://github.com/YourGitHub)
-- **Contact**: [Your Email]  
-Feel free to reach out for support, feature requests, or collaboration.
-
----
-
-## Acknowledgments
-
-- [Fyne](https://fyne.io/) - For providing an excellent GUI framework.
-- [Any other tools or libraries used].
-
----
-
-> _Replace placeholders (e.g., Your Name, Your Email, release links) and add screenshots to complete this file._
