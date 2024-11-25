@@ -45,7 +45,7 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 			nameFile.SetText(filename)
 			nameFile.Refresh()
 		}, windowAdd)
-		folderPath.SetFilter(storage.NewExtensionFileFilter([]string{".png", ".jpg", ".gif", ".txt", ".json", ".go", "html", "css", "js"}))
+		folderPath.SetFilter(storage.NewExtensionFileFilter([]string{".png", ".jpg", ".gif", ".txt", ".json", ".go", ".html", ".css", ".js"}))
 		folderPath.Show()
 	})
 
