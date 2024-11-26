@@ -28,25 +28,32 @@ ManageDB is a simple and user-friendly application for managing key-value databa
 
    Follow these steps to resolve the issue:
 
-    #### Step 1: Grant executable permissions
-   Open the **terminal**, first go to the location of your application and run the following command:
+   #### Step 1: Grant executable permissions
+   1. Open the **Terminal**.
+   2. Navigate to the location of your application.  
+      For example, if it’s in the `Downloads` folder, run:
+      ```bash
+      cd ~/Downloads
+      ```
+   3. Run the following command to grant executable permissions:
+      ```bash
+      chmod +x ManageDB.app/Contents/MacOS/'KV-Toolbox'
+      ```
 
-   ```bash
-   chmod +x ManageDB.app/Contents/MacOS/'KV-Toolbox'
-Then open the program and click on the **Done** option
-#### Step 2: Allow the App in Security Settings
+   #### Step 2: Allow the app in security settings
+   1. Open **System Preferences**.
+   2. Go to **Security & Privacy** > **General** tab.
+   3. Look for a message stating:  
+      _“‘ManageDB.app’ was blocked because it is not from an identified developer.”_
+   4. Click **Allow Anyway** or **Open Anyway**.  
+      In the confirmation window that opens, click **Open Anyway** again.
 
-1. Open **System Preferences**.
-2. Go to **Security & Privacy** > **General** tab.
-3. Look for a message stating:  
-   _“‘ManageDB.app’ was blocked because it is not from an identified developer.”_
-4. Click **Allow Anyway** or **Open Anyway** and and in the window that opens, click **Open Anyway** to open your program.
+      ![Database Browser](cmd/OpenAnyway-mac.png)
 
-![Database Browser](cmd/OpenAnyway-mac.png)
-#### Step 3: Reopen the App
+   #### Step 3: Reopen the app
+   1. Try opening `ManageDB.app` again.
+   2. The app should now run without any issues.
 
-1. Try opening `ManageDB.app` again.
-2. The app should now run without any issues.
 
 
 
