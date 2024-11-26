@@ -8,11 +8,12 @@ ManageDB is a simple and user-friendly application for managing key-value databa
 
 ## Features
 
-- Create new key-value databases.
-- Add, edit, or delete keys easily.
-- Browse database contents with an intuitive interface.
-- Cross-platform support (details below).
-- Lightweight and efficient, built with [Fyne](https://fyne.io/).
+- Create new key-value databases.  
+- Add, edit, or delete keys easily.  
+- Assign files and images as values and view them directly within the app.  
+- Browse database contents with an intuitive interface.  
+- Cross-platform support (details below).  
+- Lightweight and efficient, built with Fyne.  
 
 ---
 
@@ -28,18 +29,20 @@ ManageDB is a simple and user-friendly application for managing key-value databa
    Follow these steps to resolve the issue:
 
     #### Step 1: Grant executable permissions
-   Open the **terminal**, first go to the location of your application and run the following command to make the application executable:
+   Open the **terminal**, first go to the location of your application and run the following command:
 
    ```bash
    chmod +x ManageDB.app/Contents/MacOS/'KV-Toolbox'
+Then open the program and click on the **Done** option
 #### Step 2: Allow the App in Security Settings
 
 1. Open **System Preferences**.
 2. Go to **Security & Privacy** > **General** tab.
 3. Look for a message stating:  
    _“‘ManageDB.app’ was blocked because it is not from an identified developer.”_
-4. Click **Allow Anyway** or **Open Anyway**.
+4. Click **Allow Anyway** or **Open Anyway** and and in the window that opens, click **Open Anyway** to open your program.
 
+![Database Browser](cmd/OpenAnyway-mac.png)
 #### Step 3: Reopen the App
 
 1. Try opening `ManageDB.app` again.
@@ -96,5 +99,3 @@ Below are some screenshots showcasing the application in action:
 3. **Database Browser**  
    ![Database Browser](./screenshots/database_browser.png)  
    _Quickly browse through your data._
-
----
