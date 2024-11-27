@@ -4,7 +4,6 @@ import (
 	jsFile "DatabaseDB/internal/config"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"fyne.io/fyne/v2"
@@ -32,12 +31,12 @@ func (j *ConstantJsonFile) Read(state *jsFile.JsonInformation) error {
 	}
 	defer file.Close()
 
-	byteValue, err := ioutil.ReadAll(file)
+	stateJSON, err := json.Marshal(state)
 	if err != nil {
 		return err
 	}
 
-	return json.Unmarshal(byteValue, &state)
+	return json.Unmarshal(stateJSON, &state)
 }
 
 func (j *ConstantJsonFile) Write(state interface{}) error {

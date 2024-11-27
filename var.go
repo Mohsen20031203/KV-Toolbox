@@ -32,12 +32,14 @@ var (
 1. GOOS='darwin'
 2. GOARCH='arm64'
 3. CC='clang'
+4. CGO_ENABLED='0'
 
 
 -------------------
 1. export GOOS=windows
 2. export GOARCH=amd64 || export GOARCH=386
 3. export CC=x86_64-w64-mingw32-gcc || export CC=i686-w64-mingw32-gcc
+4. export CGO_ENABLED='1'
 
 
 */
