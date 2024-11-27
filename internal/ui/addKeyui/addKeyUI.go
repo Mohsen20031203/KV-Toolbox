@@ -26,11 +26,11 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 	uploadFile := widget.NewButton("UploadFile", func() {
 		folderPath := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
 			if err != nil {
-				log.Fatal("Error opening folder:", err)
+				log.Println("Error opening folder:", err)
 				return
 			}
 			if dir == nil {
-				log.Fatal("No folder selected")
+				log.Println("No folder selected")
 				return
 			}
 
@@ -38,7 +38,7 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 
 			valueFinish, err = ioutil.ReadAll(dir)
 			if err != nil {
-				log.Fatal("Error reading file:", err)
+				log.Println(err.Error())
 				return
 			}
 

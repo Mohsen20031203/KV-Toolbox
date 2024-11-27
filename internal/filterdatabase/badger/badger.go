@@ -22,7 +22,7 @@ func NewFileterBadger() filterdatabase.FilterData {
 func (l *NameDatabaseBadger) FilterFile(path string) bool {
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
-		log.Fatal("Error reading folder:", err)
+		log.Println("Error reading folder:", err)
 		return false
 	}
 	var count uint8

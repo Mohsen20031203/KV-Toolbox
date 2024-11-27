@@ -4,10 +4,6 @@ import (
 	variable "DatabaseDB"
 	"DatabaseDB/internal/utils"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"path/filepath"
-	"strings"
 
 	// "DatabaseDB/internal/logic/mainwindowlagic"
 
@@ -18,32 +14,11 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 )
 
-func HasManifestFile(folderPath string) bool {
-	files, err := ioutil.ReadDir(folderPath)
-	if err != nil {
-		log.Fatal("Error reading folder:", err)
-		return false
-	}
-	var count uint8
-	for _, file := range files {
-		if strings.HasPrefix(file.Name(), "MANIFEST-") || filepath.Ext(file.Name()) == ".log" {
-			count++
-		}
-
-		if count == 2 {
-			return true
-		}
-	}
-	return false
-}
-
 func CreatFile(value bool, openButton *widget.Button, testConnectionButton *widget.Button) {
 	if value {
-		openButton.Disable()
 		testConnectionButton.Disable()
 		variable.CreatDatabase = value
 	} else {
-		openButton.Enable()
 		testConnectionButton.Enable()
 		variable.CreatDatabase = value
 	}
@@ -137,7 +112,7 @@ func DeleteKeyLogic(valueEntry *widget.Entry, editWindow fyne.Window, rightColum
 	} else {
 		err = variable.CurrentDBClient.Delete([]byte(key))
 		if err != nil {
-			log.Fatal("this err for func DeleteKeyLogic part else delete || err : ", err)
+			fmt.Print(err.Error())
 			return
 		}
 		editWindow.Close()
@@ -157,7 +132,7 @@ func AddKeyLogic(iputKey string, valueFinish []byte, windowAdd fyne.Window) {
 	} else {
 		err = variable.CurrentDBClient.Add([]byte(key), valueFinish)
 		if err != nil {
-			log.Fatal("error : this error in func addkeylogic for add key in database")
+			fmt.Print(err.Error())
 		}
 
 		windowAdd.Close()
@@ -175,7 +150,7 @@ func QueryKey(iputKey string) (string, error) {
 	}
 	checkNow, err := variable.CurrentDBClient.Get([]byte(key))
 	if err != nil {
-		log.Fatal("error : delete func logic for get key in databace")
+		fmt.Println("error : delete func logic for get key in databace")
 	}
 	return string(checkNow), err
 }
