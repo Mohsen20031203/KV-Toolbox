@@ -45,7 +45,21 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 			nameFile.SetText(filename)
 			nameFile.Refresh()
 		}, windowAdd)
-		folderPath.SetFilter(storage.NewExtensionFileFilter([]string{".png", ".jpg", ".gif", ".txt", ".json", ".go", ".html", ".css", ".js"}))
+		folderPath.SetFilter(storage.NewExtensionFileFilter([]string{
+			".bmp", ".tiff", ".webp", ".ico", ".heif", ".heic", ".svg", ".psd", ".raw",
+			".jpeg", ".jpg", ".png", ".gif", ".dds", ".exr", ".pdf", ".txt", ".json", ".go",
+			".md", ".xml", ".csv", ".ini", ".yml", ".yaml", ".log", ".config", ".properties",
+			".env", ".sql", ".xml", ".json5", ".rst", ".tex", ".asm", ".hbs", ".tpl", ".html",
+			".conf", ".mdx", ".latex", ".scala", ".swift", ".lua", ".ts", ".scss", ".less",
+			".asm", ".awk", ".bat", ".csh", ".c", ".cpp", ".h", ".java", ".kt", ".lisp", ".css",
+			".m", ".pas", ".pl", ".php", ".ps", ".ps1", ".py", ".r", ".rb", ".sh", ".sql",
+			".tcl", ".vbs", ".vhd", ".vue", ".yaml", ".yml", ".zsh", ".coffee", ".clj", ".js",
+			".erl", ".fs", ".dart", ".handlebars", ".scss", ".sass", ".mustache", ".jinja",
+			".asciidoc", ".org", ".tex", ".rst", ".sml", ".v", ".verilog", ".vhdl", ".scala",
+			".swift", ".m4", ".xhtml", ".xml5", ".wsdl", ".xsd", ".dtd", ".gdsl", ".jsonc",
+			".hbs", ".hs", ".limbo", ".loco", ".ml", ".nim", ".oz", ".pddl", ".rexx", ".rmd",
+			".sh", ".tcl", ".xsl", ".yml",
+		}))
 		folderPath.Show()
 	})
 

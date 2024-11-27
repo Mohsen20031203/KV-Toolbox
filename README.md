@@ -39,6 +39,7 @@ ManageDB is a simple and user-friendly application for managing key-value databa
       ```bash
       chmod +x ManageDB.app/Contents/MacOS/'KV-Toolbox'
       ```
+      Then open the program and click on the **Done** option
 
    #### Step 2: Allow the app in security settings
    1. Open **System Preferences**.
@@ -87,7 +88,7 @@ ManageDB is a simple and user-friendly application for managing key-value databa
 - **macOS**: Version 10.14 or later.
 - **Windows**: Version 7 or later.
 - **Linux**: Kernel version 4.0 or later.
-- **Storage**: At least 50 MB of free space.
+- **Storage**: At least 100 MB of free space.
 
 ---
 
