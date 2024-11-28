@@ -23,17 +23,17 @@ ManageDB is a simple and user-friendly application for managing key-value databa
 1. Click on **Install** below to download the program:
    - [INSTALL](https://github.com/Mohsen20031203/KV-Toolbox/releases/download/v1.0.0/ManageDB-mac.app.zip)
 
-2. When you try to open the app, macOS might display the following error:  
+2. First, copy the program and move it to the **Desktop**
+3. When you try to open the app, macOS might display the following error:  
    _“This application ‘ManageDB.app’ can't be opened”._
 
    Follow these steps to resolve the issue:
 
    #### Step 1: Grant executable permissions
    1. Open the **Terminal**.
-   2. Navigate to the location of your application.  
-      For example, if it’s in the `Downloads` folder, run:
+   2. Go to your **Desktop** screen:
       ```bash
-      cd ~/Downloads
+      cd ~/Desktop
       ```
    3. Run the following command to grant executable permissions:
       ```bash
