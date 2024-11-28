@@ -24,7 +24,7 @@ func SetupLastColumn(rightColumnContentORG *fyne.Container, nameButtonProject *w
 
 	jsonDataa, err := variable.CurrentJson.Load()
 	if err != nil {
-		println("Error loading JSON data:", err)
+		log.Fatal("Error loading JSON data:", err)
 	} else {
 		for _, project := range jsonDataa.RecentProjects {
 
@@ -93,7 +93,7 @@ func UpdatePage(rightColumnContent *fyne.Container, columnEditKey *fyne.Containe
 		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
 		err, data = variable.CurrentDBClient.Read(lastEnd, nil, variable.ItemsPerPage+1)
 		if err != nil {
-			log.Fatal(err.Error())
+			log.Println(err.Error())
 		}
 
 		if len(data) == variable.ItemsPerPage+1 {
@@ -117,7 +117,7 @@ func UpdatePage(rightColumnContent *fyne.Container, columnEditKey *fyne.Containe
 		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
 		err, data = variable.CurrentDBClient.Read(nil, lastStart, variable.ItemsPerPage+1)
 		if err != nil {
-			log.Fatal(err.Error())
+			log.Println(err.Error())
 		}
 
 		if len(data) == variable.ItemsPerPage+1 {
@@ -236,7 +236,7 @@ func ProjectButton(inputText string, lastColumnContent *fyne.Container, path str
 
 		err := variable.CurrentJson.Remove(inputText)
 		if err != nil {
-			log.Fatal("Failed to remove project from JSON:", err)
+			fmt.Print(err)
 		} else {
 
 			lastColumnContent.Remove(buttonContainer)
@@ -315,7 +315,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 		saveKey.OnTapped = func() {
 			err := variable.CurrentDBClient.Open()
 			if err != nil {
-				log.Fatal("error Open")
+				fmt.Print("error Open")
 				return
 			}
 			defer variable.CurrentDBClient.Close()
@@ -330,7 +330,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 				}
 				rightColumn.Refresh()
 				if err := variable.CurrentDBClient.Add(key, value); err != nil {
-					log.Fatal(err.Error())
+					fmt.Print(err.Error())
 				}
 			}
 
@@ -345,7 +345,7 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 
 				key = []byte(utils.CleanInput(valueEntry.Text))
 				if err := variable.CurrentDBClient.Add(key, valueBefor); err != nil {
-					log.Fatal(err.Error())
+					fmt.Print(err.Error())
 				}
 				truncatedKey2 = utils.TruncateString(string(key), 20)
 			}

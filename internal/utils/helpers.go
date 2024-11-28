@@ -7,8 +7,8 @@ import (
 	badgerDB "DatabaseDB/internal/Databaces/badger"
 	leveldbb "DatabaseDB/internal/Databaces/leveldb"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 
@@ -110,7 +110,7 @@ func ImageShow(key []byte, value []byte, mainContainer *fyne.Container, editWind
 	lableAddpicture = widget.NewButton("+", func() {
 		folderPath := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
 			if err != nil || dir == nil {
-				log.Fatal("Error opening folder or no folder selected")
+				fmt.Println("Error opening folder or no folder selected")
 				return
 			}
 
@@ -118,7 +118,7 @@ func ImageShow(key []byte, value []byte, mainContainer *fyne.Container, editWind
 
 				valueFinish, err := ioutil.ReadAll(dir)
 				if err != nil {
-					log.Fatal("Error reading file:", err)
+					fmt.Print("Error reading file:", err)
 					return
 				}
 

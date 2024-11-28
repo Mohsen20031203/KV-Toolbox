@@ -4,7 +4,6 @@ import (
 	dbpak "DatabaseDB/internal/Databaces"
 	"bytes"
 	"fmt"
-	"log"
 
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/util"
@@ -126,8 +125,8 @@ func (l *LeveldbDatabase) Search(valueEntry []byte) (error, [][]byte) {
 
 	Iterator := l.DB.NewIterator(nil, nil)
 	if Iterator == nil {
-		log.Fatal("Iterator is nil")
-		return nil, data
+
+		return fmt.Errorf("Iterator is nil"), data
 	}
 
 	if !Iterator.First() {

@@ -4,9 +4,9 @@ import (
 	variable "DatabaseDB"
 	"DatabaseDB/internal/logic"
 	"DatabaseDB/internal/utils"
+	"fmt"
 	"image/color"
 	"io/ioutil"
-	"log"
 	"path/filepath"
 	"strings"
 
@@ -59,34 +59,55 @@ func FormPasteDatabase(a fyne.App, title string, lastColumnContent *fyne.Contain
 			testConnectionButton.Disable()
 		}
 	}
-
+	var BoxCreateDatabase *widget.Check
 	openButton := widget.NewButton("Open Folder", func() {
-		folderDialog := dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
-			if err != nil {
-				log.Fatal("Error opening folder:", err)
-				return
-			}
-			if dir == nil {
-				log.Fatal("No folder selected")
-				return
-			}
-			filePath := dir.URI().Path()
+		var folderDialog *dialog.FileDialog
+		if !BoxCreateDatabase.Checked {
 
-			variable.FolderPath = filepath.Dir(filePath)
+			folderDialog = dialog.NewFileOpen(func(dir fyne.URIReadCloser, err error) {
+				if err != nil {
+					fmt.Println("Error opening folder:", err)
+					return
+				}
+				if dir == nil {
+					fmt.Print("No folder selected")
+					return
+				}
+				filePath := dir.URI().Path()
 
-			if variable.NameData.FilterFile(variable.FolderPath) {
+				variable.FolderPath = filepath.Dir(filePath)
+
+				if variable.NameData.FilterFile(variable.FolderPath) {
+					pathEntry2.SetText(variable.FolderPath)
+					testConnectionButton.Enable()
+				} else {
+					dialog.ShowInformation("Invalid Folder", "The selected folder does not contain a valid LevelDB manifest file.", newWindow)
+				}
+			}, newWindow)
+			variable.NameData.FilterFormat(folderDialog)
+		} else {
+			folderDialog = dialog.NewFolderOpen(func(lu fyne.ListableURI, err error) {
+				if err != nil {
+					fmt.Println("Error opening folder:", err)
+					return
+				}
+				if lu == nil {
+					fmt.Print("No folder selected")
+					return
+				}
+				filePath := lu.Path()
+
+				variable.FolderPath = filePath + "/" + title + "-" + pathEntry.Text
+
 				pathEntry2.SetText(variable.FolderPath)
-				testConnectionButton.Enable()
-			} else {
-				dialog.ShowInformation("Invalid Folder", "The selected folder does not contain a valid LevelDB manifest file.", newWindow)
-			}
 
-		}, newWindow)
-		variable.NameData.FilterFormat(folderDialog)
+			}, newWindow)
+		}
+
 		folderDialog.Show()
 	})
 
-	BoxCreateDatabase := widget.NewCheck("Create Database", func(value bool) {
+	BoxCreateDatabase = widget.NewCheck("Create Database", func(value bool) {
 
 		logic.CreatFile(value, openButton, testConnectionButton)
 
@@ -114,7 +135,7 @@ func FormPasteDatabase(a fyne.App, title string, lastColumnContent *fyne.Contain
 		}
 		datajson, err := variable.CurrentJson.Load()
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println("Error opening folder:", err)
 		}
 		for _, m := range datajson.RecentProjects {
 			if pathEntry.Text == m.Name {
@@ -180,7 +201,7 @@ func FormPasteDatabase(a fyne.App, title string, lastColumnContent *fyne.Contain
 func FormatFilesDatabase(path string) bool {
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
-		log.Fatal("Error reading folder:", err)
+		fmt.Println("Error opening folder:", err)
 		return false
 	}
 	var count uint8

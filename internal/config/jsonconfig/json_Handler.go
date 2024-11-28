@@ -37,6 +37,15 @@ func (j *ConstantJsonFile) Read(state *jsFile.JsonInformation) error {
 		return err
 	}
 
+	if len(byteValue) < 10 {
+
+		stateJSON, err := json.Marshal(state)
+		if err != nil {
+			return err
+		}
+		byteValue = stateJSON
+	}
+
 	return json.Unmarshal(byteValue, &state)
 }
 
