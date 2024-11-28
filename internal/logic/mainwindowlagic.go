@@ -2,6 +2,7 @@ package logic
 
 import (
 	variable "DatabaseDB"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -303,6 +304,20 @@ func BuidLableKeyAndValue(eidtKeyAbdValue string, key []byte, value []byte, name
 				truncatedKey2 = fmt.Sprintf("* %s . . .", typeValue.Extension())
 
 			case strings.HasPrefix(typeValue.String(), "text/") || strings.HasPrefix(typeValue.String(), "application/"):
+				if strings.HasPrefix(typeValue.String(), "application/json") {
+					var result json.RawMessage
+
+					err := json.Unmarshal([]byte(value), &result)
+					if err != nil {
+						return
+					}
+					prettyJSON, err := json.MarshalIndent(result, "", "  ")
+					if err != nil {
+						return
+					}
+					value = prettyJSON
+
+				}
 				valueEntry = configureEntry(columnEditKey, string(value))
 				value = []byte(valueEntry.Text)
 
