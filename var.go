@@ -29,10 +29,10 @@ var (
 )
 
 /*
-1. GOOS='darwin'
-2. GOARCH='arm64'
-3. CC='clang'
-4. CGO_ENABLED='0'
+export GOOS=darwin
+export GOARCH=arm64
+export CC=clang
+export CGO_ENABLED=0
 
 
 -------------------

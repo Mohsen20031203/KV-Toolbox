@@ -21,7 +21,7 @@ ManageDB is a simple and user-friendly application for managing key-value databa
 
 ### macOS
 1. Click on **Install** below to download the program:
-   - [INSTALL](https://github.com/Mohsen20031203/KV-Toolbox/releases/download/v1.0.0/ManageDB.app.zip)
+   - [INSTALL](https://github.com/Mohsen20031203/KV-Toolbox/releases/download/v1.0.0/ManageDB-mac.app.zip)
 
 2. When you try to open the app, macOS might display the following error:  
    _“This application ‘ManageDB.app’ can't be opened”._
@@ -39,19 +39,10 @@ ManageDB is a simple and user-friendly application for managing key-value databa
       ```bash
       chmod +x ManageDB.app/Contents/MacOS/'KV-Toolbox'
       ```
-      Then open the program and click on the **Done** option
-
-   #### Step 2: Allow the app in security settings
-   1. Open **System Preferences**.
-   2. Go to **Security & Privacy** > **General** tab.
-   3. Look for a message stating:  
-      _“‘ManageDB.app’ was blocked because it is not from an identified developer.”_
-   4. Click **Allow Anyway** or **Open Anyway**.  
-      In the confirmation window that opens, click **Open Anyway** again.
-
-      ![Database Browser](cmd/OpenAnyway-mac.png)
-
-   #### Step 3: Reopen the app
+      ```bash
+      xattr -cr ManageDB.app
+      ```
+   #### Step 2: Reopen the app
    1. Try opening `ManageDB.app` again.
    2. The app should now run without any issues.
 
@@ -59,7 +50,8 @@ ManageDB is a simple and user-friendly application for managing key-value databa
 
 
 ### Windows
-1. Download the `ManageDB.exe` file from the [releases section](#).
+1. Click on **Install** below to download the program:
+   - [INSTALL](https://github.com/Mohsen20031203/KV-Toolbox/releases/download/v1.0.0/ManageDB-windows.exe)
 2. Double-click to run the installer and follow the setup instructions.
 3. Launch the app from your desktop or start menu.
 
