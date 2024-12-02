@@ -88,14 +88,60 @@ ManageDB is a simple and user-friendly application for managing key-value databa
 
 Below are some screenshots showcasing the application in action:
 
-1. **Main Interface**  
-   ![Main Interface](./cmd/KV-Toolbox/image-redme/home-app.png)  
-   _A simple, clean layout to manage your databases._
+# Main Interface  
+![Main Interface](./cmd/KV-Toolbox/image-redme/home-app.png)  
 
-2. **Editing Keys**  
-   ![Editing Keys](./cmd/KV-Toolbox/image-redme/add-database.png)  
-   _Easily edit existing keys and values._
+## Features Overview  
 
-3. **Database Browser**  
-   ![Database Browser](./cmd/KV-Toolbox/image-redme/add-key.png)  
-   _Quickly browse through your data._
+1. **Add a New Database**  
+   - In the top-left corner, you'll see a **+ (plus)** button.  
+     Use this to add your desired database to the application.
+
+2. **View and Switch Databases**  
+   - On the left-hand sidebar, you'll find a list of databases you've added.  
+     You can easily switch between your databases from this section.
+
+3. **Explore Database Content**  
+   - The middle section displays your database's information, including **keys** and **values**.  
+     This is where you can view the content of your selected database.
+
+4. **Perform Specific Actions**  
+   - At the top of the interface, you'll find several buttons.  
+     Each button allows you to perform specific operations within the application.
+
+5. **Edit Key or Value Details**  
+   - On the right-hand sidebar, you'll see detailed information about the selected **key** or **value**.  
+     You can edit the details directly from this section.
+
+## Adding a New Database  
+![Adding a New Database](./cmd/KV-Toolbox/image-redme/add-database.png)  
+
+When you click the **+ (plus)** button to add a new database, a new window will appear. This window includes the following sections:  
+
+1. **Database Name**  
+   - Enter a name for your database in the first input field.  
+     This name will only be used within the application and its configuration file; it does not change the actual file name of the database.
+
+2. **Comments**  
+   - In the next section, you can add a comment to describe your database.  
+     This is optional and helps to add descriptive notes.
+
+3. **Create New Database**  
+   - The **Create Database** checkbox lets you create a new database instead of reading an existing one.  
+     Enable this option to easily initialize a new database.
+
+4. **Database Path**  
+   - In the next input field, provide the desired path to your database.  
+     You can either type the path manually or use the **Open Folder** button to select it through the application.
+
+5. **Open Folder**  
+   - Clicking the **Open Folder** button allows you to choose a file or location.  
+     This is used for reading or creating a database in the selected directory.
+
+
+## Adding New Keys  
+![Add Key Window](./cmd/KV-Toolbox/image-redme/add-key.png)  
+
+When you click the **Add** button at the top of the screen, the following window will appear.  
+This window allows you to add new values to your database. The values can be either **text-based** or **file-based**, depending on your selection and the options provided in the interface.  
+Refer to the image above for guidance on how to use this feature.
