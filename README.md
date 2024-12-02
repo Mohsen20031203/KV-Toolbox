@@ -2,7 +2,7 @@
 
 ManageDB is a simple and user-friendly application for managing key-value databases. It allows users to create, edit, and delete keys, browse database contents, and perform various operations effortlessly.
 
-![ManageDB Logo](cmd/KV-Toolbox/icon-redme.png)
+![ManageDB Logo](cmd/KV-Toolbox/image-redme/icon-redme.png)
 
 ---
 
