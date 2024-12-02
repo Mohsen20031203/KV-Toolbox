@@ -58,7 +58,7 @@ jobs:
       - name: Upload new asset to release
         uses: softprops/action-gh-release@v1
         with:
-            files: ManageDB.app,ManageDB.exe
+            files: cmd/KV-Toolbox/ManageDB.app,cmd/KV-Toolbox/ManageDB.exe
             tag_name: ${{ env.latest_tag }}
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
