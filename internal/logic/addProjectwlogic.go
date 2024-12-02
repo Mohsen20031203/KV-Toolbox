@@ -14,16 +14,6 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 )
 
-func CreatFile(value bool, openButton *widget.Button, testConnectionButton *widget.Button) {
-	if value {
-		testConnectionButton.Disable()
-		variable.CreatDatabase = value
-	} else {
-		testConnectionButton.Enable()
-		variable.CreatDatabase = value
-	}
-}
-
 func HandleButtonClick(test string, nameDatabace string) error {
 	err := utils.Checkdatabace(test, nameDatabace)
 	if err != nil {

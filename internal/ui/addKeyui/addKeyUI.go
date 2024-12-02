@@ -46,8 +46,8 @@ func OpenWindowAddButton(myApp fyne.App, rightColumnContent *fyne.Container) {
 			nameFile.Refresh()
 		}, windowAdd)
 		folderPath.SetFilter(storage.NewExtensionFileFilter([]string{
-			".bmp", ".tiff", ".webp", ".ico", ".heif", ".heic", ".svg", ".psd", ".raw",
-			".jpeg", ".jpg", ".png", ".gif", ".dds", ".exr", ".pdf", ".txt", ".json", ".go",
+			".ico", ".svg",
+			".jpeg", ".jpg", ".png", ".txt", ".json", ".go",
 			".md", ".xml", ".csv", ".ini", ".yml", ".yaml", ".log", ".config", ".properties",
 			".env", ".sql", ".xml", ".json5", ".rst", ".tex", ".asm", ".hbs", ".tpl", ".html",
 			".conf", ".mdx", ".latex", ".scala", ".swift", ".lua", ".ts", ".scss", ".less",

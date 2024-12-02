@@ -89,13 +89,13 @@ ManageDB is a simple and user-friendly application for managing key-value databa
 Below are some screenshots showcasing the application in action:
 
 1. **Main Interface**  
-   ![Main Interface](./screenshots/main_interface.png)  
+   ![Main Interface](./cmd/KV-Toolbox/image-redme/home-app.png)  
    _A simple, clean layout to manage your databases._
 
 2. **Editing Keys**  
-   ![Editing Keys](./screenshots/edit_keys.png)  
+   ![Editing Keys](./cmd/KV-Toolbox/image-redme/add-database.png)  
    _Easily edit existing keys and values._
 
 3. **Database Browser**  
-   ![Database Browser](./screenshots/database_browser.png)  
+   ![Database Browser](./cmd/KV-Toolbox/image-redme/add-key.png)  
    _Quickly browse through your data._

@@ -109,7 +109,7 @@ func FormPasteDatabase(a fyne.App, title string, lastColumnContent *fyne.Contain
 
 	BoxCreateDatabase = widget.NewCheck("Create Database", func(value bool) {
 
-		logic.CreatFile(value, openButton, testConnectionButton)
+		variable.CreatDatabase = value
 
 	})
 
