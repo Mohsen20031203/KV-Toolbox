@@ -55,10 +55,11 @@ ManageDB is a simple and user-friendly application for managing key-value databa
 2. Double-click to run the installer and follow the setup instructions.
 3. Launch the app from your desktop or start menu.
 
+
 ### Linux
-1. Download the `ManageDB.AppImage` file from the [releases section](#).
-2. Make the file executable using: `chmod +x ManageDB.AppImage`.
-3. Run the file using: `./ManageDB.AppImage`.
+- Click on **Install** below to download the program:
+   - [INSTALL](https://github.com/Mohsen20031203/KV-Toolbox/releases/download/v1.0.0/ManageDB-Linux.AppImage)
+
 
 ---
 
