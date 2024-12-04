@@ -58,7 +58,7 @@ ManageDB is a simple and user-friendly application for managing key-value databa
 
 ### Linux
 - Click on **Install** below to download the program:
-   - [INSTALL](https://github.com/Mohsen20031203/KV-Toolbox/releases/download/v1.0.0/ManageDB-Linux.AppImage)
+   - [INSTALL](https://github.com/Mohsen20031203/KV-Toolbox/releases/download/v1.0.0/ManageDB-Linux.tar.xz)
 
 
 ---
