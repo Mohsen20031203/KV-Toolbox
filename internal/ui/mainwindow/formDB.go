@@ -30,7 +30,7 @@ func (mi *MainWindow2) FormPasteDatabase(title string) {
 
 	lableName := widget.NewLabel("Name :")
 	nameEntry := widget.NewEntry()
-	nameEntry.PlaceHolder = "Name"
+	nameEntry.SetPlaceHolder("Name")
 	nameContent := container.NewBorder(nil, nil, lableName, nil, nameEntry)
 
 	pathEntry := widget.NewEntry()
@@ -160,12 +160,12 @@ func (mi *MainWindow2) FormPasteDatabase(title string) {
 		} else {
 			if !addButton {
 
-				utils.CheckCondition(mi.RightColumn.Container)
-				utils.CheckCondition(mi.EditColumn.Edit2)
+				utils.CheckCondition(mi.RightColumn.container)
+				utils.CheckCondition(mi.EditColumn.edit2)
 
-				buttonContainer := mi.ProjectButton(nameEntry.Text, mi.LeftColumn.Container, pathEntry.Text)
-				mi.LeftColumn.Container.Add(buttonContainer)
-				mi.LeftColumn.Container.Refresh()
+				buttonContainer := mi.ProjectButton(nameEntry.Text, mi.LeftColumn.container, pathEntry.Text)
+				mi.LeftColumn.container.Add(buttonContainer)
+				mi.LeftColumn.container.Refresh()
 
 				variable.CreatDatabase = false
 				ded.Hide()
@@ -193,4 +193,6 @@ func (mi *MainWindow2) FormPasteDatabase(title string) {
 	ded = dialog.NewCustom("Add Key and Value", "Cancel", rightColumnContent, mi.Window)
 	ded.Resize(fyne.NewSize(700, 450))
 	ded.Show()
+	mi.Window.Canvas().Focus(nameEntry)
+
 }

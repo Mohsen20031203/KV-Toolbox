@@ -140,14 +140,14 @@ func FetchPageData(lastStart *[]byte, lastEnd *[]byte, lastPage int, Orgdata []d
 	var err error
 
 	if lastEnd == nil && lastStart == nil {
-		Orgdata = Orgdata[:0]
+		Orgdata = nil
 	}
 	if lastPage < variable.CurrentPage {
 
 		//next page
 
 		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
-		err, data = variable.CurrentDBClient.Read(lastEnd, nil, variable.ItemsPerPage+1)
+		data, err = RangeCursorRead(lastEnd, nil, variable.ItemsPerPage+1)
 		if err != nil {
 			log.Println(err.Error())
 		}
@@ -166,7 +166,7 @@ func FetchPageData(lastStart *[]byte, lastEnd *[]byte, lastPage int, Orgdata []d
 	} else {
 
 		//The reason why "variable.ItemsPerPage" is added by one is that we want to see if the next pages have a value to enable or disable the next or prev key.
-		err, data = variable.CurrentDBClient.Read(nil, lastStart, variable.ItemsPerPage+1)
+		data, err = RangeCursorRead(nil, lastStart, variable.ItemsPerPage+1)
 		if err != nil {
 			log.Println(err.Error())
 		}
@@ -195,4 +195,42 @@ func FormatKeyValue(item dbpak.KVData) (string, string) {
 	}
 
 	return truncatedKey, truncatedValue
+}
+
+func RangeCursorRead(start, end *[]byte, count int) ([]dbpak.KVData, error) {
+
+	var iterms []dbpak.KVData
+	for i := 0; i < count; i++ {
+
+		err, data := variable.CurrentDBClient.Read(start, end, 1)
+		if err != nil {
+			return nil, err
+		}
+		if len(data) == 0 {
+			return iterms, nil
+		}
+		item := dbpak.KVData{
+			Key:   data[0].Key,
+			Value: data[0].Value,
+		}
+		_, truncatedValue := FormatKeyValue(item)
+
+		if end != nil && start == nil {
+			end = &item.Key
+		} else {
+			start = &item.Key
+		}
+		iterms = append(iterms, dbpak.KVData{Key: item.Key, Value: []byte(truncatedValue)})
+	}
+
+	if end != nil && start == nil {
+
+		for i := 0; i < len(iterms)/2; i++ {
+			j := len(iterms) - i - 1
+			temp := iterms[i]
+			iterms[i] = iterms[j]
+			iterms[j] = temp
+		}
+	}
+	return iterms, nil
 }

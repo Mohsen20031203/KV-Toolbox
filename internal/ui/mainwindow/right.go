@@ -3,226 +3,83 @@ package mainwindow
 import (
 	variable "DatabaseDB"
 	dbpak "DatabaseDB/internal/Databaces"
-	"DatabaseDB/internal/dberr"
 	"DatabaseDB/internal/logic"
-	"DatabaseDB/internal/utils"
-	"encoding/json"
-	"errors"
-	"fmt"
+	"DatabaseDB/internal/ui/labelkv"
 	"image/color"
-	"strings"
+	"runtime"
+	"runtime/debug"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
-	"github.com/gabriel-vasile/mimetype"
 )
 
-type RightColumn2 struct {
-	Container            *fyne.Container
-	NameButtonProject    *widget.Label
-	Spacer               *widget.Label
-	ButtonDelete         *widget.Button
-	SearchButton         *widget.Button
-	ButtonAdd            *widget.Button
-	KeyRightColunm       *widget.Label
-	ValueRightColunm     *widget.Label
-	LastLableKeyAndValue *utils.TappableLabel
-	LastStart            *[]byte
-	LastEnd              *[]byte
-	LastPage             int
-	Orgdata              []dbpak.KVData
+type RightColumn struct {
+	container            *fyne.Container
+	nameButtonProject    *widget.Label
+	buttonDelete         *widget.Button
+	searchButton         *widget.Button
+	buttonAdd            *widget.Button
+	keyRightColunm       *widget.Label
+	valueRightColunm     *widget.Label
+	lastLableKeyAndValue *labelkv.TappableLabel
+	lastStart            *[]byte
+	lastEnd              *[]byte
+	lastPage             int
+	orgdata              []dbpak.KVData
 }
 
-func NewRightColumn() *RightColumn2 {
-	return &RightColumn2{}
-}
-
-var Base string
-var NameLabel string
-
-func (r *MainWindow2) BuildLabelKeyAndValue(editType string, key []byte, value []byte, nameLabel string) *utils.TappableLabel {
-	var label *utils.TappableLabel
-	var err error
-	// Determine the base value based on the edit type
-	label = utils.NewTappableLabel(nameLabel, func() {
-		r.EditColumn.SaveEditKey.Disable()
-		if r.RightColumn.LastLableKeyAndValue != nil {
-			r.RightColumn.LastLableKeyAndValue.Importance = widget.MediumImportance
-			r.RightColumn.LastLableKeyAndValue.Refresh()
-		}
-		label.Importance = widget.HighImportance
-		label.Refresh()
-		r.RightColumn.LastLableKeyAndValue = label
-
-		utils.CheckCondition(r.EditColumn.Edit2)
-
-		labelEdit := widget.NewLabel("")
-		r.EditColumn.Edit2.Add(labelEdit)
-
-		if editType == "value" {
-			typeValue := mimetype.Detect([]byte(value))
-			Base = string(value)
-
-			switch {
-			case strings.HasPrefix(typeValue.String(), "image/"):
-				r.ImageShow([]byte(key), []byte(value), typeValue.Extension())
-				r.EditColumn.FinishValue = string(value)
-				NameLabel = fmt.Sprintf("* %s . . .", typeValue.Extension())
-
-			case strings.HasPrefix(typeValue.String(), "text/") || strings.HasPrefix(typeValue.String(), "application/"):
-				if strings.HasPrefix(typeValue.String(), "application/json") {
-					var result json.RawMessage
-
-					err := json.Unmarshal([]byte(value), &result)
-					if err != nil {
-						return
-					}
-					prettyJSON, err := json.MarshalIndent(result, "", "  ")
-					if err != nil {
-						return
-					}
-					value = prettyJSON
-
-				}
-
-				r.EditColumn.ValueEntry = r.ConfigureEntry(string(value))
-				value = []byte(r.EditColumn.ValueEntry.Text)
-				r.EditColumn.FinishValue = string(value)
-				NameLabel = string(value)
-			}
-
-		} else {
-			Base = string(key)
-			NameLabel = string(key)
-
-			r.EditColumn.FinishValue = string(key)
-			r.EditColumn.ValueEntry = r.ConfigureEntry(string(key))
-		}
-
-		labelEdit.SetText(fmt.Sprintf("Edit %s - %s", editType, utils.TruncateString(NameLabel, 10)))
-		r.EditColumn.SaveEditKey.OnTapped = func() {
-			if editType == "value" {
-				err = logic.SaveValue(key, []byte(r.EditColumn.FinishValue))
-				if err != nil {
-					fmt.Println(err.Error())
-				}
-				Base = r.EditColumn.FinishValue
-				BaseImage = []byte(r.EditColumn.FinishValue)
-				//value = []byte(truncatedKey2)
-
-			} else {
-				_, err := logic.QueryKey(r.EditColumn.ValueEntry.Text)
-				if !errors.Is(err, dberr.ErrKeyNotFound) {
-					dialog.NewConfirm(
-						"⚠️ Duplicate Key",
-						"This key already exists.\nIf you continue, it might be merged and you could lose one of the values.\nDo you still want to continue?",
-						func(confirmed bool) {
-							if confirmed {
-								r.EditColumn.SaveEditKey.Disable()
-								Base, err = logic.UpdateKey(key, []byte(r.EditColumn.ValueEntry.Text))
-								if err != nil {
-									dialog.ShowInformation("Error", err.Error(), r.Window)
-									return
-								}
-								NameLabel = r.EditColumn.ValueEntry.Text
-								dialog.ShowInformation("Success", "The key was added successfully.", r.Window)
-								return
-							} else {
-								dialog.ShowInformation("Cancelled", "Operation cancelled.", r.Window)
-								return
-							}
-						},
-						r.Window,
-					).Show()
-					return
-				} else if errors.Is(err, dberr.ErrKeyNotFound) {
-
-					Base, err = logic.UpdateKey([]byte(Base), []byte(r.EditColumn.ValueEntry.Text))
-					if err != nil {
-						dialog.ShowInformation("Error", err.Error(), r.Window)
-						return
-					}
-					NameLabel = r.EditColumn.ValueEntry.Text
-					//r.EditColumn.FinishValue = r.EditColumn.ValueEntry.Text
-				} else {
-					dialog.ShowInformation("Error", err.Error(), r.Window)
-					return
-				}
-			}
-
-			r.EditColumn.SaveEditKey.Disable()
-			value = []byte(r.EditColumn.FinishValue)
-			truncatedText := utils.TruncateString(NameLabel, 10)
-			label.SetText(truncatedText)
-			labelEdit.SetText(fmt.Sprintf("Edit %s - %s", editType, truncatedText))
-			r.EditColumn.Edit2.Refresh()
-			r.RightColumn.Container.Refresh()
-
-		}
-
-		r.EditColumn.ValueEntry.OnChanged = func(s string) {
-
-			if s == Base {
-				r.EditColumn.SaveEditKey.Disable()
-			} else {
-				r.EditColumn.SaveEditKey.Enable()
-			}
-			r.EditColumn.FinishValue = s
-			NameLabel = s
-		}
-	})
-	return label
+func NewRightColumn() *RightColumn {
+	return &RightColumn{}
 }
 
 func (r *MainWindow2) TopRightColumn() *fyne.Container {
-	r.Objects.Line = canvas.NewLine(color.Black)
-	r.Objects.Line.StrokeWidth = 2
+	r.Objects.line = canvas.NewLine(color.Black)
+	r.Objects.line.StrokeWidth = 2
 
 	container := container.NewVBox(
-		r.RightColumn.NameButtonProject,
-		r.Objects.Line,
-		r.RightColumn.Spacer,
+		r.RightColumn.nameButtonProject,
+		r.Objects.line,
+		r.Objects.spacer,
 		r.RightColumn.Tool(),
 		r.RightColumn.KeyAndValue(),
 	)
 	return container
 }
 
-func (r *RightColumn2) Tool() *fyne.Container {
-	return container.NewGridWithColumns(3, r.ButtonDelete, r.SearchButton, r.ButtonAdd)
+func (r *RightColumn) Tool() *fyne.Container {
+	return container.NewGridWithColumns(3, r.buttonDelete, r.searchButton, r.buttonAdd)
 }
 
-func (r *RightColumn2) KeyAndValue() *fyne.Container {
-	return container.NewGridWithColumns(6, r.KeyRightColunm, widget.NewLabel(""), r.ValueRightColunm, widget.NewLabel(""))
+func (r *RightColumn) KeyAndValue() *fyne.Container {
+	return container.NewGridWithColumns(6, r.keyRightColunm, widget.NewLabel(""), r.valueRightColunm, widget.NewLabel(""))
 }
 
 func (r *MainWindow2) UpdatePage() {
 
-	data, err := logic.FetchPageData(r.RightColumn.LastStart, r.RightColumn.LastEnd, r.RightColumn.LastPage, r.RightColumn.Orgdata)
+	data, err := logic.FetchPageData(r.RightColumn.lastStart, r.RightColumn.lastEnd, r.RightColumn.lastPage, r.RightColumn.orgdata)
 	if err != nil {
 		return
 	}
 
-	if r.RightColumn.LastPage < variable.CurrentPage {
+	if r.RightColumn.lastPage < variable.CurrentPage {
 
-		if len(r.RightColumn.Container.Objects) >= variable.ItemsPerPage*3 {
-			r.RightColumn.Orgdata = r.RightColumn.Orgdata[len(data):]
+		if len(r.RightColumn.orgdata) >= variable.ItemsPerPage*3 {
+			r.RightColumn.orgdata = r.RightColumn.orgdata[len(data):]
 		}
 
-		r.RightColumn.Orgdata = append(r.RightColumn.Orgdata, data...)
+		r.RightColumn.orgdata = append(r.RightColumn.orgdata, data...)
+
 	} else {
 
-		r.RightColumn.Orgdata = r.RightColumn.Orgdata[:len(r.RightColumn.Orgdata)-len(data)]
-		r.RightColumn.Orgdata = append(data, r.RightColumn.Orgdata...)
-
+		r.RightColumn.orgdata = r.RightColumn.orgdata[:len(r.RightColumn.orgdata)-len(data)]
+		r.RightColumn.orgdata = append(data, r.RightColumn.orgdata...)
 	}
 
-	if len(data) != 0 {
-		r.RightColumn.LastStart = &r.RightColumn.Orgdata[0].Key
-		r.RightColumn.LastEnd = &r.RightColumn.Orgdata[len(r.RightColumn.Orgdata)-1].Key
+	if len(r.RightColumn.orgdata) != 0 {
+		r.RightColumn.lastStart = &r.RightColumn.orgdata[0].Key
+		r.RightColumn.lastEnd = &r.RightColumn.orgdata[len(r.RightColumn.orgdata)-1].Key
 	}
 
 	var truncatedValue string
@@ -233,21 +90,60 @@ func (r *MainWindow2) UpdatePage() {
 
 		truncatedKey, truncatedValue = logic.FormatKeyValue(item)
 
-		valueLabel := r.BuildLabelKeyAndValue("value", item.Key, item.Value, truncatedValue)
-		keyLabel := r.BuildLabelKeyAndValue("key", item.Key, item.Value, truncatedKey)
+		valueLabel := r.NewLabelKV(labelkv.EditValue, item.Key, item.Value, truncatedValue)
+		keyLabel := r.NewLabelKV(labelkv.EditKey, item.Key, item.Value, truncatedKey)
 
+		valueLabel.SetKeyLabel(keyLabel)
 		buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
 		arrayContainer = append(arrayContainer, buttonRow)
 	}
-	if r.RightColumn.LastPage > variable.CurrentPage {
 
-		r.RightColumn.Container.Objects = append(arrayContainer, r.RightColumn.Container.Objects...)
+	if r.RightColumn.lastPage > variable.CurrentPage {
+		r.RightColumn.container.Objects = applyPageShift(r.RightColumn.container.Objects, arrayContainer, true, variable.ItemsPerPage*3)
 	} else {
-
-		r.RightColumn.Container.Objects = append(r.RightColumn.Container.Objects, arrayContainer...)
-
+		r.RightColumn.container.Objects = applyPageShift(r.RightColumn.container.Objects, arrayContainer, false, variable.ItemsPerPage*3)
 	}
 
-	r.RightColumn.Container.Refresh()
-	r.RightColumn.LastPage = variable.CurrentPage
+	arrayContainer = nil
+	data = nil
+	runtime.GC()
+	debug.FreeOSMemory()
+	r.RightColumn.container.Refresh()
+	r.RightColumn.lastPage = variable.CurrentPage
+}
+
+// ApplyPageShift adds or removes items from the objects slice based on the goUp flag.
+// If goUp is true, it prepends and if goUp false, it appends the arrayContainer to objects,
+func applyPageShift(objects []fyne.CanvasObject, arrayContainer []fyne.CanvasObject, goUp bool, maxItems int) []fyne.CanvasObject {
+	isFull := len(objects) == maxItems
+	cnt := len(arrayContainer)
+
+	if goUp {
+		if isFull {
+			for i := len(objects) - 1; i >= cnt; i-- {
+				objects[i] = objects[i-cnt]
+			}
+			for i := 0; i < cnt; i++ {
+				objects[i] = arrayContainer[i]
+			}
+		} else {
+			objects = append(arrayContainer, objects...)
+		}
+	} else {
+		if isFull {
+			for i := 0; i < len(objects)-cnt; i++ {
+				objects[i] = objects[i+cnt]
+			}
+			for i := 0; i < cnt; i++ {
+				objects[len(objects)-cnt+i] = arrayContainer[i]
+			}
+		} else {
+			objects = append(objects, arrayContainer...)
+		}
+	}
+
+	arrayContainer = nil
+	runtime.GC()
+	debug.FreeOSMemory()
+	return objects
 }

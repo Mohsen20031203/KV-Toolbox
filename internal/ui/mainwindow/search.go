@@ -3,6 +3,7 @@ package mainwindow
 import (
 	variable "DatabaseDB"
 	"DatabaseDB/internal/logic"
+	"DatabaseDB/internal/ui/labelkv"
 	"DatabaseDB/internal/utils"
 	"fmt"
 
@@ -59,8 +60,8 @@ func (r *MainWindow2) SearchKeyUi() {
 			return
 		}
 
-		utils.CheckCondition(r.EditColumn.Edit2)
-		utils.CheckCondition(r.RightColumn.Container)
+		utils.CheckCondition(r.EditColumn.edit2)
+		utils.CheckCondition(r.RightColumn.container)
 
 		var truncatedValue string
 
@@ -81,12 +82,13 @@ func (r *MainWindow2) SearchKeyUi() {
 				truncatedValue = utils.TruncateString(string(values[i]), 20)
 			}
 
-			valueLabel := r.BuildLabelKeyAndValue("value", keys[i], values[i], truncatedValue)
-			keyLabel := r.BuildLabelKeyAndValue("key", keys[i], values[i], truncatedKey)
+			valueLabel := r.NewLabelKV(labelkv.EditValue, keys[i], values[i], truncatedValue)
+			keyLabel := r.NewLabelKV(labelkv.EditKey, keys[i], values[i], truncatedKey)
 
+			valueLabel.SetKeyLabel(keyLabel)
 			buttonRow := container.NewGridWithColumns(2, keyLabel, valueLabel)
-			r.RightColumn.Container.Add(buttonRow)
-			r.RightColumn.Container.Refresh()
+			r.RightColumn.container.Add(buttonRow)
+			r.RightColumn.container.Refresh()
 		}
 
 		d.Hide()
@@ -94,4 +96,5 @@ func (r *MainWindow2) SearchKeyUi() {
 	}
 
 	d.Show()
+	r.Window.Canvas().Focus(valueEntry)
 }

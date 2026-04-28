@@ -67,7 +67,7 @@ func (mw *MainWindow2) OpenAddDialog() {
 		fileDialog.Show()
 	})
 
-	valueEntry.OnChanged = func(s string) {
+	keyEntry.OnChanged = func(s string) {
 		if s != "" {
 			addButton.Enable()
 		} else {
@@ -82,7 +82,6 @@ func (mw *MainWindow2) OpenAddDialog() {
 
 	fileTypeLabel := widget.NewLabel("Select file type:")
 	fileTypeRadio := widget.NewRadioGroup([]string{"Text", "File"}, func(selected string) {
-		addButton.Disable()
 		switch selected {
 		case "Text":
 			fileData = nil
@@ -122,7 +121,7 @@ func (mw *MainWindow2) OpenAddDialog() {
 		}
 
 		addDialog.Hide()
-		mw.RightColumn.Container.Refresh()
+		mw.RightColumn.container.Refresh()
 	})
 	addButton.Importance = widget.HighImportance
 
@@ -141,4 +140,5 @@ func (mw *MainWindow2) OpenAddDialog() {
 	addDialog = dialog.NewCustom("Add Key and Value", "Close", content, mw.Window)
 	addDialog.Resize(fyne.NewSize(600, 400))
 	addDialog.Show()
+	mw.Window.Canvas().Focus(keyEntry)
 }
